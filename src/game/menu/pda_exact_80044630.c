@@ -1,5 +1,6 @@
 /* fn_80044630 (PDA summary-screen state machine), standalone copy of the shared PDA source.
  * Unit flag -opt nopeephole replaces the shared file's local "peephole off". */
+#include "game/pda_state.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSceneWork {
@@ -114,7 +115,7 @@ void pdaStrategyMemoRun(void) {
     S218 = S + 0x218;
 
     while (1) {
-        switch (*(s32*)(S + 0x1C)) {
+        switch (((PdaState*)S)->state) {
         case 0: {   /* .L_800446F0 */
             fn_8004BDB8(-1, 1);
             menuOpen(0x35, 0);
@@ -123,27 +124,27 @@ void pdaStrategyMemoRun(void) {
             menuOpen(0x37, 0);
             menuOpen(0x38, 0);
             menuOpen(0x39, 0);
-            *(s32*)(S + 0x1c) = 1;
+            ((PdaState*)S)->state = 1;
         } break;
 
         case 1: {   /* .L_80044750 */
             s32 r;
             r = menuOpen(0x3a, 1);
-            *(s32*)(S + 0x28) = 0;
+            ((PdaState*)S)->field_28 = 0;
             if (r >= 0) {
-                if (*(s32*)(S + 0x18) == 1) {
-                    *(s32*)(S + 0x1c) = 7;
-                    *(f32*)(S + 0x50) = lbl_8047BC94;
-                    *(f32*)(S + 0x58) = lbl_8047BCBC;
+                if (((PdaState*)S)->field_18 == 1) {
+                    ((PdaState*)S)->state = 7;
+                    ((PdaState*)S)->easeATarget = lbl_8047BC94;
+                    ((PdaState*)S)->easeBTarget = lbl_8047BCBC;
                 } else {
-                    *(s32*)(S + 0x1c) = 6;
-                    *(f32*)(S + 0x50) = lbl_8047BC94;
-                    *(f32*)(S + 0x58) = lbl_8047BCBC;
+                    ((PdaState*)S)->state = 6;
+                    ((PdaState*)S)->easeATarget = lbl_8047BC94;
+                    ((PdaState*)S)->easeBTarget = lbl_8047BCBC;
                 }
             } else {
-                *(f32*)(S + 0x50) = lbl_8047BC94;
-                *(f32*)(S + 0x58) = lbl_8047BCBC;
-                *(s32*)(S + 0x1c) = 0xb;
+                ((PdaState*)S)->easeATarget = lbl_8047BC94;
+                ((PdaState*)S)->easeBTarget = lbl_8047BCBC;
+                ((PdaState*)S)->state = 0xb;
             }
         } break;
 
@@ -158,12 +159,12 @@ void pdaStrategyMemoRun(void) {
             r = menuOpen(0xa2, 1);
             if (r >= 0)
                 break;
-            if (*(s32*)(S + 0x1c) == 4) {
-                *(s32*)(S + 0x1c) = 9;
-                *(f32*)(S + 0x50) = lbl_8047BC94;
-                *(f32*)(S + 0x58) = lbl_8047BCBC;
+            if (((PdaState*)S)->state == 4) {
+                ((PdaState*)S)->state = 9;
+                ((PdaState*)S)->easeATarget = lbl_8047BC94;
+                ((PdaState*)S)->easeBTarget = lbl_8047BCBC;
             }
-            *(s32*)(S + 0x14) = 0;
+            ((PdaState*)S)->phase = 0;
         } break;
 
         case 5: {   /* .L_80044830 */
@@ -172,45 +173,45 @@ void pdaStrategyMemoRun(void) {
             r = menuOpen(0xa2, 1);
             if (r >= 0)
                 break;
-            if (*(s32*)(S + 0x1c) == 5) {
-                *(s32*)(S + 0x1c) = 0xa;
-                *(f32*)(S + 0x50) = lbl_8047BC94;
-                *(f32*)(S + 0x58) = lbl_8047BCBC;
+            if (((PdaState*)S)->state == 5) {
+                ((PdaState*)S)->state = 0xa;
+                ((PdaState*)S)->easeATarget = lbl_8047BC94;
+                ((PdaState*)S)->easeBTarget = lbl_8047BCBC;
             }
-            *(s32*)(S + 0x14) = 0;
+            ((PdaState*)S)->phase = 0;
         } break;
 
         case 3: {   /* .L_80044880 */
             s32 r;
-            *(u8*)(S + 0x158) = 0;
-            *(u8*)(S + 0x159) = 0;
-            *(u8*)(S + 0x15b) = 0;
-            *(u8*)(S + 0x15a) = 0;
-            *(u8*)(S + 0x15c) = 0;
-            *(u8*)(S + 0x15d) = 0;
-            *(u8*)(S + 0x15f) = 0;
-            *(u8*)(S + 0x15e) = 0;
-            *(s32*)(S + 0x154) = 0;
-            *(f32*)(S + 0x1e0) = lbl_8047BCCC;
-            *(f32*)(S + 0x1dc) = lbl_8047BCCC;
-            *(f32*)(S + 0x1cc) = lbl_8047BC94;
-            *(f32*)(S + 0x1d0) = lbl_8047BC94;
-            *(f32*)(S + 0x1d4) = lbl_8047BC94;
-            *(f32*)(S + 0x1d8) = lbl_8047BC94;
-            *(u8*)(S + 0x164) = 0;
-            *(u8*)(S + 0x178) = 0;
-            *(u8*)(S + 0x18c) = 0;
-            *(u8*)(S + 0x1a0) = 0;
-            *(u8*)(S + 0x1b4) = 0;
-            *(s32*)(S + 0x1e4) = 0;
+            ((PdaState*)S)->field_158 = 0;
+            ((PdaState*)S)->field_159 = 0;
+            ((PdaState*)S)->field_15B = 0;
+            ((PdaState*)S)->field_15A = 0;
+            ((PdaState*)S)->field_15C = 0;
+            ((PdaState*)S)->field_15D = 0;
+            ((PdaState*)S)->field_15F = 0;
+            ((PdaState*)S)->field_15E = 0;
+            ((PdaState*)S)->field_154 = 0;
+            *(f32*)(S + 0x1E0) = lbl_8047BCCC;
+            *(f32*)(S + 0x1DC) = lbl_8047BCCC;
+            ((PdaState*)S)->field_1CC[0] = lbl_8047BC94;
+            ((PdaState*)S)->field_1CC[1] = lbl_8047BC94;
+            ((PdaState*)S)->field_1CC[2] = lbl_8047BC94;
+            ((PdaState*)S)->field_1CC[3] = lbl_8047BC94;
+            ((PdaState*)S)->field_164 = 0;
+            ((PdaState*)S)->field_178 = 0;
+            ((PdaState*)S)->field_18C = 0;
+            ((PdaState*)S)->field_1A0 = 0;
+            ((PdaState*)S)->field_1B4 = 0;
+            ((PdaState*)S)->field_1E4 = 0;
             r = menuOpen(0xce, 1);
             if (r < 0) {
-                *(s32*)(S + 0x1c) = 0xc;
-                *(f32*)(S + 0x50) = lbl_8047BC94;
-                *(f32*)(S + 0x58) = lbl_8047BCBC;
+                ((PdaState*)S)->state = 0xc;
+                ((PdaState*)S)->easeATarget = lbl_8047BC94;
+                ((PdaState*)S)->easeBTarget = lbl_8047BCBC;
                 menuCloseCustom(0xce, 0, 0);
             }
-            *(s32*)(S + 0x14) = 0;
+            ((PdaState*)S)->phase = 0;
         } break;
 
         case 6: {   /* .L_80044928 */
@@ -223,69 +224,69 @@ void pdaStrategyMemoRun(void) {
             f32 mag;
 
             /* ease block A: unk4C toward unk50 (div BCB8) */
-            tgt = *(f32*)(S + 0x50);
-            cur = *(f32*)(S + 0x4C);
+            tgt = ((PdaState*)S)->easeATarget;
+            cur = ((PdaState*)S)->easeA;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nval = cur + step;
-                    *(f32*)(S + 0x4C) = nval;
+                    ((PdaState*)S)->easeA = nval;
                     if (nval > lbl_8047BCBC)
-                        *(f32*)(S + 0x4C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeA = lbl_8047BCBC;
                 } else {
                     nval = cur - step;
-                    *(f32*)(S + 0x4C) = nval;
+                    ((PdaState*)S)->easeA = nval;
                     if (nval < lbl_8047BC94)
-                        *(f32*)(S + 0x4C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeA = lbl_8047BC94;
                 }
             }
 
             /* ease block B: unk54 toward unk58 (div BCB8) */
-            tgt = *(f32*)(S + 0x58);
-            cur = *(f32*)(S + 0x54);
+            tgt = ((PdaState*)S)->easeBTarget;
+            cur = ((PdaState*)S)->easeB;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nval = cur + step;
-                    *(f32*)(S + 0x54) = nval;
+                    ((PdaState*)S)->easeB = nval;
                     if (nval > lbl_8047BCBC)
-                        *(f32*)(S + 0x54) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeB = lbl_8047BCBC;
                 } else {
                     nval = cur - step;
-                    *(f32*)(S + 0x54) = nval;
+                    ((PdaState*)S)->easeB = nval;
                     if (nval < lbl_8047BC94)
-                        *(f32*)(S + 0x54) = lbl_8047BC94;
+                        ((PdaState*)S)->easeB = lbl_8047BC94;
                 }
             }
 
             /* ease block C: unk5C toward unk60 (div BCC0) */
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nval = cur + step;
-                    *(f32*)(S + 0x5C) = nval;
+                    ((PdaState*)S)->easeC = nval;
                     if (nval > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nval = cur - step;
-                    *(f32*)(S + 0x5C) = nval;
+                    ((PdaState*)S)->easeC = nval;
                     if (nval < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
 
             /* ease block D: unk1DC toward unk1E0 (signed-delta + clamps) */
             if (*(f32*)(S + 0x1DC) != *(f32*)(S + 0x1E0)) {
-                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), *(f32*)(S + 0x3C));
+                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), ((PdaState*)S)->easeRate);
             }
 
             /* settle test */
-            if (*(f32*)(S + 0x50) == *(f32*)(S + 0x4C)) {
-                *(s32*)(S + 0x14) = 1;
+            if (((PdaState*)S)->easeATarget == ((PdaState*)S)->easeA) {
+                ((PdaState*)S)->phase = 1;
                 menuCloseCustom(0x35, 0, 1);
-                h = *(void**)(S + 0x10C);
+                h = ((PdaState*)S)->cameraRes;
                 std114_mapObjectSetVisibility(h, 0);
                 {
                     void* rv = GSresGetResource(std093_getCurrentGroupID(), h);
@@ -304,16 +305,16 @@ void pdaStrategyMemoRun(void) {
 
                     std113_mapObjectUnk_8018db68(h);
 
-                    *(f32*)(S + 0x6C) = lbl_8047BC94;
-                    *(f32*)(S + 0x70) = lbl_8047BC94;
-                    *(f32*)(S + 0x74) = lbl_8047BC94;
-                    *(f32*)(S + 0x64) = lbl_8047BCF0;
+                    ((PdaState*)S)->field_6C[0] = lbl_8047BC94;
+                    ((PdaState*)S)->field_6C[1] = lbl_8047BC94;
+                    ((PdaState*)S)->field_6C[2] = lbl_8047BC94;
+                    ((PdaState*)S)->field_64 = lbl_8047BCF0;
 
-                    cam = *(void**)(S + 0x10C) = std112_modelGetResourceID(0x0D181000);
-                    GSmodelSetAnimRate(*(void**)(S + 0x110) = GSresGetResource(std093_getCurrentGroupID(), cam),
+                    cam = ((PdaState*)S)->cameraRes = std112_modelGetResourceID(0x0D181000);
+                    GSmodelSetAnimRate(((PdaState*)S)->animRes = GSresGetResource(std093_getCurrentGroupID(), cam),
                                        lbl_8047BD18);
-                    GSmodelSet60fpsAnimFlag(*(void**)(S + 0x110), 1);
-                    GSmodelSetBoundCheck(*(void**)(S + 0x110), 0);
+                    GSmodelSet60fpsAnimFlag(((PdaState*)S)->animRes, 1);
+                    GSmodelSetBoundCheck(((PdaState*)S)->animRes, 0);
 
                     ((u32*)mtx)[0] = ((const u32*)tbl)[6];
                     ((u32*)mtx)[1] = ((const u32*)tbl)[7];
@@ -322,7 +323,7 @@ void pdaStrategyMemoRun(void) {
                     ((u32*)pos)[1] = ((const u32*)tbl)[10];
                     ((u32*)pos)[2] = ((const u32*)tbl)[11];
                     cam = GSresGetResource(0x17, 0x0D741800);
-                    *(void**)(S + 0x114) = cam;
+                    ((PdaState*)S)->camera = cam;
                     GScameraGetPosition(cam, pos);
                     GScameraGetRotation(cam, rot);
                     mtx[0] = *(f32*)((u8*)cam + 0x100);
@@ -334,45 +335,45 @@ void pdaStrategyMemoRun(void) {
                     GSvecCopy(S124, rot);
                     GSvecCopy(S130, mtx);
 
-                    *(f32*)(S + 0x13C) = persp0;
-                    *(f32*)(S + 0x140) = persp1;
-                    *(f32*)(S + 0x144) = persp2;
-                    *(f32*)(S + 0x148) = persp3;
+                    ((PdaState*)S)->perspective[0] = persp0;
+                    ((PdaState*)S)->perspective[1] = persp1;
+                    ((PdaState*)S)->perspective[2] = persp2;
+                    ((PdaState*)S)->perspective[3] = persp3;
 
                     cameraPlayAnime(0x17, 0x0D741800, 0, 1);
                     GSscene_SetMode(4);
 
-                    *(s32*)(S + 0x78) = 1;
+                    ((PdaState*)S)->field_78 = 1;
                     fn_8004BDB8(-1, 2);
 
                     {
-                        s32 sub = *(s32*)(S + 0x28);
+                        s32 sub = ((PdaState*)S)->field_28;
                         void* particles;
-                        *(f32*)(S + 0x6C) = lbl_8047BC94;
-                        *(f32*)(S + 0x70) = lbl_8047BC94;
-                        *(f32*)(S + 0x74) = lbl_8047BC94;
-                        *(f32*)(S + 0x64) = lbl_8047BCF0;
+                        ((PdaState*)S)->field_6C[0] = lbl_8047BC94;
+                        ((PdaState*)S)->field_6C[1] = lbl_8047BC94;
+                        ((PdaState*)S)->field_6C[2] = lbl_8047BC94;
+                        ((PdaState*)S)->field_64 = lbl_8047BCF0;
                         switch (sub) {
                         case 0:
-                            *(s32*)(S + 0x1C) = 0xD;
-                            *(s32*)(S + 0x24) = 2;
-                            *(f32*)(S + 0x60) = lbl_8047BC94;
-                            if ((particles = wazaSequenceOwnerGetModel(*(void**)(S + 0xA0))) != 0)
+                            ((PdaState*)S)->state = 0xD;
+                            ((PdaState*)S)->nextPhase = 2;
+                            ((PdaState*)S)->easeCTarget = lbl_8047BC94;
+                            if ((particles = wazaSequenceOwnerGetModel(((PdaState*)S)->owner)) != 0)
                                 GSmodelDestroyLinkedParticles(particles);
                             break;
                         case 1:
-                            *(s32*)(S + 0x1C) = 0xD;
-                            *(s32*)(S + 0x24) = 4;
-                            *(f32*)(S + 0x60) = lbl_8047BC94;
-                            if ((particles = wazaSequenceOwnerGetModel(*(void**)(S + 0xA0))) != 0)
+                            ((PdaState*)S)->state = 0xD;
+                            ((PdaState*)S)->nextPhase = 4;
+                            ((PdaState*)S)->easeCTarget = lbl_8047BC94;
+                            if ((particles = wazaSequenceOwnerGetModel(((PdaState*)S)->owner)) != 0)
                                 GSmodelDestroyLinkedParticles(particles);
-                            *(f32*)(S + 0x64) = lbl_8047BCA8;
+                            ((PdaState*)S)->field_64 = lbl_8047BCA8;
                             break;
                         case 2:
-                            *(s32*)(S + 0x1C) = 0xD;
-                            *(s32*)(S + 0x24) = 5;
-                            *(f32*)(S + 0x60) = lbl_8047BC94;
-                            if ((particles = wazaSequenceOwnerGetModel(*(void**)(S + 0xA0))) != 0)
+                            ((PdaState*)S)->state = 0xD;
+                            ((PdaState*)S)->nextPhase = 5;
+                            ((PdaState*)S)->easeCTarget = lbl_8047BC94;
+                            if ((particles = wazaSequenceOwnerGetModel(((PdaState*)S)->owner)) != 0)
                                 GSmodelDestroyLinkedParticles(particles);
                             break;
                         default:
@@ -380,8 +381,8 @@ void pdaStrategyMemoRun(void) {
                         }
                     }
 
-                    *(f32*)(S + 0x50) = lbl_8047BCBC;
-                    *(f32*)(S + 0x58) = lbl_8047BC94;
+                    ((PdaState*)S)->easeATarget = lbl_8047BCBC;
+                    ((PdaState*)S)->easeBTarget = lbl_8047BC94;
                     break;
                 }
             } else {
@@ -409,72 +410,72 @@ void pdaStrategyMemoRun(void) {
             f32 mtx[3];
 
             /* ease block A */
-            tgt = *(f32*)(S + 0x50);
-            cur = *(f32*)(S + 0x4C);
+            tgt = ((PdaState*)S)->easeATarget;
+            cur = ((PdaState*)S)->easeA;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x4C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeA = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x4C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeA = lbl_8047BC94;
                 }
             }
 
             /* ease block B */
-            tgt = *(f32*)(S + 0x58);
-            cur = *(f32*)(S + 0x54);
+            tgt = ((PdaState*)S)->easeBTarget;
+            cur = ((PdaState*)S)->easeB;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x54) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeB = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x54) = lbl_8047BC94;
+                        ((PdaState*)S)->easeB = lbl_8047BC94;
                 }
             }
 
             /* ease block C */
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
 
             /* ease block D */
             if (*(f32*)(S + 0x1DC) != *(f32*)(S + 0x1E0)) {
-                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), *(f32*)(S + 0x3C));
+                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), ((PdaState*)S)->easeRate);
             }
 
             /* settle test */
-            if (*(f32*)(S + 0x50) == *(f32*)(S + 0x4C)) {
-                *(s32*)(S + 0x1C) = 0;
+            if (((PdaState*)S)->easeATarget == ((PdaState*)S)->easeA) {
+                ((PdaState*)S)->state = 0;
                 menuCloseCustom(0x3C, 0, 1);
                 menuCloseCustom(0x96, 0, 1);
                 menuCloseCustom(0xA2, 0, 1);
 
-                h = *(void**)(S + 0x10C);
+                h = ((PdaState*)S)->cameraRes;
                 std114_mapObjectSetVisibility(h, 0);
                 {
                     void* rv = GSresGetResource(std093_getCurrentGroupID(), h);
@@ -483,13 +484,13 @@ void pdaStrategyMemoRun(void) {
                 }
                 std113_mapObjectUnk_8018db68(h);
 
-                *(f32*)(S + 0x6C) = lbl_8047BC94;
-                *(f32*)(S + 0x70) = lbl_8047BC94;
-                *(f32*)(S + 0x74) = lbl_8047BC94;
-                *(f32*)(S + 0x64) = lbl_8047BCF0;
+                ((PdaState*)S)->field_6C[0] = lbl_8047BC94;
+                ((PdaState*)S)->field_6C[1] = lbl_8047BC94;
+                ((PdaState*)S)->field_6C[2] = lbl_8047BC94;
+                ((PdaState*)S)->field_64 = lbl_8047BCF0;
 
-                h = *(void**)(S + 0x10C) = std112_modelGetResourceID(0x0D171000);
-                GSmodelSetAnimRate(*(void**)(S + 0x110) = GSresGetResource(std093_getCurrentGroupID(), h),
+                h = ((PdaState*)S)->cameraRes = std112_modelGetResourceID(0x0D171000);
+                GSmodelSetAnimRate(((PdaState*)S)->animRes = GSresGetResource(std093_getCurrentGroupID(), h),
                                    lbl_8047BD18);
 
                 ((u32*)mtx)[0] = ((const u32*)tbl)[0];
@@ -499,7 +500,7 @@ void pdaStrategyMemoRun(void) {
                 ((u32*)pos)[1] = ((const u32*)tbl)[4];
                 ((u32*)pos)[2] = ((const u32*)tbl)[5];
                 h = GSresGetResource(0x17, 0x0D731800);
-                *(void**)(S + 0x114) = h;
+                ((PdaState*)S)->camera = h;
 
                 GScameraGetPosition(h, pos);
                 GScameraGetRotation(h, rot);
@@ -521,18 +522,18 @@ void pdaStrategyMemoRun(void) {
                 GSvecCopy(S124, rot);
                 GSvecCopy(S130, mtx);
 
-                *(f32*)(S + 0x13C) = staging0;
-                *(f32*)(S + 0x140) = staging1;
-                *(f32*)(S + 0x144) = staging2;
-                *(f32*)(S + 0x148) = staging3;
+                ((PdaState*)S)->perspective[0] = staging0;
+                ((PdaState*)S)->perspective[1] = staging1;
+                ((PdaState*)S)->perspective[2] = staging2;
+                ((PdaState*)S)->perspective[3] = staging3;
 
                 cameraPlayAnime(0x17, 0x0D731800, 0, 1);
                 GSscene_SetMode(4);
 
-                *(s32*)(S + 0x78) = 0;
-                *(s32*)(S + 0x14) = 0;
-                *(f32*)(S + 0x50) = lbl_8047BCBC;
-                *(f32*)(S + 0x58) = lbl_8047BC94;
+                ((PdaState*)S)->field_78 = 0;
+                ((PdaState*)S)->phase = 0;
+                ((PdaState*)S)->easeATarget = lbl_8047BCBC;
+                ((PdaState*)S)->easeBTarget = lbl_8047BC94;
             } else {
                 _threadSwitch();
             }
@@ -552,73 +553,73 @@ void pdaStrategyMemoRun(void) {
             f32 mtx[3];
 
             /* ease block A */
-            tgt = *(f32*)(S + 0x50);
-            cur = *(f32*)(S + 0x4C);
+            tgt = ((PdaState*)S)->easeATarget;
+            cur = ((PdaState*)S)->easeA;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x4C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeA = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x4C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeA = lbl_8047BC94;
                 }
             }
 
             /* ease block B */
-            tgt = *(f32*)(S + 0x58);
-            cur = *(f32*)(S + 0x54);
+            tgt = ((PdaState*)S)->easeBTarget;
+            cur = ((PdaState*)S)->easeB;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x54) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeB = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x54) = lbl_8047BC94;
+                        ((PdaState*)S)->easeB = lbl_8047BC94;
                 }
             }
 
             /* ease block C */
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
 
             /* ease block D */
             if (*(f32*)(S + 0x1DC) != *(f32*)(S + 0x1E0)) {
-                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), *(f32*)(S + 0x3C));
+                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), ((PdaState*)S)->easeRate);
             }
 
             /* settle test */
-            if (*(f32*)(S + 0x50) == *(f32*)(S + 0x4C)) {
+            if (((PdaState*)S)->easeATarget == ((PdaState*)S)->easeA) {
 
-                *(s32*)(S + 0x1C) = 0;
+                ((PdaState*)S)->state = 0;
                 menuCloseCustom(0xa1, 0, 1);
                 menuCloseCustom(0x96, 0, 1);
                 menuCloseCustom(0xa2, 0, 1);
 
-                h = *(void**)(S + 0x10C);
+                h = ((PdaState*)S)->cameraRes;
                 std114_mapObjectSetVisibility(h, 0);
                 {
                     void* rv = GSresGetResource(std093_getCurrentGroupID(), h);
@@ -628,13 +629,13 @@ void pdaStrategyMemoRun(void) {
 
                 /* .L_800453AC camera-setup */
                 std113_mapObjectUnk_8018db68(h);
-                *(f32*)(S + 0x6C) = lbl_8047BC94;
-                *(f32*)(S + 0x70) = lbl_8047BC94;
-                *(f32*)(S + 0x74) = lbl_8047BC94;
-                *(f32*)(S + 0x64) = lbl_8047BCF0;
+                ((PdaState*)S)->field_6C[0] = lbl_8047BC94;
+                ((PdaState*)S)->field_6C[1] = lbl_8047BC94;
+                ((PdaState*)S)->field_6C[2] = lbl_8047BC94;
+                ((PdaState*)S)->field_64 = lbl_8047BCF0;
 
-                h = *(void**)(S + 0x10C) = std112_modelGetResourceID(0x0D171000);
-                GSmodelSetAnimRate(*(void**)(S + 0x110) = GSresGetResource(std093_getCurrentGroupID(), h),
+                h = ((PdaState*)S)->cameraRes = std112_modelGetResourceID(0x0D171000);
+                GSmodelSetAnimRate(((PdaState*)S)->animRes = GSresGetResource(std093_getCurrentGroupID(), h),
                                    lbl_8047BD18);
 
                 ((u32*)mtx)[0] = ((const u32*)tbl)[0];
@@ -644,7 +645,7 @@ void pdaStrategyMemoRun(void) {
                 ((u32*)pos)[1] = ((const u32*)tbl)[4];
                 ((u32*)pos)[2] = ((const u32*)tbl)[5];
                 h = GSresGetResource(0x17, 0x0D731800);
-                *(void**)(S + 0x114) = h;
+                ((PdaState*)S)->camera = h;
 
                 GScameraGetPosition(h, pos);
                 GScameraGetRotation(h, rot);
@@ -667,18 +668,18 @@ void pdaStrategyMemoRun(void) {
                 GSvecCopy(S124, rot);
                 GSvecCopy(S130, mtx);
 
-                *(f32*)(S + 0x13C) = px0;
-                *(f32*)(S + 0x140) = px1;
-                *(f32*)(S + 0x144) = px2;
-                *(f32*)(S + 0x148) = px3;
+                ((PdaState*)S)->perspective[0] = px0;
+                ((PdaState*)S)->perspective[1] = px1;
+                ((PdaState*)S)->perspective[2] = px2;
+                ((PdaState*)S)->perspective[3] = px3;
 
                 cameraPlayAnime(0x17, 0x0D731800, 0, 1);
                 GSscene_SetMode(4);
 
-                *(s32*)(S + 0x78) = 0;
-                *(s32*)(S + 0x14) = 0;
-                *(f32*)(S + 0x50) = lbl_8047BCBC;
-                *(f32*)(S + 0x58) = lbl_8047BC94;
+                ((PdaState*)S)->field_78 = 0;
+                ((PdaState*)S)->phase = 0;
+                ((PdaState*)S)->easeATarget = lbl_8047BCBC;
+                ((PdaState*)S)->easeBTarget = lbl_8047BC94;
             } else {
                 _threadSwitch();
             }
@@ -698,71 +699,71 @@ void pdaStrategyMemoRun(void) {
             f32 arem;
 
             /* ease block A */
-            tgt = *(f32*)(S + 0x50);
-            cur = *(f32*)(S + 0x4C);
+            tgt = ((PdaState*)S)->easeATarget;
+            cur = ((PdaState*)S)->easeA;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     up = cur + step;
-                    *(f32*)(S + 0x4C) = up;
+                    ((PdaState*)S)->easeA = up;
                     if (up > lbl_8047BCBC)
-                        *(f32*)(S + 0x4C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeA = lbl_8047BCBC;
                 } else {
                     down = cur - step;
-                    *(f32*)(S + 0x4C) = down;
+                    ((PdaState*)S)->easeA = down;
                     if (down < lbl_8047BC94)
-                        *(f32*)(S + 0x4C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeA = lbl_8047BC94;
                 }
             }
 
             /* ease block B */
-            tgt = *(f32*)(S + 0x58);
-            cur = *(f32*)(S + 0x54);
+            tgt = ((PdaState*)S)->easeBTarget;
+            cur = ((PdaState*)S)->easeB;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     up = cur + step;
-                    *(f32*)(S + 0x54) = up;
+                    ((PdaState*)S)->easeB = up;
                     if (up > lbl_8047BCBC)
-                        *(f32*)(S + 0x54) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeB = lbl_8047BCBC;
                 } else {
                     down = cur - step;
-                    *(f32*)(S + 0x54) = down;
+                    ((PdaState*)S)->easeB = down;
                     if (down < lbl_8047BC94)
-                        *(f32*)(S + 0x54) = lbl_8047BC94;
+                        ((PdaState*)S)->easeB = lbl_8047BC94;
                 }
             }
 
             /* ease block C */
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     up = cur + step;
-                    *(f32*)(S + 0x5C) = up;
+                    ((PdaState*)S)->easeC = up;
                     if (up > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     down = cur - step;
-                    *(f32*)(S + 0x5C) = down;
+                    ((PdaState*)S)->easeC = down;
                     if (down < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
 
             /* ease block D */
             if (*(f32*)(S + 0x1DC) != *(f32*)(S + 0x1E0)) {
-                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), *(f32*)(S + 0x3C));
+                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), ((PdaState*)S)->easeRate);
             }
 
             /* settle test */
-            if (*(f32*)(S + 0x50) == *(f32*)(S + 0x4C)) {
+            if (((PdaState*)S)->easeATarget == ((PdaState*)S)->easeA) {
 
-                *(s32*)(S + 0x1C) = 0;
+                ((PdaState*)S)->state = 0;
                 menuCloseCustom(0x96, 0, 1);
                 menuCloseCustom(0xA2, 0, 1);
-                h = *(void**)(S + 0x10C);
+                h = ((PdaState*)S)->cameraRes;
                 std114_mapObjectSetVisibility(h, 0);
                 {
                     void* rv = GSresGetResource(std093_getCurrentGroupID(), h);
@@ -780,14 +781,14 @@ void pdaStrategyMemoRun(void) {
 
                     std113_mapObjectUnk_8018db68(h);
 
-                    *(f32*)(S + 0x6C) = lbl_8047BC94;
-                    *(f32*)(S + 0x70) = lbl_8047BC94;
-                    *(f32*)(S + 0x74) = lbl_8047BC94;
-                    *(f32*)(S + 0x64) = lbl_8047BCF0;
+                    ((PdaState*)S)->field_6C[0] = lbl_8047BC94;
+                    ((PdaState*)S)->field_6C[1] = lbl_8047BC94;
+                    ((PdaState*)S)->field_6C[2] = lbl_8047BC94;
+                    ((PdaState*)S)->field_64 = lbl_8047BCF0;
 
-                    h = *(void**)(S + 0x10C) = std112_modelGetResourceID(0x0D171000);
+                    h = ((PdaState*)S)->cameraRes = std112_modelGetResourceID(0x0D171000);
 
-                    GSmodelSetAnimRate(*(void**)(S + 0x110) = GSresGetResource(std093_getCurrentGroupID(), h),
+                    GSmodelSetAnimRate(((PdaState*)S)->animRes = GSresGetResource(std093_getCurrentGroupID(), h),
                                        lbl_8047BD18);
 
                     ((u32*)mtx)[0] = ((const u32*)tbl)[0];
@@ -797,7 +798,7 @@ void pdaStrategyMemoRun(void) {
                     ((u32*)pos)[1] = ((const u32*)tbl)[4];
                     ((u32*)pos)[2] = ((const u32*)tbl)[5];
                     h = GSresGetResource(0x17, 0x0D731800);
-                    *(void**)(S + 0x114) = h;
+                    ((PdaState*)S)->camera = h;
 
                     GScameraGetPosition(h, pos);
                     GScameraGetRotation(h, rotbuf);
@@ -820,17 +821,17 @@ void pdaStrategyMemoRun(void) {
                     GSvecCopy(S124, rotbuf);
                     GSvecCopy(S130, mtx);
 
-                    *(f32*)(S + 0x13C) = p0;
-                    *(f32*)(S + 0x140) = p1;
-                    *(f32*)(S + 0x144) = p2;
-                    *(f32*)(S + 0x148) = p3;
+                    ((PdaState*)S)->perspective[0] = p0;
+                    ((PdaState*)S)->perspective[1] = p1;
+                    ((PdaState*)S)->perspective[2] = p2;
+                    ((PdaState*)S)->perspective[3] = p3;
                     cameraPlayAnime(0x17, 0x0D731800, 0, 1);
                     GSscene_SetMode(4);
 
-                    *(s32*)(S + 0x78) = 0;
-                    *(s32*)(S + 0x14) = 0;
-                    *(f32*)(S + 0x50) = lbl_8047BCBC;
-                    *(f32*)(S + 0x58) = lbl_8047BC94;
+                    ((PdaState*)S)->field_78 = 0;
+                    ((PdaState*)S)->phase = 0;
+                    ((PdaState*)S)->easeATarget = lbl_8047BCBC;
+                    ((PdaState*)S)->easeBTarget = lbl_8047BC94;
 
                     break;
                 }
@@ -852,70 +853,70 @@ void pdaStrategyMemoRun(void) {
             f32 absmag;
 
             /* ease block A */
-            tgt = *(f32*)(S + 0x50);
-            cur = *(f32*)(S + 0x4C);
+            tgt = ((PdaState*)S)->easeATarget;
+            cur = ((PdaState*)S)->easeA;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x4C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeA = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x4C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeA = lbl_8047BC94;
                 }
             }
 
             /* ease block B */
-            tgt = *(f32*)(S + 0x58);
-            cur = *(f32*)(S + 0x54);
+            tgt = ((PdaState*)S)->easeBTarget;
+            cur = ((PdaState*)S)->easeB;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x54) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeB = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x54) = lbl_8047BC94;
+                        ((PdaState*)S)->easeB = lbl_8047BC94;
                 }
             }
 
             /* ease block C */
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
 
             /* ease block D */
             if (*(f32*)(S + 0x1DC) != *(f32*)(S + 0x1E0)) {
-                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), *(f32*)(S + 0x3C));
+                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), ((PdaState*)S)->easeRate);
             }
 
             /* settle test */
-            if (*(f32*)(S + 0x50) == *(f32*)(S + 0x4C)) {
+            if (((PdaState*)S)->easeATarget == ((PdaState*)S)->easeA) {
                 menuCloseCustom(0x35, 0, 1);
-                *(s32*)(S + 0x1C) = 3;
-                *(f32*)(S + 0x50) = lbl_8047BCBC;
-                *(f32*)(S + 0x58) = lbl_8047BC94;
+                ((PdaState*)S)->state = 3;
+                ((PdaState*)S)->easeATarget = lbl_8047BCBC;
+                ((PdaState*)S)->easeBTarget = lbl_8047BC94;
             } else {
                 _threadSwitch();
             }
@@ -928,72 +929,72 @@ void pdaStrategyMemoRun(void) {
             f32 nv;
 
             /* ease A */
-            tgt = *(f32*)(S + 0x50);
-            cur = *(f32*)(S + 0x4C);
+            tgt = ((PdaState*)S)->easeATarget;
+            cur = ((PdaState*)S)->easeA;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x4C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeA = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x4C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeA = lbl_8047BC94;
                 }
             }
 
             /* ease B */
-            tgt = *(f32*)(S + 0x58);
-            cur = *(f32*)(S + 0x54);
+            tgt = ((PdaState*)S)->easeBTarget;
+            cur = ((PdaState*)S)->easeB;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x54) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeB = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x54) = lbl_8047BC94;
+                        ((PdaState*)S)->easeB = lbl_8047BC94;
                 }
             }
 
             /* ease C */
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
 
             /* block D */
             if (*(f32*)(S + 0x1DC) != *(f32*)(S + 0x1E0)) {
-                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), *(f32*)(S + 0x3C));
+                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), ((PdaState*)S)->easeRate);
             }
 
             /* converge */
-            if (*(f32*)(S + 0x50) == *(f32*)(S + 0x4C)) {
-                *(s32*)(S + 0x1C) = 0;
+            if (((PdaState*)S)->easeATarget == ((PdaState*)S)->easeA) {
+                ((PdaState*)S)->state = 0;
                 menuCloseCustom(0x96, 0, 1);
                 menuCloseCustom(0xA2, 0, 1);
-                *(s32*)(S + 0x14) = 0;
-                *(f32*)(S + 0x50) = lbl_8047BCBC;
-                *(f32*)(S + 0x58) = lbl_8047BC94;
+                ((PdaState*)S)->phase = 0;
+                ((PdaState*)S)->easeATarget = lbl_8047BCBC;
+                ((PdaState*)S)->easeBTarget = lbl_8047BC94;
             } else {
                 _threadSwitch();
             }
@@ -1006,38 +1007,38 @@ void pdaStrategyMemoRun(void) {
             f32 nv;
             s32 sub;
 
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
-            if (*(f32*)(S + 0x60) == *(f32*)(S + 0x5C)) {
-                sub = *(s32*)(S + 0x24);
+            if (((PdaState*)S)->easeCTarget == ((PdaState*)S)->easeC) {
+                sub = ((PdaState*)S)->nextPhase;
                 switch (sub) {
                 case 2:
-                    *(s32*)(S + 0x1C) = sub;
+                    ((PdaState*)S)->state = sub;
                     break;
                 case 4:
-                    *(s32*)(S + 0x1C) = sub;
+                    ((PdaState*)S)->state = sub;
                     break;
                 case 5:
-                    *(s32*)(S + 0x1C) = sub;
+                    ((PdaState*)S)->state = sub;
                     break;
                 default:
                     break;
                 }
-                *(f32*)(S + 0x60) = lbl_8047BCBC;
+                ((PdaState*)S)->easeCTarget = lbl_8047BCBC;
             }
         } break;
 
@@ -1047,24 +1048,24 @@ void pdaStrategyMemoRun(void) {
             f32 step;
             f32 nv;
 
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
-            if (*(f32*)(S + 0x60) == *(f32*)(S + 0x5C)) {
-                *(s32*)(S + 0x1C) = *(s32*)(S + 0x24);
+            if (((PdaState*)S)->easeCTarget == ((PdaState*)S)->easeC) {
+                ((PdaState*)S)->state = ((PdaState*)S)->nextPhase;
             }
         } break;
 
@@ -1080,67 +1081,67 @@ void pdaStrategyMemoRun(void) {
             f32 absmag;
 
             /* ease A */
-            tgt = *(f32*)(S + 0x50);
-            cur = *(f32*)(S + 0x4C);
+            tgt = ((PdaState*)S)->easeATarget;
+            cur = ((PdaState*)S)->easeA;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x4C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeA = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x4C) = nv;
+                    ((PdaState*)S)->easeA = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x4C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeA = lbl_8047BC94;
                 }
             }
 
             /* ease B */
-            tgt = *(f32*)(S + 0x58);
-            cur = *(f32*)(S + 0x54);
+            tgt = ((PdaState*)S)->easeBTarget;
+            cur = ((PdaState*)S)->easeB;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCB8;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCB8;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x54) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeB = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x54) = nv;
+                    ((PdaState*)S)->easeB = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x54) = lbl_8047BC94;
+                        ((PdaState*)S)->easeB = lbl_8047BC94;
                 }
             }
 
             /* ease C */
-            tgt = *(f32*)(S + 0x60);
-            cur = *(f32*)(S + 0x5C);
+            tgt = ((PdaState*)S)->easeCTarget;
+            cur = ((PdaState*)S)->easeC;
             if (tgt != cur) {
-                step = *(f32*)(S + 0x3C) / lbl_8047BCC0;
+                step = ((PdaState*)S)->easeRate / lbl_8047BCC0;
                 if (tgt > cur) {
                     nv = cur + step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv > lbl_8047BCBC)
-                        *(f32*)(S + 0x5C) = lbl_8047BCBC;
+                        ((PdaState*)S)->easeC = lbl_8047BCBC;
                 } else {
                     nv = cur - step;
-                    *(f32*)(S + 0x5C) = nv;
+                    ((PdaState*)S)->easeC = nv;
                     if (nv < lbl_8047BC94)
-                        *(f32*)(S + 0x5C) = lbl_8047BC94;
+                        ((PdaState*)S)->easeC = lbl_8047BC94;
                 }
             }
 
             /* block D */
             if (*(f32*)(S + 0x1DC) != *(f32*)(S + 0x1E0)) {
-                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), *(f32*)(S + 0x3C));
+                pda_80044630_Approach((f32*)(S + 0x1DC), (f32*)(S + 0x1E0), ((PdaState*)S)->easeRate);
             }
 
             /* settle */
-            if (*(f32*)(S + 0x50) == *(f32*)(S + 0x4C)) {
-                *(s32*)(S + 0x1C) = 0x64;
+            if (((PdaState*)S)->easeATarget == ((PdaState*)S)->easeA) {
+                ((PdaState*)S)->state = 0x64;
             } else {
                 _threadSwitch();
             }
@@ -1161,7 +1162,7 @@ void pdaStrategyMemoRun(void) {
     }
 
     /* === EXIT / cleanup epilogue (.L_80046054 fall-through .. blr) === */
-    handle = *(void**)(S + 0x10C);
+    handle = ((PdaState*)S)->cameraRes;
     std114_mapObjectSetVisibility(handle, 0);
     {
         void* rv = GSresGetResource(std093_getCurrentGroupID(), handle);
