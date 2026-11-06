@@ -9,6 +9,7 @@
  * split further only with evidence. All functions asm-only until
  * matched.
  */
+#include "game/records/lbl_803A654C.h"
 #include "game/records/lbl_803A6A60.h"
 #include "game/pda_state.h"
 #include "dolphin/types.h"
@@ -300,12 +301,12 @@ void fn_800373C8(PdaSprite* context, PdaSprite* sprite)
     extern u8 lbl_803A654C[];
     s32 value;
 
-    value = (s32)*(f32*)(lbl_803A654C + 0x58);
+    value = (s32)((Work803A654C*)lbl_803A654C)->field_58;
     if ((s16)value < -0xff) {
         value = -0xff;
     }
     sprite->alpha = (u8)(value + 0xff);
-    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0x54) + *(f32*)(lbl_803A654C + 0x58));
+    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0x54) + ((Work803A654C*)lbl_803A654C)->field_58);
     if (context->selectedIndex == 3) {
         sprite->colorR = 0xff;
         sprite->colorG = 0xff;
@@ -326,12 +327,12 @@ void fn_80037468(PdaSprite* context, PdaSprite* sprite)
     extern u8 lbl_803A654C[];
     s32 value;
 
-    value = (s32)*(f32*)(lbl_803A654C + 0x40);
+    value = (s32)((Work803A654C*)lbl_803A654C)->field_40;
     if ((s16)value < -0xff) {
         value = -0xff;
     }
     sprite->alpha = (u8)(value + 0xff);
-    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0x3c) + *(f32*)(lbl_803A654C + 0x40));
+    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0x3c) + ((Work803A654C*)lbl_803A654C)->field_40);
     if (context->selectedIndex == 2) {
         sprite->colorR = 0xff;
         sprite->colorG = 0xff;
@@ -352,12 +353,12 @@ void fn_80037508(PdaSprite* context, PdaSprite* sprite)
     extern u8 lbl_803A654C[];
     s32 value;
 
-    value = (s32)*(f32*)(lbl_803A654C + 0x28);
+    value = (s32)((Work803A654C*)lbl_803A654C)->field_28;
     if ((s16)value < -0xff) {
         value = -0xff;
     }
     sprite->alpha = (u8)(value + 0xff);
-    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0x24) + *(f32*)(lbl_803A654C + 0x28));
+    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0x24) + ((Work803A654C*)lbl_803A654C)->field_28);
     if (context->selectedIndex == 1) {
         sprite->colorR = 0xff;
         sprite->colorG = 0xff;
@@ -378,12 +379,12 @@ void fn_800375A8(PdaSprite* context, PdaSprite* sprite)
     extern u8 lbl_803A654C[];
     s32 value;
 
-    value = (s32)*(f32*)(lbl_803A654C + 0x10);
+    value = (s32)((Work803A654C*)lbl_803A654C)->field_10;
     if ((s16)value < -0xff) {
         value = -0xff;
     }
     sprite->alpha = (u8)(value + 0xff);
-    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0xc) + *(f32*)(lbl_803A654C + 0x10));
+    sprite->field_50 = (s16)(*(f32*)(lbl_803A64EC + 0xc) + ((Work803A654C*)lbl_803A654C)->field_10);
     if (context->selectedIndex == 0) {
         sprite->colorR = 0xff;
         sprite->colorG = 0xff;
@@ -459,7 +460,7 @@ void fn_800376F8(void* window, volatile PdaSprite* sprite)
     s32 alpha;
 
     (void)window;
-    value = *(f32*)(lbl_803A654C + 0x58);
+    value = ((Work803A654C*)lbl_803A654C)->field_58;
     if (value < lbl_8047BA58) {
         alpha = (s32)value;
         if ((s16)alpha < -0xff) {
@@ -467,17 +468,17 @@ void fn_800376F8(void* window, volatile PdaSprite* sprite)
         }
         value = 0.0f;
         sprite->alpha = (u8)(alpha + 0xff);
-        next = *(f32*)(lbl_803A654C + 0x58) +
-               (velocity = *(f32*)(lbl_803A654C + 0x50));
-        *(f32*)(lbl_803A654C + 0x58) = next;
-        *(f32*)(lbl_803A654C + 0x50) =
-            lbl_8047A494 * *(f32*)(lbl_803A654C + 0x4c) + velocity;
+        next = ((Work803A654C*)lbl_803A654C)->field_58 +
+               (velocity = ((Work803A654C*)lbl_803A654C)->field_50);
+        ((Work803A654C*)lbl_803A654C)->field_58 = next;
+        ((Work803A654C*)lbl_803A654C)->field_50 =
+            lbl_8047A494 * ((Work803A654C*)lbl_803A654C)->field_4C + velocity;
         if (next > value) {
-            *(f32*)(lbl_803A654C + 0x58) = value;
-            sprite->field_50 = (s16)*(f32*)(lbl_803A654C + 0x54);
+            ((Work803A654C*)lbl_803A654C)->field_58 = value;
+            sprite->field_50 = (s16)((Work803A654C*)lbl_803A654C)->field_54;
         }
-        sprite->field_50 = (s16)(*(f32*)(lbl_803A654C + 0x54) +
-                                  *(f32*)(lbl_803A654C + 0x58));
+        sprite->field_50 = (s16)(((Work803A654C*)lbl_803A654C)->field_54 +
+                                  ((Work803A654C*)lbl_803A654C)->field_58);
     }
 }
 #pragma peephole reset
@@ -492,7 +493,7 @@ void fn_800377B4(void* window, volatile PdaSprite* sprite)
     s32 alpha;
 
     (void)window;
-    value = *(f32*)(lbl_803A654C + 0x40);
+    value = ((Work803A654C*)lbl_803A654C)->field_40;
     if (value < lbl_8047BA58) {
         alpha = (s32)value;
         if ((s16)alpha < -0xff) {
@@ -500,17 +501,17 @@ void fn_800377B4(void* window, volatile PdaSprite* sprite)
         }
         value = 0.0f;
         sprite->alpha = (u8)(alpha + 0xff);
-        next = *(f32*)(lbl_803A654C + 0x40) +
-               (velocity = *(f32*)(lbl_803A654C + 0x38));
-        *(f32*)(lbl_803A654C + 0x40) = next;
-        *(f32*)(lbl_803A654C + 0x38) =
-            lbl_8047A494 * *(f32*)(lbl_803A654C + 0x34) + velocity;
+        next = ((Work803A654C*)lbl_803A654C)->field_40 +
+               (velocity = ((Work803A654C*)lbl_803A654C)->field_38);
+        ((Work803A654C*)lbl_803A654C)->field_40 = next;
+        ((Work803A654C*)lbl_803A654C)->field_38 =
+            lbl_8047A494 * ((Work803A654C*)lbl_803A654C)->field_34 + velocity;
         if (next > value) {
-            *(f32*)(lbl_803A654C + 0x40) = value;
-            sprite->field_50 = (s16)*(f32*)(lbl_803A654C + 0x3c);
+            ((Work803A654C*)lbl_803A654C)->field_40 = value;
+            sprite->field_50 = (s16)((Work803A654C*)lbl_803A654C)->field_3C;
         }
-        sprite->field_50 = (s16)(*(f32*)(lbl_803A654C + 0x3c) +
-                                  *(f32*)(lbl_803A654C + 0x40));
+        sprite->field_50 = (s16)(((Work803A654C*)lbl_803A654C)->field_3C +
+                                  ((Work803A654C*)lbl_803A654C)->field_40);
     }
 }
 #pragma peephole reset
@@ -525,7 +526,7 @@ void fn_80037870(void* window, volatile PdaSprite* sprite)
     s32 alpha;
 
     (void)window;
-    value = *(f32*)(lbl_803A654C + 0x28);
+    value = ((Work803A654C*)lbl_803A654C)->field_28;
     if (value < lbl_8047BA58) {
         alpha = (s32)value;
         if ((s16)alpha < -0xff) {
@@ -533,17 +534,17 @@ void fn_80037870(void* window, volatile PdaSprite* sprite)
         }
         value = 0.0f;
         sprite->alpha = (u8)(alpha + 0xff);
-        next = *(f32*)(lbl_803A654C + 0x28) +
-               (velocity = *(f32*)(lbl_803A654C + 0x20));
-        *(f32*)(lbl_803A654C + 0x28) = next;
-        *(f32*)(lbl_803A654C + 0x20) =
-            lbl_8047A494 * *(f32*)(lbl_803A654C + 0x1c) + velocity;
+        next = ((Work803A654C*)lbl_803A654C)->field_28 +
+               (velocity = ((Work803A654C*)lbl_803A654C)->field_20);
+        ((Work803A654C*)lbl_803A654C)->field_28 = next;
+        ((Work803A654C*)lbl_803A654C)->field_20 =
+            lbl_8047A494 * ((Work803A654C*)lbl_803A654C)->field_1C + velocity;
         if (next > value) {
-            *(f32*)(lbl_803A654C + 0x28) = value;
-            sprite->field_50 = (s16)*(f32*)(lbl_803A654C + 0x24);
+            ((Work803A654C*)lbl_803A654C)->field_28 = value;
+            sprite->field_50 = (s16)((Work803A654C*)lbl_803A654C)->field_24;
         }
-        sprite->field_50 = (s16)(*(f32*)(lbl_803A654C + 0x24) +
-                                  *(f32*)(lbl_803A654C + 0x28));
+        sprite->field_50 = (s16)(((Work803A654C*)lbl_803A654C)->field_24 +
+                                  ((Work803A654C*)lbl_803A654C)->field_28);
     }
 }
 #pragma peephole reset
@@ -558,7 +559,7 @@ void fn_8003792C(void* window, volatile PdaSprite* sprite)
     s32 alpha;
 
     (void)window;
-    value = *(f32*)(lbl_803A654C + 0x10);
+    value = ((Work803A654C*)lbl_803A654C)->field_10;
     if (value < lbl_8047BA58) {
         alpha = (s32)value;
         if ((s16)alpha < -0xff) {
@@ -566,17 +567,17 @@ void fn_8003792C(void* window, volatile PdaSprite* sprite)
         }
         value = 0.0f;
         sprite->alpha = (u8)(alpha + 0xff);
-        next = *(f32*)(lbl_803A654C + 0x10) +
-               (velocity = *(f32*)(lbl_803A654C + 0x8));
-        *(f32*)(lbl_803A654C + 0x10) = next;
-        *(f32*)(lbl_803A654C + 0x8) =
-            lbl_8047A494 * *(f32*)(lbl_803A654C + 0x4) + velocity;
+        next = ((Work803A654C*)lbl_803A654C)->field_10 +
+               (velocity = ((Work803A654C*)lbl_803A654C)->field_8);
+        ((Work803A654C*)lbl_803A654C)->field_10 = next;
+        ((Work803A654C*)lbl_803A654C)->field_8 =
+            lbl_8047A494 * ((Work803A654C*)lbl_803A654C)->field_4 + velocity;
         if (next > value) {
-            *(f32*)(lbl_803A654C + 0x10) = value;
-            sprite->field_50 = (s16)*(f32*)(lbl_803A654C + 0xc);
+            ((Work803A654C*)lbl_803A654C)->field_10 = value;
+            sprite->field_50 = (s16)((Work803A654C*)lbl_803A654C)->field_C;
         }
-        sprite->field_50 = (s16)(*(f32*)(lbl_803A654C + 0xc) +
-                                  *(f32*)(lbl_803A654C + 0x10));
+        sprite->field_50 = (s16)(((Work803A654C*)lbl_803A654C)->field_C +
+                                  ((Work803A654C*)lbl_803A654C)->field_10);
     }
 }
 #pragma peephole reset
