@@ -5,6 +5,7 @@
  *        eased x/y offsets, fades the captions and pulses their alpha.
  *        Copied from pda_range_80037158.c.
  */
+#include "game/records/lbl_803A6A60.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -88,7 +89,7 @@ void fn_8004A7A8(void* work, PdaSprite* sprite)
     case 0x757:
     case 0x758:
         pos = (s16*)(lbl_802EF0A8 + sprite->eventId * 0x1c);
-        sprite->field_50 = pos[1] + (s32)*(f32*)(lbl_803A6A60 + 0x30);
+        sprite->field_50 = pos[1] + (s32)((Work803A6A60*)lbl_803A6A60)->field_30;
         spriteSetEnv(fn_800FE6D0(
             (s16)(*(s16*)((u8*)work + 0x84) + sprite->field_50),
             (s16)(*(s16*)((u8*)work + 0x86) + sprite->field_52)));
@@ -100,17 +101,17 @@ void fn_8004A7A8(void* work, PdaSprite* sprite)
     case 0x436:
     case 0x6dd:
         pos = (s16*)(lbl_802EF0A8 + sprite->eventId * 0x1c);
-        sprite->field_52 = pos[2] + (s32)*(f32*)(lbl_803A6A60 + 0x34);
+        sprite->field_52 = pos[2] + (s32)((Work803A6A60*)lbl_803A6A60)->field_34;
         break;
     case 0x437:
     case 0x438:
     case 0x439:
     case 0x43a:
     case 0x777:
-        if (*(f32*)(lbl_803A6A60 + 0x30) > 255.0f) {
+        if (((Work803A6A60*)lbl_803A6A60)->field_30 > 255.0f) {
             fade = 0xff;
         } else {
-            fade = (s32)*(f32*)(lbl_803A6A60 + 0x30);
+            fade = (s32)((Work803A6A60*)lbl_803A6A60)->field_30;
         }
         sprite->alpha = 0xff - fade;
         break;
@@ -150,10 +151,10 @@ void fn_8004A7A8(void* work, PdaSprite* sprite)
     case 0x6f4:
     case 0x6f5:
     case 0x6f6:
-        if (*(f32*)(lbl_803A6A60 + 0x30) > 255.0f) {
+        if (((Work803A6A60*)lbl_803A6A60)->field_30 > 255.0f) {
             fade = 0xff;
         } else {
-            fade = (s32)*(f32*)(lbl_803A6A60 + 0x30);
+            fade = (s32)((Work803A6A60*)lbl_803A6A60)->field_30;
         }
         sprite->alpha = 0xff - fade;
         break;
@@ -161,10 +162,10 @@ void fn_8004A7A8(void* work, PdaSprite* sprite)
     case 0x6e4:
     case 0x6e5:
     case 0x6e6:
-        if (*(f32*)(lbl_803A6A60 + 0x30) > 255.0f) {
+        if (((Work803A6A60*)lbl_803A6A60)->field_30 > 255.0f) {
             fade = 0xff;
         } else {
-            fade = (s32)*(f32*)(lbl_803A6A60 + 0x30);
+            fade = (s32)((Work803A6A60*)lbl_803A6A60)->field_30;
         }
         sprite->alpha = 0xff - fade;
         break;

@@ -4,6 +4,7 @@
  *        the panel, draws the scanlines and the scrolling sheared page edge.
  *        Copied from pda_range_80037158.c.
  */
+#include "game/records/lbl_803A6A60.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -119,12 +120,12 @@ s32 fn_800495C8(void* work, PdaSprite* sprite)
         }
     }
     fn_800411EC();
-    if (*(s8*)(lbl_803A6A60 + 0) == 1) {
+    if (((Work803A6A60*)lbl_803A6A60)->field_0 == 1) {
         if (lbl_803A6A60[0x49] != 0 && lbl_803A6A60[0x4a] == 0) {
             menuOffScreenSetDisp(0);
             lbl_803A6A60[0x49] = 0;
         }
-        if (*(s8*)(lbl_803A6A60 + 1) >= 1) {
+        if (((Work803A6A60*)lbl_803A6A60)->field_1 >= 1) {
             *(f32*)(G + 0x2c) = 0.0f;
             return 0;
         }

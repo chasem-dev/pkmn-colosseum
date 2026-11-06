@@ -5,6 +5,7 @@
  * The body is exact (copied from pda_range_80037158.c with the bank's
  * declarations).
  */
+#include "game/records/lbl_803A6A60.h"
 #include "dolphin/types.h"
 
 typedef struct PdaModelWindow {
@@ -522,19 +523,19 @@ void fn_8004B598(s32 unused, PdaSprite* sprite, s32 messageId)
     case 0x75D:
     case 0x760:
     case 0x763:
-        *(u32*)(lbl_803A6A60 + 0x44) = 0;
+        ((Work803A6A60*)lbl_803A6A60)->field_44 = 0;
         break;
     case 0x6E8:
     case 0x75E:
     case 0x761:
     case 0x764:
-        *(u32*)(lbl_803A6A60 + 0x44) = 1;
+        ((Work803A6A60*)lbl_803A6A60)->field_44 = 1;
         break;
     case 0x6E9:
     case 0x75F:
     case 0x762:
     case 0x765:
-        *(u32*)(lbl_803A6A60 + 0x44) = 2;
+        ((Work803A6A60*)lbl_803A6A60)->field_44 = 2;
         break;
     }
 
@@ -549,19 +550,19 @@ void fn_8004B598(s32 unused, PdaSprite* sprite, s32 messageId)
     switch (selection) {
     case 0:
         layout = (s16*)(lbl_802EF0A8 +
-                        (*(u32*)(lbl_803A6A60 + 0x44) + 0x6E7) * 0x1C);
+                        (((Work803A6A60*)lbl_803A6A60)->field_44 + 0x6E7) * 0x1C);
         break;
     case 1:
         layout = (s16*)(lbl_802EF0A8 +
-                        (*(u32*)(lbl_803A6A60 + 0x44) + 0x75D) * 0x1C);
+                        (((Work803A6A60*)lbl_803A6A60)->field_44 + 0x75D) * 0x1C);
         break;
     case 2:
         layout = (s16*)(lbl_802EF0A8 +
-                        (*(u32*)(lbl_803A6A60 + 0x44) + 0x760) * 0x1C);
+                        (((Work803A6A60*)lbl_803A6A60)->field_44 + 0x760) * 0x1C);
         break;
     case 3:
         layout = (s16*)(lbl_802EF0A8 +
-                        (*(u32*)(lbl_803A6A60 + 0x44) + 0x763) * 0x1C);
+                        (((Work803A6A60*)lbl_803A6A60)->field_44 + 0x763) * 0x1C);
         break;
     default:
         layout = (s16*)(lbl_802EF0A8 + 0xC144);
@@ -569,16 +570,16 @@ void fn_8004B598(s32 unused, PdaSprite* sprite, s32 messageId)
     }
 
     angles = (f32*)(lbl_803A6A60 + 0xC);
-    step = *(f32*)(lbl_803A6A60 + 8) *
-           (lbl_8047BDF0 / *(f32*)&periods[*(u32*)(lbl_803A6A60 + 0x44)]);
-    angles[*(u32*)(lbl_803A6A60 + 0x44)] += step;
-    if (angles[*(u32*)(lbl_803A6A60 + 0x44)] > lbl_8047BDF0) {
-        angles[*(u32*)(lbl_803A6A60 + 0x44)] -= lbl_8047BDF0;
+    step = ((Work803A6A60*)lbl_803A6A60)->field_8 *
+           (lbl_8047BDF0 / *(f32*)&periods[((Work803A6A60*)lbl_803A6A60)->field_44]);
+    angles[((Work803A6A60*)lbl_803A6A60)->field_44] += step;
+    if (angles[((Work803A6A60*)lbl_803A6A60)->field_44] > lbl_8047BDF0) {
+        angles[((Work803A6A60*)lbl_803A6A60)->field_44] -= lbl_8047BDF0;
     }
-    if (angles[*(u32*)(lbl_803A6A60 + 0x44)] < lbl_8047BDAC) {
-        angles[*(u32*)(lbl_803A6A60 + 0x44)] += lbl_8047BDF0;
+    if (angles[((Work803A6A60*)lbl_803A6A60)->field_44] < lbl_8047BDAC) {
+        angles[((Work803A6A60*)lbl_803A6A60)->field_44] += lbl_8047BDF0;
     }
-    sprite->value = angles[*(u32*)(lbl_803A6A60 + 0x44)];
+    sprite->value = angles[((Work803A6A60*)lbl_803A6A60)->field_44];
     sprite->field_50 = layout[1];
     sprite->field_52 = layout[2];
 }

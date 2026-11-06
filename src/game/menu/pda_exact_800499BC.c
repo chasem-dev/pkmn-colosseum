@@ -5,6 +5,7 @@
  *        captions and draws the rank icon and money digits.
  *        Copied from pda_range_80037158.c.
  */
+#include "game/records/lbl_803A6A60.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -120,7 +121,7 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         id = ((u16*)icon)[*rank];
         menuSpriteBiosGetPtr(id);
         windowDrawSprite2(
-            (s16)((s32)*(f32*)(lbl_803A6A60 + 0x30) +
+            (s16)((s32)((Work803A6A60*)lbl_803A6A60)->field_30 +
                   (pos[0] - sprite->field_50)),
             (s16)(pos[1] - sprite->field_52),
             sprite->x, sprite->y, sprite->alpha | -0x100, work, id, 0);
@@ -131,9 +132,9 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         sprite->colorR = row[0];
         sprite->colorG = row[1];
         sprite->colorB = row[2];
-        switch (*(s8*)(lbl_803A6A60 + 0)) {
+        switch (((Work803A6A60*)lbl_803A6A60)->field_0) {
         case 1:
-            if (*(s8*)(lbl_803A6A60 + 1) == 2) {
+            if (((Work803A6A60*)lbl_803A6A60)->field_1 == 2) {
                 sprite->flags &= ~2;
             } else {
                 sprite->flags |= 2;
@@ -143,9 +144,9 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         break;
     case 0x433:
     case 0x436:
-        switch (*(s8*)(lbl_803A6A60 + 0)) {
+        switch (((Work803A6A60*)lbl_803A6A60)->field_0) {
         case 1:
-            if (*(s8*)(lbl_803A6A60 + 1) == 1) {
+            if (((Work803A6A60*)lbl_803A6A60)->field_1 == 1) {
                 sprite->flags |= 2;
             } else {
                 sprite->flags &= ~2;
@@ -162,13 +163,13 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         } else {
             sprite->flags &= ~2;
         }
-        *(s32*)(lbl_803A6A60 + 0x1c) = GSmsgGetRect(sprite->messageId) >> 16;
+        ((Work803A6A60*)lbl_803A6A60)->field_1C = GSmsgGetRect(sprite->messageId) >> 16;
         break;
     case 0x437:
-        *(s32*)(lbl_803A6A60 + 0x18) = GSmsgGetRect(sprite->messageId) >> 16;
+        ((Work803A6A60*)lbl_803A6A60)->field_18 = GSmsgGetRect(sprite->messageId) >> 16;
         break;
     case 0x43a:
-        *(s32*)(lbl_803A6A60 + 0x24) = GSmsgGetRect(sprite->messageId) >> 16;
+        ((Work803A6A60*)lbl_803A6A60)->field_24 = GSmsgGetRect(sprite->messageId) >> 16;
         cursor = menuGetCursorItemID(*(s32*)((u8*)work + 4));
         if (std081_flagCheckTrue(0x3f0) != 0) {
             switch (cursor) {
@@ -207,7 +208,7 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         }
         break;
     case 0x439:
-        *(s32*)(lbl_803A6A60 + 0x20) = GSmsgGetRect(sprite->messageId) >> 16;
+        ((Work803A6A60*)lbl_803A6A60)->field_20 = GSmsgGetRect(sprite->messageId) >> 16;
         break;
     case 0x6e7:
     case 0x6e8:
@@ -239,12 +240,12 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         break;
     case 0x757:
         pos = (s16*)(lbl_802EF0A8 + sprite->eventId * 0x1c);
-        sprite->field_50 = pos[1] + (s32)*(f32*)(lbl_803A6A60 + 0x30);
+        sprite->field_50 = pos[1] + (s32)((Work803A6A60*)lbl_803A6A60)->field_30;
         spriteSetEnv(fn_800FE6D0(
             (s16)(*(s16*)((u8*)work + 0x84) + sprite->field_50),
             (s16)(*(s16*)((u8*)work + 0x86) + sprite->field_52)));
         pos = (s16*)(lbl_802EF0A8 + sprite->eventId * 0x1c);
-        sprite->field_50 = pos[1] + (s32)*(f32*)(lbl_803A6A60 + 0x30);
+        sprite->field_50 = pos[1] + (s32)((Work803A6A60*)lbl_803A6A60)->field_30;
         value = heroGetStatus(0, 2, 0) & 0xffff;
         x = sprite->x - 0x20;
         for (n = 0; n < 5; n++) {
@@ -256,7 +257,7 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         }
         break;
     case 0x777:
-        switch (*(s8*)(lbl_803A6A60 + 0)) {
+        switch (((Work803A6A60*)lbl_803A6A60)->field_0) {
         case 0:
             msg = 0x36d6;
             break;
@@ -282,20 +283,20 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         wave[0] = lbl_8047BD98;
         wave[1] = lbl_8047BD9C;
         layout = lbl_802EF0A8 + sprite->eventId * 0x1c;
-        switch (*(s8*)(lbl_803A6A60 + 0)) {
+        switch (((Work803A6A60*)lbl_803A6A60)->field_0) {
         case 0:
             if (sprite->eventId == 0x6e3) {
                 sprite->field_50 = (
                     4.0f *
                         (f32)sin(3.1415927f *
                                  (2.0f *
-                                  (2.0f * *(f32*)(lbl_803A6A60 + 0x40)))) +
+                                  (2.0f * ((Work803A6A60*)lbl_803A6A60)->field_40))) +
                     (f32)*(s16*)(layout + 2));
                 wave[0].x = (
                     4.0f *
                     (f32)sin(3.1415927f *
                              (2.0f *
-                              (2.0f * *(f32*)(lbl_803A6A60 + 0x40)))));
+                              (2.0f * ((Work803A6A60*)lbl_803A6A60)->field_40))));
             } else {
                 sprite->field_50 = *(s16*)(layout + 2);
                 wave[0].x = 0;
@@ -308,13 +309,13 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
                     4.0f *
                         (f32)sin(3.1415927f *
                                  (2.0f *
-                                  (2.0f * *(f32*)(lbl_803A6A60 + 0x40)))) +
+                                  (2.0f * ((Work803A6A60*)lbl_803A6A60)->field_40))) +
                     (f32)*(s16*)(layout + 2));
                 wave[0].y = (
                     4.0f *
                     (f32)sin(3.1415927f *
                              (2.0f *
-                              (2.0f * *(f32*)(lbl_803A6A60 + 0x40)))));
+                              (2.0f * ((Work803A6A60*)lbl_803A6A60)->field_40))));
             } else {
                 sprite->field_50 = *(s16*)(layout + 2);
                 wave[0].y = 0;
@@ -327,7 +328,7 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
                     4.0f *
                     (f32)sin(3.1415927f *
                              (2.0f *
-                              (2.0f * *(f32*)(lbl_803A6A60 + 0x40)))));
+                              (2.0f * ((Work803A6A60*)lbl_803A6A60)->field_40))));
             } else {
                 sprite->field_50 = *(s16*)(layout + 2);
                 wave[1].x = 0;
@@ -340,13 +341,13 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
                     4.0f *
                         (f32)sin(3.1415927f *
                                  (2.0f *
-                                  (2.0f * *(f32*)(lbl_803A6A60 + 0x40)))) +
+                                  (2.0f * ((Work803A6A60*)lbl_803A6A60)->field_40))) +
                     (f32)*(s16*)(layout + 2));
                 wave[1].y = (
                     4.0f *
                     (f32)sin(3.1415927f *
                              (2.0f *
-                              (2.0f * *(f32*)(lbl_803A6A60 + 0x40)))));
+                              (2.0f * ((Work803A6A60*)lbl_803A6A60)->field_40))));
             } else {
                 sprite->field_50 = *(s16*)(layout + 2);
                 wave[1].y = 0;
@@ -358,18 +359,18 @@ s32 pdaTrainerDataDraw(void* work, PdaSprite* sprite)
         }
         if (sprite->eventId == 0x6e5) {
             sprite->flags |= 2;
-            left = *(s32*)(lbl_803A6A60 + 0x20) - 0x36;
+            left = ((Work803A6A60*)lbl_803A6A60)->field_20 - 0x36;
             left += wave[1].x;
             sprite->field_50 = left + 0xa8;
         }
         if (sprite->eventId == 0x6e3) {
-            pda_800499BC_PlaceTab(sprite, *(s32*)(lbl_803A6A60 + 0x18), wave[0].x);
+            pda_800499BC_PlaceTab(sprite, ((Work803A6A60*)lbl_803A6A60)->field_18, wave[0].x);
         }
         if (sprite->eventId == 0x6e4) {
-            pda_800499BC_PlaceTab(sprite, *(s32*)(lbl_803A6A60 + 0x1c), wave[0].y);
+            pda_800499BC_PlaceTab(sprite, ((Work803A6A60*)lbl_803A6A60)->field_1C, wave[0].y);
         }
         if (sprite->eventId == 0x6e6) {
-            pda_800499BC_PlaceTab(sprite, *(s32*)(lbl_803A6A60 + 0x24), wave[1].y);
+            pda_800499BC_PlaceTab(sprite, ((Work803A6A60*)lbl_803A6A60)->field_24, wave[1].y);
         }
         if (sprite->eventId == 0x6e4) {
             if (std081_flagCheckTrue(0x3f0) != 0) {
