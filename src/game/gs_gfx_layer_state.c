@@ -12,6 +12,7 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/records/lbl_80314610.h"
 #include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 
@@ -1170,7 +1171,7 @@ void gfxFlushMatrix(void) {
     if (*(s32*)state == 1) {
         gfxRecordCommand(0x45, 0);
     } else if (lbl_8047AAC8) {
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1234,7 +1235,7 @@ void gfxPopMatrix(void) {
         GSlogWrite(lbl_80270460);
     } else {
         lbl_8047AAC0 = lbl_8047AAC0 + 0x30;
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1262,7 +1263,7 @@ void gfxPushMultMatrix(void* src) {
     } else {
         lbl_8047AAC0 = lbl_8047AAC0 - 0x30;
         GSmtxConcat((void*)lbl_8047AAC0, (void*)(lbl_8047AAC0 + 0x30), src);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1286,7 +1287,7 @@ void gfxMultMatrix(void* param) {
         gfxRecordCommand(0x40, 0x10, param);
     } else {
         GSmtxConcat((void*)lbl_8047AAC0, (void*)lbl_8047AAC0, param);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1314,7 +1315,7 @@ void gfxPushLoadMatrix(void* src) {
     } else {
         lbl_8047AAC0 = lbl_8047AAC0 - 0x30;
         fn_800E0628((void*)lbl_8047AAC0, src);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1338,7 +1339,7 @@ void gfxScaleMatrix(f32 a, f32 b, f32 c) {
         gfxRecordCommand(0x3e, 0xd, a, b, c);
     } else {
         fn_800E02C4((void*)lbl_8047AAC0);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1362,7 +1363,7 @@ void gfxTranslateMatrix(f32 a, f32 b, f32 c) {
         gfxRecordCommand(0x3d, 0xd, a, b, c);
     } else {
         fn_800E03E8((void*)lbl_8047AAC0, a, b, c);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1391,7 +1392,7 @@ void gfxRotateXYZ(f32 a, f32 b, f32 c) {
         GSmtxRotateX((void*)lbl_8047AAC0, a);
         GSmtxRotateY((void*)lbl_8047AAC0, y);
         GSmtxRotateZ((void*)lbl_8047AAC0, z);
-        matrixIndex = *(u32*)(lbl_80314610 + 0x24);
+        matrixIndex = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, matrixIndex);
         GXLoadNrmMtxImm(lbl_8047AAC0, matrixIndex);
         GXSetCurrentMtx(matrixIndex);
@@ -1415,7 +1416,7 @@ void gfxLoadIdentity(void) {
         gfxRecordCommand(0x3b, 0);
     } else {
         fn_800E064C((void*)lbl_8047AAC0);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1450,7 +1451,7 @@ void gfxMatrixStackInit(u32 count) {
         lbl_8047AAC4 = ptr;
         lbl_8047AAC0 = ptr;
         fn_800E064C((void*)ptr);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
