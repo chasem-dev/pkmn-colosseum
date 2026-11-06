@@ -10,6 +10,7 @@
  */
 
 #include "game/pokemon_fight_types.h"
+#include "game/bios_records.h"
 
 /* Address: 0x801F640C | Size: 0x8 | Pattern: sda_setter */
 void fightFloorBiosSetEncountFloorId(u32 val) {
@@ -24,61 +25,61 @@ u32 fightFloorBiosGetEncountFloorId(void) {
 /* Address: 0x801F641C | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetItemPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA490) = val;
+    ((FightFloorBiosFields*)ptr)->itemPokemonPtr = val;
 }
 
 /* Address: 0x801F6430 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetItemPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA490);
+    return ((FightFloorBiosFields*)ptr)->itemPokemonPtr;
 }
 
 /* Address: 0x801F644C | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetTokuseiPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA48C) = val;
+    ((FightFloorBiosFields*)ptr)->tokuseiPokemonPtr = val;
 }
 
 /* Address: 0x801F6460 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetTokuseiPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA48C);
+    return ((FightFloorBiosFields*)ptr)->tokuseiPokemonPtr;
 }
 
 /* Address: 0x801F647C | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetTuikakoukaPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA488) = val;
+    ((FightFloorBiosFields*)ptr)->tuikakoukaPokemonPtr = val;
 }
 
 /* Address: 0x801F6490 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetTuikakoukaPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA488);
+    return ((FightFloorBiosFields*)ptr)->tuikakoukaPokemonPtr;
 }
 
 /* Address: 0x801F64AC | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetKizetuPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA484) = val;
+    ((FightFloorBiosFields*)ptr)->kizetuPokemonPtr = val;
 }
 
 /* Address: 0x801F64C0 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetKizetuPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA484);
+    return ((FightFloorBiosFields*)ptr)->kizetuPokemonPtr;
 }
 
 /* Address: 0x801F64DC | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetFirstAttackRnd(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)((u8*)ptr + 0xA4E4) = val;
+    ((FightFloorBiosFields*)ptr)->firstAttackRnd = val;
 }
 
 /* Address: 0x801F64F0 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetFirstAttackRnd(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)((u8*)ptr + 0xA4E4);
+    return ((FightFloorBiosFields*)ptr)->firstAttackRnd;
 }
 
 /* 0x801F650C | size: 0x38 | small */
@@ -118,7 +119,7 @@ u32 fightFloorBiosGetFightOutPokemonPtrAry(u8* ptr, u16 idx) {
 /* Address: 0x801F65C0 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetFightPokemonEntryCnt(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)((u8*)ptr + 0xA4C0) = val;
+    ((FightFloorBiosFields*)ptr)->fightPokemonEntryCnt = val;
 }
 
 /* Address: 0x801F65D4 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
@@ -130,37 +131,37 @@ u32 fightFloorBiosGetFightPokemonEntryCnt(u8* ptr) {
 /* Address: 0x801F65F0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorDataBiosSetName(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x4]) = val;
+    ((FightFloorDataBiosFields*)ptr)->name = val;
 }
 
 /* Address: 0x801F6600 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightFloorDataBiosGetName(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x4]);
+    return ((FightFloorDataBiosFields*)ptr)->name;
 }
 
 /* Address: 0x801F6618 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorDataBiosSetEnvSndId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x10]) = val;
+    ((FightFloorDataBiosFields*)ptr)->envSndId = val;
 }
 
 /* Address: 0x801F6628 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorDataBiosSetBgmSndId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0xC]) = val;
+    ((FightFloorDataBiosFields*)ptr)->bgmSndId = val;
 }
 
 /* Address: 0x801F6638 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorDataBiosSetSyoukaiWzxDataId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x8]) = val;
+    ((FightFloorDataBiosFields*)ptr)->syoukaiWzxDataId = val;
 }
 
 /* Address: 0x801F6648 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorDataBiosSetTikeiDataId(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x0]) = val;
+    ((FightFloorDataBiosFields*)ptr)->tikeiDataId = val;
 }
 
 /* 0x801F6658 | size: 0x24 */
@@ -174,31 +175,31 @@ void fightFloorDataBiosSetFightSideDataId(u8* ptr, u8 idx, u16 val) {
 /* Address: 0x801F667C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorDataBiosSetFloorDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x2]) = val;
+    ((FightFloorDataBiosFields*)ptr)->floorDataId = val;
 }
 
 /* Address: 0x801F668C | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightFloorDataBiosGetEnvSndId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x10]);
+    return ((FightFloorDataBiosFields*)ptr)->envSndId;
 }
 
 /* Address: 0x801F66A4 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightFloorDataBiosGetBgmSndId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0xC]);
+    return ((FightFloorDataBiosFields*)ptr)->bgmSndId;
 }
 
 /* Address: 0x801F66BC | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightFloorDataBiosGetSyoukaiWzxDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x8]);
+    return ((FightFloorDataBiosFields*)ptr)->syoukaiWzxDataId;
 }
 
 /* Address: 0x801F66D4 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightFloorDataBiosGetTikeiDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x0]);
+    return ((FightFloorDataBiosFields*)ptr)->tikeiDataId;
 }
 
 /* 0x801F66EC | size: 0x34 */
@@ -212,7 +213,7 @@ u32 fightFloorDataBiosGetFightSideDataId(u8* ptr, u8 idx) {
 /* Address: 0x801F6720 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightFloorDataBiosGetFloorDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x2]);
+    return ((FightFloorDataBiosFields*)ptr)->floorDataId;
 }
 
 /* Address: 0x801F6738 | Size: 0x2C */
@@ -224,217 +225,217 @@ FightFloorData* fightFloorDataBiosGetPtr(u16 idx) {
 /* Address: 0x801F6764 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointTokuseiDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)((u8*)ptr + 0xA4BE) = val;
+    ((FightFloorBiosFields*)ptr)->appointTokuseiDataId = val;
 }
 
 /* Address: 0x801F6778 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointItemDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)((u8*)ptr + 0xA4BC) = val;
+    ((FightFloorBiosFields*)ptr)->appointItemDataId = val;
 }
 
 /* Address: 0x801F678C | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointWazaDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)((u8*)ptr + 0xA4BA) = val;
+    ((FightFloorBiosFields*)ptr)->appointWazaDataId = val;
 }
 
 /* Address: 0x801F67A0 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointPokemonDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)((u8*)ptr + 0xA4B8) = val;
+    ((FightFloorBiosFields*)ptr)->appointPokemonDataId = val;
 }
 
 /* Address: 0x801F67B4 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetWazakoukaMsgId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA4B0) = val;
+    ((FightFloorBiosFields*)ptr)->wazakoukaMsgId = val;
 }
 
 /* Address: 0x801F67C8 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetCriticalMsgId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA4AC) = val;
+    ((FightFloorBiosFields*)ptr)->criticalMsgId = val;
 }
 
 /* Address: 0x801F67DC | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAttackMsgId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA4A8) = val;
+    ((FightFloorBiosFields*)ptr)->attackMsgId = val;
 }
 
 /* Address: 0x801F67F0 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointMsgId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA4B4) = val;
+    ((FightFloorBiosFields*)ptr)->appointMsgId = val;
 }
 
 /* Address: 0x801F6804 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointItemPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA4A4) = val;
+    ((FightFloorBiosFields*)ptr)->appointItemPtr = val;
 }
 
 /* Address: 0x801F6818 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointSidePtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA4A0) = val;
+    ((FightFloorBiosFields*)ptr)->appointSidePtr = val;
 }
 
 /* Address: 0x801F682C | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointWazaPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA49C) = val;
+    ((FightFloorBiosFields*)ptr)->appointWazaPtr = val;
 }
 
 /* Address: 0x801F6840 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointTrainerPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA498) = val;
+    ((FightFloorBiosFields*)ptr)->appointTrainerPtr = val;
 }
 
 /* Address: 0x801F6854 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAppointPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA494) = val;
+    ((FightFloorBiosFields*)ptr)->appointPokemonPtr = val;
 }
 
 /* Address: 0x801F6868 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetIrekaePokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA480) = val;
+    ((FightFloorBiosFields*)ptr)->irekaePokemonPtr = val;
 }
 
 /* Address: 0x801F687C | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetEscapePokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA47C) = val;
+    ((FightFloorBiosFields*)ptr)->escapePokemonPtr = val;
 }
 
 /* Address: 0x801F6890 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetDefensePokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA478) = val;
+    ((FightFloorBiosFields*)ptr)->defensePokemonPtr = val;
 }
 
 /* Address: 0x801F68A4 | Size: 0x14 | Pattern: nullcheck_addis_setter */
 void fightFloorBiosSetAttackPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)((u8*)ptr + 0xA474) = val;
+    ((FightFloorBiosFields*)ptr)->attackPokemonPtr = val;
 }
 
 /* Address: 0x801F68B8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorBiosSetEncountDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x12]) = val;
+    ((FightFloorBiosFields*)ptr)->encountDataId = val;
 }
 
 /* Address: 0x801F68C8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightFloorBiosSetTurnCount(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x10]) = val;
+    ((FightFloorBiosFields*)ptr)->turnCount = val;
 }
 
 /* Address: 0x801F68D8 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointTokuseiDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)((u8*)ptr + 0xA4BE);
+    return ((FightFloorBiosFields*)ptr)->appointTokuseiDataId;
 }
 
 /* Address: 0x801F68F4 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointItemDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)((u8*)ptr + 0xA4BC);
+    return ((FightFloorBiosFields*)ptr)->appointItemDataId;
 }
 
 /* Address: 0x801F6910 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointWazaDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)((u8*)ptr + 0xA4BA);
+    return ((FightFloorBiosFields*)ptr)->appointWazaDataId;
 }
 
 /* Address: 0x801F692C | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointPokemonDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)((u8*)ptr + 0xA4B8);
+    return ((FightFloorBiosFields*)ptr)->appointPokemonDataId;
 }
 
 /* Address: 0x801F6948 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetWazakoukaMsgId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA4B0);
+    return ((FightFloorBiosFields*)ptr)->wazakoukaMsgId;
 }
 
 /* Address: 0x801F6964 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetCriticalMsgId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA4AC);
+    return ((FightFloorBiosFields*)ptr)->criticalMsgId;
 }
 
 /* Address: 0x801F6980 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAttackMsgId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA4A8);
+    return ((FightFloorBiosFields*)ptr)->attackMsgId;
 }
 
 /* Address: 0x801F699C | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointMsgId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA4B4);
+    return ((FightFloorBiosFields*)ptr)->appointMsgId;
 }
 
 /* Address: 0x801F69B8 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointItemPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA4A4);
+    return ((FightFloorBiosFields*)ptr)->appointItemPtr;
 }
 
 /* Address: 0x801F69D4 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointSidePtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA4A0);
+    return ((FightFloorBiosFields*)ptr)->appointSidePtr;
 }
 
 /* Address: 0x801F69F0 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointWazaPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA49C);
+    return ((FightFloorBiosFields*)ptr)->appointWazaPtr;
 }
 
 /* Address: 0x801F6A0C | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointTrainerPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA498);
+    return ((FightFloorBiosFields*)ptr)->appointTrainerPtr;
 }
 
 /* Address: 0x801F6A28 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAppointPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA494);
+    return ((FightFloorBiosFields*)ptr)->appointPokemonPtr;
 }
 
 /* Address: 0x801F6A44 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetIrekaePokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA480);
+    return ((FightFloorBiosFields*)ptr)->irekaePokemonPtr;
 }
 
 /* Address: 0x801F6A60 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetEscapePokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA47C);
+    return ((FightFloorBiosFields*)ptr)->escapePokemonPtr;
 }
 
 /* Address: 0x801F6A7C | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetDefensePokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA478);
+    return ((FightFloorBiosFields*)ptr)->defensePokemonPtr;
 }
 
 /* Address: 0x801F6A98 | Size: 0x1C | Pattern: nullcheck_addis_getter_bne */
 u32 fightFloorBiosGetAttackPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)((u8*)ptr + 0xA474);
+    return ((FightFloorBiosFields*)ptr)->attackPokemonPtr;
 }
 
 /* 0x801F6AB4 | size: 0x34 */
@@ -447,13 +448,13 @@ u8* fightFloorBiosGetFightSidePtr(u8* ptr, u16 idx) {
 /* Address: 0x801F6AE8 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightFloorBiosGetEncountDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x12]);
+    return ((FightFloorBiosFields*)ptr)->encountDataId;
 }
 
 /* Address: 0x801F6B00 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightFloorBiosGetTurnCount(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x10]);
+    return ((FightFloorBiosFields*)ptr)->turnCount;
 }
 
 /* 0x801F6B18 | size: 0x30 */

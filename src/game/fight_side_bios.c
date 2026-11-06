@@ -10,6 +10,7 @@
  */
 
 #include "game/pokemon_fight_types.h"
+#include "game/bios_records.h"
 
 /* 0x801F7798 | size: 0x24 | small */
 void fightSideDataBiosSetFightoutPokemonStatusMenuDataId(u8* ptr, u8 idx, u32 val) {
@@ -30,7 +31,7 @@ void fightSideDataBiosSetFightTrainerStatusMenuDataId(u8* ptr, u8 idx, u32 val) 
 /* Address: 0x801F77E0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightSideDataBiosSetYrot(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x0]) = val;
+    ((FightSideDataBiosFields*)ptr)->yrot = val;
 }
 
 /* 0x801F77F0 | size: 0x34 | small */
@@ -52,7 +53,7 @@ u32 fightSideDataBiosGetFightTrainerStatusMenuDataId(u8* ptr, u8 idx) {
 /* Address: 0x801F7858 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightSideDataBiosGetYrot(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x0]);
+    return ((FightSideDataBiosFields*)ptr)->yrot;
 }
 
 /* 0x801F7870 | size: 0x2C | small */
@@ -67,19 +68,19 @@ u8* fightSideDataBiosGetPtr(u16 idx) {
 /* Address: 0x801F789C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightSideBiosSetMakibisiCheckFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x522C]) = val;
+    ((FightSideBiosFields*)ptr)->makibisiCheckFlag = val;
 }
 
 /* Address: 0x801F78AC | Size: 0x10 | Pattern: nullcheck_setter */
 void fightSideBiosSetFightSideDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x0]) = val;
+    ((FightSideBiosFields*)ptr)->fightSideDataId = val;
 }
 
 /* Address: 0x801F78BC | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightSideBiosGetMakibisiCheckFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x522C]);
+    return ((FightSideBiosFields*)ptr)->makibisiCheckFlag;
 }
 
 /* 0x801F78D4 | size: 0x34 | small */
@@ -101,5 +102,5 @@ u8* fightSideBiosGetJoutaiPtr(u8* base, u16 idx) {
 /* Address: 0x801F793C | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightSideBiosGetFightSideDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x0]);
+    return ((FightSideBiosFields*)ptr)->fightSideDataId;
 }
