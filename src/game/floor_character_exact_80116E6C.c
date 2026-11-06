@@ -8,8 +8,8 @@
  * rlwimi itself; the unit is built with -opt nopeephole (see configure.py),
  * so a mask-and-or written by hand would not be folded into one.
  */
-#include "dolphin/types.h"
 #include "game/bios_records.h"
+#include "dolphin/types.h"
 
 typedef struct FloorCharacterFlags {
     u8 visible : 1;
