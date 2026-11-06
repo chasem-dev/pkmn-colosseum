@@ -13,6 +13,7 @@
  * units). See gs_field_world.c split history for the address-range
  * evidence (anchor-name monotonicity checks) used to place this boundary.
  */
+#include "game/records/lbl_8047AD88.h"
 #include "dolphin/types.h"
 #include "game/world/gs_field.h"
 /* ===== External SDK / engine functions ===== */
@@ -1880,7 +1881,7 @@ u8 std171_mapSetTextureChange(u32 arg1) {
     if ((s32)lbl_80478B40 == (s32)arg1) { return; }
 
     if (lbl_8047AD88 != 0) {
-        GSmodelResetTextureChange(GSresGetResource(std093_getCurrentGroupID(), *(u32*)((u8*)lbl_8047AD88 + 8)));
+        GSmodelResetTextureChange(GSresGetResource(std093_getCurrentGroupID(), ((Work8047AD88*)lbl_8047AD88)->field_8));
         if (lbl_8047AD8C != 0) {
             GStextureFree((void*)lbl_8047AD8C);
             lbl_8047AD8C = 0;
@@ -1910,18 +1911,18 @@ u8 std171_mapSetTextureChange(u32 arg1) {
         return 0;
     }
 
-    lbl_8047AD8C = (u32)GStextureCreate(*(u16*)((u8*)lbl_8047AD88 + 0), *(u16*)((u8*)lbl_8047AD88 + 2), 0x44, 0, 0);
+    lbl_8047AD8C = (u32)GStextureCreate(((Work8047AD88*)lbl_8047AD88)->field_0, ((Work8047AD88*)lbl_8047AD88)->field_2, 0x44, 0, 0);
     if (lbl_8047AD8C == 0) {
         lbl_8047AD88 = 0;
         return 0;
     }
-    lbl_8047AD90 = (u32)floorOpenModel(std093_getCurrentGroupID(), *(u32*)((u8*)lbl_8047AD88 + 0xc));
+    lbl_8047AD90 = (u32)floorOpenModel(std093_getCurrentGroupID(), ((Work8047AD88*)lbl_8047AD88)->field_C);
     GSmodelSetVisibility((void*)lbl_8047AD90, 0);
     GSmodelLinkTexAnimToAnim((void*)lbl_8047AD90, 1);
-    GSmodelSetAnimIndex((void*)lbl_8047AD90, *(u32*)((u8*)lbl_8047AD88 + 0x10));
+    GSmodelSetAnimIndex((void*)lbl_8047AD90, ((Work8047AD88*)lbl_8047AD88)->field_10);
     GSmodelStartAnimation((void*)lbl_8047AD90);
-    lbl_8047AD94 = (u32)GSresGetResource(std093_getCurrentGroupID(), *(u32*)((u8*)lbl_8047AD88 + 0x14));
-    GSmodelSetTextureChange(GSresGetResource(std093_getCurrentGroupID(), *(u32*)((u8*)lbl_8047AD88 + 8)), (void*)lbl_8047AD8C);
+    lbl_8047AD94 = (u32)GSresGetResource(std093_getCurrentGroupID(), ((Work8047AD88*)lbl_8047AD88)->field_14);
+    GSmodelSetTextureChange(GSresGetResource(std093_getCurrentGroupID(), ((Work8047AD88*)lbl_8047AD88)->field_8), (void*)lbl_8047AD8C);
     lbl_80478B40 = arg1;
     return 1;
 }
