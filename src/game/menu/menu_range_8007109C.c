@@ -10,6 +10,7 @@
  * 0x80073E8C) live in game/menu/pkjb_*.c; see
  * include/game/menu/pkjb_uploader_shared.h.
  */
+#include "game/records/lbl_803B6D88.h"
 #include "dolphin/types.h"
 #include "game/hero.h"
 #include "game/win_sprite.h"
@@ -369,7 +370,7 @@ u8 menuRuleCheckPokemon(void* pokemon, s32 check)
 s32 fn_8007162C(void) {
     u32 depth;
 
-    depth = *(u32*)(lbl_803B6D88 + 0x40);
+    depth = ((Work803B6D88*)lbl_803B6D88)->field_40;
     return *(s32*)(lbl_803B6D88 + depth * 8);
 }
 
@@ -536,7 +537,7 @@ void fn_80071344(void) {
     extern s32 menuOpenCustom(s32 slot, ...);
     u32 depth;
 
-    depth = *(u32*)(lbl_803B6D88 + 0x40);
+    depth = ((Work803B6D88*)lbl_803B6D88)->field_40;
     menuOpenCustom(*(s32*)(lbl_803B6D88 + depth * 8), 0,
                    lbl_803B6D88 + depth * 8 + 4, 0x10, 1, 0, 0);
 }
@@ -555,23 +556,23 @@ s32 _menuPop(void) {
     s32 active;
     u32 d;
 
-    top = *(s32*)(lbl_803B6D88 + *(u32*)(lbl_803B6D88 + 0x40) * 8);
+    top = *(s32*)(lbl_803B6D88 + ((Work803B6D88*)lbl_803B6D88)->field_40 * 8);
     active = windowGetActiveID();
     if (active == top) {
-        menuCloseCustom(*(s32*)(lbl_803B6D88 + *(u32*)(lbl_803B6D88 + 0x40) * 8), 0, 0);
+        menuCloseCustom(*(s32*)(lbl_803B6D88 + ((Work803B6D88*)lbl_803B6D88)->field_40 * 8), 0, 0);
     }
     if (windowSearchID(0xBE) != 0) {
         menuCloseCustom(0xBE, 0, 1);
     }
-    ((s32*)(lbl_803B6D88 + 4))[*(u32*)(lbl_803B6D88 + 0x40) * 2] = 0;
-    if (*(s32*)(lbl_803B6D88 + 0x40) == 0) {
+    ((s32*)(lbl_803B6D88 + 4))[((Work803B6D88*)lbl_803B6D88)->field_40 * 2] = 0;
+    if ((s32)((Work803B6D88*)lbl_803B6D88)->field_40 == 0) {
         return -1;
     }
-    if (!(0 < *(s32*)(lbl_803B6D88 + 0x40))) {
+    if (!(0 < (s32)((Work803B6D88*)lbl_803B6D88)->field_40)) {
         __assert((const char*)lbl_80268708, 0x5C, (const char*)lbl_80268718);
     }
-    d = *(u32*)(lbl_803B6D88 + 0x40) - 1;
-    *(u32*)(lbl_803B6D88 + 0x40) = d;
+    d = ((Work803B6D88*)lbl_803B6D88)->field_40 - 1;
+    ((Work803B6D88*)lbl_803B6D88)->field_40 = d;
     return *(s32*)(lbl_803B6D88 + d * 8);
 }
 
@@ -579,13 +580,13 @@ s32 _menuPop(void) {
 void _menuPush(s32 id) {
     u32 depth;
 
-    depth = *(u32*)(lbl_803B6D88 + 0x40);
+    depth = ((Work803B6D88*)lbl_803B6D88)->field_40;
     if (depth >= 8) {
         __assert((const char*)lbl_80268708, 0x41, (const char*)lbl_80268750);
     } else {
-        *(u32*)(lbl_803B6D88 + 0x40) = depth + 1;
+        ((Work803B6D88*)lbl_803B6D88)->field_40 = depth + 1;
         *(s32*)(lbl_803B6D88 + (depth + 1) * 8) = id;
-        *(s32*)(lbl_803B6D88 + *(u32*)(lbl_803B6D88 + 0x40) * 8 + 4) = 0;
+        *(s32*)(lbl_803B6D88 + ((Work803B6D88*)lbl_803B6D88)->field_40 * 8 + 4) = 0;
     }
 }
 
@@ -597,8 +598,8 @@ void menuCB_InitMenu(s32 id) {
         *(u32*)(lbl_803B6D88 + i * 8) = 0;
         *(u32*)(lbl_803B6D88 + i * 8 + 4) = 0;
     }
-    *(s32*)(lbl_803B6D88 + 0x0) = id;
-    *(u32*)(lbl_803B6D88 + 0x40) = 0;
+    ((Work803B6D88*)lbl_803B6D88)->field_0 = id;
+    ((Work803B6D88*)lbl_803B6D88)->field_40 = 0;
 }
 
 static inline s32 fn_80071AE4_poll_read(s32 chan, u32* response, u8* length,
@@ -4327,29 +4328,29 @@ s32 _menuPop_80071398(s32 target)
     s32 active;
     s32 d;
 
-    top = *(s32*)(lbl_803B6D88 + *(u32*)(lbl_803B6D88 + 0x40) * 8);
+    top = *(s32*)(lbl_803B6D88 + ((Work803B6D88*)lbl_803B6D88)->field_40 * 8);
     active = windowGetActiveID();
     if (active == top) {
-        menuCloseCustom(*(s32*)(lbl_803B6D88 + *(u32*)(lbl_803B6D88 + 0x40) * 8), 0, 0);
+        menuCloseCustom(*(s32*)(lbl_803B6D88 + ((Work803B6D88*)lbl_803B6D88)->field_40 * 8), 0, 0);
     }
     if (windowSearchID(0xBE) != 0) {
         menuCloseCustom(0xBE, 0, 1);
     }
-    ((s32*)(lbl_803B6D88 + 4))[*(u32*)(lbl_803B6D88 + 0x40) * 2] = 0;
-    if (*(s32*)(lbl_803B6D88 + 0x40) != 0) {
-        if (!(0 < *(s32*)(lbl_803B6D88 + 0x40))) {
+    ((s32*)(lbl_803B6D88 + 4))[((Work803B6D88*)lbl_803B6D88)->field_40 * 2] = 0;
+    if ((s32)((Work803B6D88*)lbl_803B6D88)->field_40 != 0) {
+        if (!(0 < (s32)((Work803B6D88*)lbl_803B6D88)->field_40)) {
             __assert((const char*)lbl_80268708, 0x5C, (const char*)lbl_80268718);
         }
-        *(u32*)(lbl_803B6D88 + 0x40) -= 1;
+        ((Work803B6D88*)lbl_803B6D88)->field_40 -= 1;
     }
-    while (d = *(s32*)(lbl_803B6D88 + 0x40),
+    while (d = (s32)((Work803B6D88*)lbl_803B6D88)->field_40,
            target != *(s32*)(lbl_803B6D88 + d * 8)) {
         if (d == 0) {
             break;
         }
-        *(s32*)(lbl_803B6D88 + 0x40) -= 1;
+        ((Work803B6D88*)lbl_803B6D88)->field_40 -= 1;
     }
-    return *(s32*)(lbl_803B6D88 + *(u32*)(lbl_803B6D88 + 0x40) * 8);
+    return *(s32*)(lbl_803B6D88 + ((Work803B6D88*)lbl_803B6D88)->field_40 * 8);
 }
 #endif /* !MENU_RANGE_CARVE || MENU_R56B_80071398_ONLY */
 
