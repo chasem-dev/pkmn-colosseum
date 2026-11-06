@@ -2,6 +2,7 @@
  * @file menuPokemonOpen_exact.c
  * @brief Party-menu entry-point wrappers.
  */
+#include "game/records/lbl_803A1D40.h"
 #include "dolphin/types.h"
 
 void menuPokemonOpenItemGive(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
@@ -32,7 +33,7 @@ void menuPokemonOpenFight(u8 arg0, u8 arg1, u32 arg2, u32 arg3)
     } else {
         lbl_803A1D40[4] = 1;
     }
-    *(u32*)(lbl_803A1D40 + 0x18) = arg3;
+    ((Work803A1D40*)lbl_803A1D40)->field_18 = arg3;
     menuPokemonOpenSub(2, 0, 0, arg1, arg2, 1);
 }
 
