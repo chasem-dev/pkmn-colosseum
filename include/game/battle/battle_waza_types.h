@@ -89,15 +89,18 @@ struct WazaSequence {
     /* 0x14 */ u8 active;
     /* 0x15 */ u8 stopping;
     /* 0x16 */ u8 cameraActive;
-    /* 0x17 */ u8 pad_17[0x0D];
+    /* 0x17 */ u8 field_17;
+    /* 0x18 */ u32 field_18;
+    /* 0x1C */ u32 field_1C;
+    /* 0x20 */ u32 field_20;
     /* 0x24 */ WazaSequenceNode* firstNode;
-    /* 0x28 */ u8 pad_28[2];
+    /* 0x28 */ u16 memHandle;
     /* 0x2A */ u16 handle;
     /* 0x2C */ u16 moveIndex;
     /* 0x2E */ u16 animationMode;
     /* 0x30 */ u8 pad_30[0x04];
     /* 0x34 */ WazaSequence* next;
-    /* 0x38 */ u8 pad_38[0x04];
+    /* 0x38 */ WazaSequence* previous;
     /* 0x3C */ WazaSequenceOwner* owner;
 };
 

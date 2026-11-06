@@ -353,23 +353,23 @@ void wazaSequenceOwnerRelease(void* obj) {
 
         if (data == NULL) {
             enabled = 0;
-        } else if (*(u8*)(data + 0x77) == 0) {
+        } else if (((WazaEffect*)data)->motionComplete == 0) {
             enabled = 0;
-        } else if (*(u8*)(data + 0x4E) == 0) {
+        } else if (((WazaEffect*)data)->colorChangeRequested == 0) {
             enabled = 0;
         } else {
-            enabled = *(u8*)(data + 0x4F);
+            enabled = ((WazaEffect*)data)->colorChangeApplied;
         }
 
-        if (enabled != 0 && data != NULL && *(u8*)(data + 0x4F) != 0 && *(u8*)(data + 0x4E) != 0) {
+        if (enabled != 0 && data != NULL && ((WazaEffect*)data)->colorChangeApplied != 0 && ((WazaEffect*)data)->colorChangeRequested != 0) {
             handle = *(u32*)(data + 0x24);
-            if (*(u8*)(data + 0x4C) != 0) {
+            if (((WazaEffect*)data)->colorSwapOn != 0) {
                 GSmodelDisableColorSwap(handle);
             }
-            if (*(u8*)(data + 0x4D) != 0) {
+            if (((WazaEffect*)data)->modulationOn != 0) {
                 GSmodelDisableModulation(handle);
             }
-            *(u8*)(data + 0x4F) = 0;
+            ((WazaEffect*)data)->colorChangeApplied = 0;
         }
 
         if (*(u32*)(data + 0x24) != 0) {
@@ -595,7 +595,7 @@ u8 fn_801DD5E8(void* effect, u8* resource) {
     *(s16*)(sequence + 0x1A) = -1;
     *(s16*)(sequence + 0x1C) = -1;
     *(s16*)(sequence + 0x1E) = -1;
-    *(u8*)(sequence + 0x4E) = 0;
+    ((WazaEffect*)sequence)->colorChangeRequested = 0;
 
     switch (header->loadMode) {
     case 1:
@@ -604,16 +604,16 @@ u8 fn_801DD5E8(void* effect, u8* resource) {
         break;
     case 3:
         trim = -0xC;
-        *(u8*)(sequence + 0x4E) = header->flag14 != 0;
+        ((WazaEffect*)sequence)->colorChangeRequested = header->flag14 != 0;
         break;
     case 4:
         trim = -0xC;
-        *(u8*)(sequence + 0x4E) = header->flag14 >> 31;
+        ((WazaEffect*)sequence)->colorChangeRequested = header->flag14 >> 31;
         break;
     case 5:
     default:
         trim = 0;
-        *(u8*)(sequence + 0x4E) = header->flag14 >> 31;
+        ((WazaEffect*)sequence)->colorChangeRequested = header->flag14 >> 31;
         *(s16*)(sequence + 0x1A) = header->value18;
         *(s16*)(sequence + 0x1C) = header->value20;
         *(s16*)(sequence + 0x1E) = header->value1C;
@@ -621,16 +621,16 @@ u8 fn_801DD5E8(void* effect, u8* resource) {
     }
 
     *(u32*)(sequence + 0x0) = 0x4E20;
-    *(u32*)(sequence + 0x10) = header->sequenceKind;
+    ((WazaEffect*)sequence)->scale_selector = header->sequenceKind;
     resource += (sizeof(SequenceLoadResourceHeader) + trim + 0x1F) & ~0x1F;
-    *(u16*)(sequence + 0x32) = 0;
-    *(u16*)(sequence + 0x34) = 0;
+    ((WazaEffect*)sequence)->index = 0;
+    ((WazaEffect*)sequence)->field_34 = 0;
     *(u16*)(sequence + 0x14) = count = header->entryCount;
     *(u16*)(sequence + 0x7C) = 0;
 
-    if ((*(u16*)(sequence + 0x70) == 0x18) ||
-        (*(u16*)(sequence + 0x70) == 0x4A) ||
-        (*(u16*)(sequence + 0x70) == 0x134)) {
+    if ((((WazaEffect*)sequence)->id == 0x18) ||
+        (((WazaEffect*)sequence)->id == 0x4A) ||
+        (((WazaEffect*)sequence)->id == 0x134)) {
         *(u16*)(sequence + 0x7C) =
             GSmemAlloc((header->mainSize + 0x1F) & ~0x1F, 0x20);
         if (*(u16*)(sequence + 0x7C) == 0) {
@@ -718,7 +718,7 @@ u8 fn_801DD5E8(void* effect, u8* resource) {
             resource += (count * 0xD0 + 0x1F) & ~0x1F;
         }
 
-        if (*(u8*)(sequence + 0x4E) != 0) {
+        if (((WazaEffect*)sequence)->colorChangeRequested != 0) {
             *(s32*)(sequence + 0x38) = *(s32*)(resource + 0x0);
             *(s32*)(sequence + 0x3C) = *(s32*)(resource + 0x4);
             *(s32*)(sequence + 0x40) = *(s32*)(resource + 0x8);
@@ -727,7 +727,7 @@ u8 fn_801DD5E8(void* effect, u8* resource) {
                 (*(s32*)(sequence + 0x3C) != 1) ||
                 (*(s32*)(sequence + 0x40) != 2) ||
                 (*(s32*)(sequence + 0x44) != 3)) {
-                *(u8*)(sequence + 0x4C) = 1;
+                ((WazaEffect*)sequence)->colorSwapOn = 1;
             }
             *(u8*)(sequence + 0x4B) = *(s32*)(resource + 0x10) >> 24;
             *(u8*)(sequence + 0x4A) = *(u32*)(resource + 0x10) >> 16;
@@ -737,12 +737,12 @@ u8 fn_801DD5E8(void* effect, u8* resource) {
                 (*(u8*)(sequence + 0x49) != 0x7F) ||
                 (*(u8*)(sequence + 0x4A) != 0x7F) ||
                 (*(u8*)(sequence + 0x4B) != 0x7F)) {
-                *(u8*)(sequence + 0x4D) = 1;
+                ((WazaEffect*)sequence)->modulationOn = 1;
             }
         }
         return TRUE;
     }
-    *(void**)(sequence + 0x2C) = NULL;
+    ((WazaEffect*)sequence)->table = NULL;
     return FALSE;
 }
 
@@ -760,10 +760,10 @@ BOOL fn_801DDB4C(void* owner, void* resource) {
     if (sequence == NULL) {
         return FALSE;
     }
-    *(u16*)(sequence + 0x2C) = 0;
-    *(u16*)(sequence + 0x2E) = 0;
+    ((WazaSequence*)sequence)->moveIndex = 0;
+    ((WazaSequence*)sequence)->animationMode = 0;
     *(u16*)(sequence + 0x30) = 0;
-    *(void**)(sequence + 0x3C) = owner;
+    ((WazaSequence*)sequence)->owner = owner;
     if (!wazaSequenceLoadData(sequence, resource)) {
         wazaSequenceFree(sequence);
         return FALSE;
@@ -774,7 +774,7 @@ BOOL fn_801DDB4C(void* owner, void* resource) {
     if ((u8*)((WazaEffect*)owner)->sequenceList != NULL) {
         *(u8**)((u8*)((WazaEffect*)owner)->sequenceList + 0x38) = sequence;
     }
-    *(void**)(sequence + 0x38) = NULL;
+    ((WazaSequence*)sequence)->previous = NULL;
     ((WazaEffect*)owner)->sequenceList = (WazaSequence*)sequence;
     return TRUE;
 }
@@ -868,10 +868,10 @@ BOOL fn_801DDD28(void* owner, u16 group, u16 index, u8 variant) {
     if (sequence == NULL) {
         return FALSE;
     }
-    *(u16*)(sequence + 0x2C) = group;
-    *(u16*)(sequence + 0x2E) = index;
+    ((WazaSequence*)sequence)->moveIndex = group;
+    ((WazaSequence*)sequence)->animationMode = index;
     *(u16*)(sequence + 0x30) = (u16)resourceGroup;
-    *(void**)(sequence + 0x3C) = owner;
+    ((WazaSequence*)sequence)->owner = owner;
     if (!wazaSequenceLoadData(sequence, resource)) {
         wazaSequenceFree(sequence);
         return FALSE;
@@ -882,7 +882,7 @@ BOOL fn_801DDD28(void* owner, u16 group, u16 index, u8 variant) {
     if ((u8*)((WazaEffect*)owner)->sequenceList != NULL) {
         *(u8**)((u8*)((WazaEffect*)owner)->sequenceList + 0x38) = sequence;
     }
-    *(void**)(sequence + 0x38) = NULL;
+    ((WazaSequence*)sequence)->previous = NULL;
     ((WazaEffect*)owner)->sequenceList = (WazaSequence*)sequence;
     return TRUE;
 }
@@ -1091,7 +1091,7 @@ void* fn_801DE190(u16 index, void* model, u8 variant) {
     if (sequence == NULL) {
         return NULL;
     }
-    *(u16*)(sequence + 0x70) = index;
+    ((WazaEffect*)sequence)->id = index;
     *(u16*)(sequence + 0x72) = group;
     sequence[0x75] = 1;
     *(void**)(sequence + 0x78) = model;

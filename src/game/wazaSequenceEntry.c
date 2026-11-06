@@ -53,29 +53,29 @@ u8 wazaSequenceEntryStop(void* entry, BOOL immediate) {
     u8* node = entry;
     void* ownerModel;
 
-    if (*(s32*)(node + 0x6C) == 2) {
+    if ((s32)((WazaSequenceNode*)node)->runtimeState == 2) {
         return TRUE;
     }
-    if (!(u8)immediate && *(s32*)(node + 0x6C) != 1) {
+    if (!(u8)immediate && (s32)((WazaSequenceNode*)node)->runtimeState != 1) {
         return FALSE;
     }
 
-    ownerModel = *(void**)(*(u8**)(*(u8**)(node + 0xB0) + 0x3C) + 0x24);
-    switch (*(s32*)(node + 0x04)) {
+    ownerModel = *(void**)(*(u8**)((u8*)((WazaSequenceNode*)node)->sequence + 0x3C) + 0x24);
+    switch (((WazaSequenceNode*)node)->kind) {
     case 0:
     case 1:
     case 6:
         break;
 
     case 2: {
-        void* model = *(void**)(node + 0xA4);
+        void* model = ((WazaSequenceNode*)node)->model;
 
         if (model != NULL) {
             GSmodelStopAnimation(model);
             GSmodelStopTexAnimation(model);
             GSmodelSetVisibility(model, 0);
 
-            if (*(s32*)(node + 0x94) != 0) {
+            if (((WazaSequenceNode*)node)->restoreTransform != 0) {
                 f32 position[3];
                 f32 rotation[3];
                 f32 scale[3];
@@ -87,13 +87,13 @@ u8 wazaSequenceEntryStop(void* entry, BOOL immediate) {
                 GSmodelGetScale(model, scale);
                 GSmodelGetPosition(ownerModel, ownerPosition);
                 GSvecSub(ownerPosition, ownerPosition, position);
-                if (*(s32*)(node + 0xA0) != 0) {
+                if (((WazaSequenceNode*)node)->attached != 0) {
                     GSmodelDetachFromGSpart(ownerModel, 0);
                 }
                 GSmodelSetPosition(ownerModel, position);
                 GSmodelSetRotation(ownerModel, rotation);
                 GSmodelSetScale(ownerModel, lbl_803725BC);
-                if ((*(s32*)(node + 0x9C) & 0x10) == 0x10) {
+                if (((s32)((WazaSequenceNode*)node)->attachFlags & 0x10) == 0x10) {
                     void* bound = GSmodelGetBound(ownerModel);
 
                     GSlerpGetLinearInterpolationVector(
@@ -103,16 +103,16 @@ u8 wazaSequenceEntryStop(void* entry, BOOL immediate) {
                     GSmodelSetPosition(ownerModel, position);
                     GSmodelRemoveNull(ownerModel);
                 }
-                if ((*(s32*)(node + 0x9C) & 8) == 8) {
+                if (((s32)((WazaSequenceNode*)node)->attachFlags & 8) == 8) {
                     GSmodelAddNull(ownerModel, (GSvec*)ownerPosition, NULL, NULL);
-                    GSvecCopy(*(u8**)(*(u8**)(node + 0xB0) + 0x3C) + 0x5C,
+                    GSvecCopy(*(u8**)((u8*)((WazaSequenceNode*)node)->sequence + 0x3C) + 0x5C,
                               ownerPosition);
                 }
             } else {
-                if (*(s32*)(node + 0xA0) != 0) {
+                if (((WazaSequenceNode*)node)->attached != 0) {
                     GSmodelDetachFromGSpart(model, 0);
-                    if ((*(s32*)(node + 0x1C) & 1) != 1 &&
-                        *(s32*)(node + 0x20) == 0x10) {
+                    if (((s32)((WazaSequenceNode*)node)->flags & 1) != 1 &&
+                        ((WazaSequenceNode*)node)->attachment == 0x10) {
                         modelRemoveCenterNull(ownerModel);
                     }
                 }
@@ -126,18 +126,18 @@ u8 wazaSequenceEntryStop(void* entry, BOOL immediate) {
     }
 
     case 3:
-        if (*(s32*)(node + 0x90) != 0 &&
-            (*(s32*)(node + 0x1C) & 1) != 1 &&
-            *(s32*)(node + 0x20) == 0x10) {
+        if (((WazaSequenceNode*)node)->textureAnimation != 0 &&
+            ((s32)((WazaSequenceNode*)node)->flags & 1) != 1 &&
+            ((WazaSequenceNode*)node)->attachment == 0x10) {
             modelRemoveCenterNull(ownerModel);
         }
         break;
 
     case 4:
-        if (*(s32*)(node + 0x78) != 0) {
-            switch (*(s32*)(node + 0x88)) {
+        if (((WazaSequenceNode*)node)->resourceId != 0) {
+            switch (((WazaSequenceNode*)node)->animation) {
             case 6: {
-                u8* effect = GSeffectGetData(*(u32*)(node + 0x78));
+                u8* effect = GSeffectGetData((u32)((WazaSequenceNode*)node)->resourceId);
 
                 if (*(s32*)(effect + 0xA8) != 0) {
                     f32 position[3];
@@ -149,7 +149,7 @@ u8 wazaSequenceEntryStop(void* entry, BOOL immediate) {
                 break;
             }
             case 0: {
-                u8* effect = GSeffectGetData(*(u32*)(node + 0x78));
+                u8* effect = GSeffectGetData((u32)((WazaSequenceNode*)node)->resourceId);
 
                 if (*(u8*)(effect + 0x4D) != 0) {
                     GSmodelSetModulationColor(ownerModel, effect + 0x44);
@@ -158,23 +158,23 @@ u8 wazaSequenceEntryStop(void* entry, BOOL immediate) {
             }
             }
         }
-        GSeffectStop(*(u32*)(node + 0x78));
+        GSeffectStop((u32)((WazaSequenceNode*)node)->resourceId);
         break;
 
     case 5:
-        if ((*(s32*)(node + 0x7C) & 1) == 1) {
+        if (((s32)((WazaSequenceNode*)node)->runtimeFlags & 1) == 1) {
             lbl_8047B408 = 0;
         }
-        soundKill(*(u32*)(node + 0x78));
+        soundKill((u32)((WazaSequenceNode*)node)->resourceId);
         break;
 
     default:
         GSlogWrite(lbl_80279588);
-        *(s32*)(node + 0x6C) = -1;
+        ((WazaSequenceNode*)node)->runtimeState = -1;
         return FALSE;
     }
 
-    *(s32*)(node + 0x6C) = 2;
+    ((WazaSequenceNode*)node)->runtimeState = 2;
     return TRUE;
 }
 
@@ -224,26 +224,26 @@ u8 wazaSequenceEntryUpdate(void* entry, s32 elapsed) {
     u8* node = entry;
     u32 kind;
 
-    *(s32*)(node + 0x74) += elapsed;
-    kind = *(u32*)(node + 0x04);
+    ((WazaSequenceNode*)node)->currentTime += elapsed;
+    kind = (u32)((WazaSequenceNode*)node)->kind;
 
     switch (kind) {
     case 2: {
-        void* model = *(void**)(node + 0xA4);
+        void* model = ((WazaSequenceNode*)node)->model;
 
         if (model == NULL) {
             break;
         }
 
-        if (*(s32*)(node + 0x88) < 0) {
+        if (((WazaSequenceNode*)node)->animation < 0) {
             done = TRUE;
         } else {
-            switch (*(s32*)(node + 0x84)) {
+            switch (((WazaSequenceNode*)node)->animationMode) {
             case 1: {
                 WazaSequenceNode* timing =
-                    (WazaSequenceNode*)(node + *(s32*)(node + 0x14) * 4);
-                s32 time = *(s32*)(node + 0x70) + timing->positionType;
-                done = time >= *(s32*)*(u8**)(node + 0xB0);
+                    (WazaSequenceNode*)(node + ((WazaSequenceNode*)node)->timingIndex * 4);
+                s32 time = ((WazaSequenceNode*)node)->startTime + timing->positionType;
+                done = time >= *(s32*)(u8*)((WazaSequenceNode*)node)->sequence;
                 break;
             }
             case 0:
@@ -253,21 +253,21 @@ u8 wazaSequenceEntryUpdate(void* entry, s32 elapsed) {
             }
         }
 
-        if (*(s32*)(node + 0x88) != (s32)(kind = *(u32*)(node + 0x90)) &&
+        if (((WazaSequenceNode*)node)->animation != (s32)(kind = ((WazaSequenceNode*)node)->particleDone) &&
             (s32)kind >= 0) {
             u8 texDone;
 
-            switch (*(s32*)(node + 0x8C)) {
+            switch (((WazaSequenceNode*)node)->textureAnimationMode) {
             case 1: {
                 WazaSequenceNode* timing =
-                    (WazaSequenceNode*)(node + *(s32*)(node + 0x14) * 4);
-                s32 time = *(s32*)(node + 0x70) + timing->positionType;
-                texDone = time >= *(s32*)*(u8**)(node + 0xB0);
+                    (WazaSequenceNode*)(node + ((WazaSequenceNode*)node)->timingIndex * 4);
+                s32 time = ((WazaSequenceNode*)node)->startTime + timing->positionType;
+                texDone = time >= *(s32*)(u8*)((WazaSequenceNode*)node)->sequence;
                 break;
             }
             case 0:
             default:
-                texDone = GSmodelHasTexAnimationEnded(*(void**)(node + 0xA4));
+                texDone = GSmodelHasTexAnimationEnded(((WazaSequenceNode*)node)->model);
                 break;
             }
 
@@ -277,36 +277,36 @@ u8 wazaSequenceEntryUpdate(void* entry, s32 elapsed) {
         if (!done) {
             break;
         }
-        if ((*(u32*)(node + 0x9C) & 2) != 0) {
-            *(s32*)(node + 0x6C) = 3;
+        if ((((WazaSequenceNode*)node)->attachFlags & 2) != 0) {
+            ((WazaSequenceNode*)node)->runtimeState = 3;
             return TRUE;
         }
         return FALSE;
     }
 
     case 5:
-        if ((*(s32*)(node + 0x7C) & 1) == 1) {
+        if (((s32)((WazaSequenceNode*)node)->runtimeFlags & 1) == 1) {
             if ((u32)lbl_8047B408 != 0) {
                 return GSthreadIsRunning(lbl_8047B408);
             }
             return FALSE;
         } else {
-            return wazaEntrySoundRunning(*(u32*)(node + 0x78));
+            return wazaEntrySoundRunning((u32)((WazaSequenceNode*)node)->resourceId);
         }
 
     case 4:
-        if (*(s32*)(node + 0x78) == 0) {
+        if (((WazaSequenceNode*)node)->resourceId == 0) {
             break;
         } else {
-            u32 effectId = *(u32*)(node + 0x78);
+            u32 effectId = (u32)((WazaSequenceNode*)node)->resourceId;
 
             if ((u8)GSeffectIsRunning(effectId)) {
-                switch (*(s32*)(node + 0x88)) {
+                switch (((WazaSequenceNode*)node)->animation) {
                 default:
                     break;
                 case 0:
                     if ((u8)filterIsHolding(GSeffectGetData(effectId))) {
-                        *(s32*)(node + 0x6C) = 3;
+                        ((WazaSequenceNode*)node)->runtimeState = 3;
                     }
                     break;
                 }
@@ -316,32 +316,32 @@ u8 wazaSequenceEntryUpdate(void* entry, s32 elapsed) {
         }
 
     case 3:
-        if (*(void**)(node + 0x8C) == NULL) {
+        if (((WazaSequenceNode*)node)->particle == NULL) {
             break;
         }
-        if ((u32)fn_80118DA8(*(void**)(node + 0x8C)) != 0 ||
-            fn_80118D84(*(void**)(node + 0x8C)) != 0) {
+        if ((u32)fn_80118DA8(((WazaSequenceNode*)node)->particle) != 0 ||
+            fn_80118D84(((WazaSequenceNode*)node)->particle) != 0) {
             return TRUE;
         }
         return FALSE;
 
     case 1:
-        switch (*(s32*)(node + 0x78)) {
+        switch (((WazaSequenceNode*)node)->resourceId) {
         case 0:
-            if ((*(s32*)(node + 0x74) - *(s32*)(node + 0x70)) < *(s32*)(node + 0x7C)) {
+            if ((((WazaSequenceNode*)node)->currentTime - ((WazaSequenceNode*)node)->startTime) < (s32)((WazaSequenceNode*)node)->runtimeFlags) {
                 break;
             } else {
-                u8* sequence = *(u8**)(node + 0xB0);
-                u8* current = *(u8**)(sequence + 0x24);
+                u8* sequence = (u8*)((WazaSequenceNode*)node)->sequence;
+                u8* current = (u8*)((WazaSequence*)sequence)->firstNode;
 
                 while (current != NULL) {
-                    if (*(s32*)(current + 0x6C) == 3) {
+                    if ((s32)((WazaSequenceNode*)current)->runtimeState == 3) {
                         *(s8*)(sequence + 0x15) = -1;
                         return FALSE;
                     }
-                    current = *(u8**)(current + 0xA8);
+                    current = (u8*)((WazaSequenceNode*)current)->next;
                 }
-                *(u8*)(sequence + 0x15) = 1;
+                ((WazaSequence*)sequence)->stopping = 1;
                 return FALSE;
             }
         case 1:
@@ -570,11 +570,11 @@ u8 _wazaSequenceEffectEntryStart(void* entry) {
     void* archive;
     void* resource;
 
-    effectId = *(u32*)(node + 0x78);
-    owner = *(u8**)(*(u8**)(node + 0xB0) + 0x3C);
+    effectId = (u32)((WazaSequenceNode*)node)->resourceId;
+    owner = *(u8**)((u8*)((WazaSequenceNode*)node)->sequence + 0x3C);
     owner0 = *(u32*)(owner + 0x00);
     owner1 = *(u32*)(owner + 0x04);
-    table = (WazaEffectTblEntry*)*(void**)(owner + 0x2C) + *(u16*)(owner + 0x32);
+    table = (WazaEffectTblEntry*)((WazaEffect*)owner)->table + ((WazaEffect*)owner)->index;
 
     if (effectId != 0) {
         effect = GSeffectGetData((u32)effectId);
@@ -585,9 +585,9 @@ u8 _wazaSequenceEffectEntryStart(void* entry) {
             return FALSE;
         }
 
-        fn_801D9950(*(void**)(node + 0xB0), scale, *(s32*)(owner + 0x10));
+        fn_801D9950(((WazaSequenceNode*)node)->sequence, scale, ((WazaEffect*)owner)->scale_selector);
 
-        switch (*(s32*)(node + 0x88)) {
+        switch (((WazaSequenceNode*)node)->animation) {
         case 0:
             switch (*(u8*)(effect + 0x4C)) {
             case 0:
@@ -642,7 +642,7 @@ u8 _wazaSequenceEffectEntryStart(void* entry) {
         case 1:
             *(u16*)(effect + 0x4C) = owner0;
             *(u16*)(effect + 0x4E) = owner1;
-            *(u32*)(effect + 0x50) = table->field_4C[*(u32*)(node + 0x80)];
+            *(u32*)(effect + 0x50) = table->field_4C[(u32)((WazaSequenceNode*)node)->field_80];
             break;
 
         case 2:
@@ -655,20 +655,20 @@ u8 _wazaSequenceEffectEntryStart(void* entry) {
             GSvecCopy(effect + 0x28, scale);
             *(u16*)(effect + 0x0A) = owner0;
             *(u16*)(effect + 0x0C) = owner1;
-            *(u16*)(effect + 0x0E) = table->field_4C[*(u32*)(node + 0x80)];
+            *(u16*)(effect + 0x0E) = table->field_4C[(u32)((WazaSequenceNode*)node)->field_80];
             break;
 
         case 4:
             *(u16*)(effect + 0x24) = owner0;
             *(u16*)(effect + 0x26) = owner1;
-            *(u16*)(effect + 0x28) = table->field_4C[*(u32*)(node + 0x80)];
-            *(u16*)(effect + 0x2A) = table->field_4C[*(u32*)(node + 0x84)];
+            *(u16*)(effect + 0x28) = table->field_4C[(u32)((WazaSequenceNode*)node)->field_80];
+            *(u16*)(effect + 0x2A) = table->field_4C[(u32)((WazaSequenceNode*)node)->animationMode];
             break;
 
         case 5:
             *(u16*)(effect + 0x46) = owner0;
             *(u16*)(effect + 0x48) = owner1;
-            *(u16*)(effect + 0x4A) = table->field_4C[*(u32*)(node + 0x80)];
+            *(u16*)(effect + 0x4A) = table->field_4C[(u32)((WazaSequenceNode*)node)->field_80];
             *(f32*)(effect + 0x0C) = scale[0];
             break;
 
@@ -704,7 +704,7 @@ u8 _wazaSequenceEffectEntryStart(void* entry) {
 
         case 12:
             *(void**)(effect + 0x08) = *(void**)(owner + 0x24);
-            *(u32*)(effect + 0x0C) = *(u32*)(*(u8**)(owner + 0x2C) + 0x54);
+            *(u32*)(effect + 0x0C) = *(u32*)((u8*)((WazaEffect*)owner)->table + 0x54);
             *(f32*)(effect + 0x14) = *(f32*)(effect + 0x18) * scale[0];
             break;
 
@@ -1268,8 +1268,8 @@ void* fn_801D97F0(void* entry) {
 
     selector = node->attachment;
     owner = (u8*)node->sequence->owner;
-    table = (s32 (*)[1])(*(u8**)(owner + 0x2C) +
-                         *(u16*)(owner + 0x32) * 0xD4);
+    table = (s32 (*)[1])((u8*)((WazaEffect*)owner)->table +
+                         ((WazaEffect*)owner)->index * 0xD4);
     if (selector == 0x10) {
         if (GSmodelCenterNull(*(void**)(owner + 0x24))) {
             partIndex = GSmodelWalkJObjs(*(void**)(owner + 0x24)) - 1;
@@ -1443,7 +1443,7 @@ u8 wazaSequencePokemonMotionStart(void* ownerPtr, BOOL enabled) {
     f32 frameCount;
     f32 texFrameCount;
 
-    if (*(u8*)(owner + 0x16) != 0) {
+    if (((WazaEffect*)owner)->motionBusy != 0) {
         return FALSE;
     }
     if (model != NULL) {
@@ -1469,9 +1469,9 @@ u8 wazaSequencePokemonMotionStart(void* ownerPtr, BOOL enabled) {
             goto done;
         }
 
-        *(u16*)(owner + 0x34) = 0;
+        ((WazaEffect*)owner)->field_34 = 0;
         animIndex = wazaSequenceOwnerFindAnim(owner);
-        if ((*(u8*)(owner + 0x18) & 4) != 4) {
+        if ((((WazaEffect*)owner)->flags & 4) != 4) {
             *(u8*)(owner + 0x19) = 0;
             GSmodelLinkTexAnimToAnim(model, 1);
         }
