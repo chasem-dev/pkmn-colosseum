@@ -14,6 +14,7 @@
  * header above). Relocated here during the gs_field_colquery.c 6-way
  * split so this unit scores real progress instead of 0%.
  */
+#include "game/records/lbl_80408378.h"
 #include "dolphin/types.h"
 
 extern u8 lbl_80408378[];
@@ -48,13 +49,13 @@ void std161_fieldSetPending(u32 material, u32 palette, u8 materialSlot) {
 /* 0x8011418C | 0x4C */
 void fn_8011418C(u32* texture, u32* palette, u8* textureSlot) {
     if (texture != NULL) {
-        *texture = *(u32*)(lbl_80408378 + 0x3C);
+        *texture = ((Work80408378*)lbl_80408378)->field_3C;
     }
     if (palette != NULL) {
-        *palette = *(u32*)(lbl_80408378 + 0x40);
+        *palette = ((Work80408378*)lbl_80408378)->field_40;
     }
     if (textureSlot != NULL) {
-        *textureSlot = *(u8*)(lbl_80408378 + 0x44);
+        *textureSlot = ((Work80408378*)lbl_80408378)->field_44;
     }
 }
 
