@@ -177,6 +177,7 @@
  * --------------------------------------------------------------------------
  */
 
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 /* Callees used across the title-screen carves, with their definitions' signatures. */

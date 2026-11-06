@@ -4,6 +4,7 @@
  *        fn_80044378 with the row helpers it inlines. Copied from
  *        pda_range_80037158.c.
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -152,10 +153,10 @@ void fn_80044378(u8* context, PdaSprite* sprite)
     default:
         entry = lbl_802EF0A8 + messageId * 0x1C;
         fn_800FE38C(
-            *(s16*)(lbl_802EF0A8 + 0x5712) - *(s16*)(entry + 2),
-            *(s16*)(lbl_802EF0A8 + 0x5714) - *(s16*)(entry + 4),
-            *(s16*)(lbl_802EF0A8 + 0x5716),
-            *(s16*)(lbl_802EF0A8 + 0x5718));
+            ((Work802EF0A8*)lbl_802EF0A8)->field_5712 - *(s16*)(entry + 2),
+            ((Work802EF0A8*)lbl_802EF0A8)->field_5714 - *(s16*)(entry + 4),
+            ((Work802EF0A8*)lbl_802EF0A8)->field_5716,
+            ((Work802EF0A8*)lbl_802EF0A8)->field_5718);
         pdaDrawNameRows(context, 0,
                         *(f32*)((u8*)&lbl_803A6818 + 0x30));
         fn_800FE35C();

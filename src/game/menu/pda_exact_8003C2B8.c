@@ -5,6 +5,7 @@
  * Standalone copy of fn_8003C2B8 from pda_range_80037158.c. Unit flag
  * -opt nopeephole replaces the shared file's local "peephole off".
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -152,12 +153,12 @@ void pdaSnagListDrawDetail(PdaSprite* alphaSprite, PdaEvent* event)
 
     alphaSprite->alphaByte =
         255.0f * *(f32*)(lbl_803A6748 + 0x44);
-    fn_800FE38C(*(s16*)(lbl_802EF0A8 + 0x4fa2) -
+    fn_800FE38C(((Work802EF0A8*)lbl_802EF0A8)->field_4FA2 -
                     *(s16*)(lbl_802EF0A8 + event->messageId * 0x1c + 2),
-                *(s16*)(lbl_802EF0A8 + 0x4fa4) -
+                ((Work802EF0A8*)lbl_802EF0A8)->field_4FA4 -
                     *(s16*)(lbl_802EF0A8 + event->messageId * 0x1c + 4),
-                *(s16*)(lbl_802EF0A8 + 0x4fa6),
-                *(s16*)(lbl_802EF0A8 + 0x4fa8));
+                ((Work802EF0A8*)lbl_802EF0A8)->field_4FA6,
+                ((Work802EF0A8*)lbl_802EF0A8)->field_4FA8);
     slot = lbl_803A6748 + 0x94;
     firstX = *(f32*)(lbl_803A6748 + 0x14);
     rowY = *(f32*)(lbl_803A6748 + 0x18);

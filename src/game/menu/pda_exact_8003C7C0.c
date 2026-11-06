@@ -5,6 +5,7 @@
  * Standalone copy of fn_8003C7C0 from pda_range_80037158.c. Unit flag
  * -opt nopeephole replaces the shared file's local "peephole off".
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaModelWindow {
@@ -109,9 +110,9 @@ void pdaSnagListRun(void)
     model = (u8*)&lbl_803A6748 + 0x4c;
     *(s32*)((u8*)&lbl_803A6748 + 0x10) = lbl_8047A4DC;
     *(f32*)((u8*)&lbl_803A6748 + 0x34) = *(f32*)((u8*)&lbl_803A6748 + 0x2c) =
-        *(s16*)(lbl_802EF0A8 + 0x509e);
+        ((Work802EF0A8*)lbl_802EF0A8)->field_509E;
     *(f32*)((u8*)&lbl_803A6748 + 0x38) = *(f32*)((u8*)&lbl_803A6748 + 0x30) =
-        *(s16*)(lbl_802EF0A8 + 0x50a0);
+        ((Work802EF0A8*)lbl_802EF0A8)->field_50A0;
     dim = (s16*)(lbl_802EF0A8 + 0x17ca6);
     menuModelInit(model, dim[0], dim[1]);
 

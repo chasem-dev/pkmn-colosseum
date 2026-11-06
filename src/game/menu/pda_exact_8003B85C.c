@@ -7,6 +7,7 @@
  * file's local "peephole off".
  */
 /* RULE-EXCEPTION(user-approved): constant_import (temporary) - remove when this file is merged back into one unit - see docs/RULE_EXCEPTIONS.md */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaModelWindow {
@@ -246,7 +247,7 @@ s32 pdaSnagListDetailKey(void* window, s32 enabled)
             }
         }
         *(f32*)((u8*)&lbl_803A6748 + 0x18) = *(f32*)((u8*)&lbl_803A6748 + 0x20);
-        baseY = *(s16*)(lbl_802EF0A8 + 0x50a0);
+        baseY = ((Work802EF0A8*)lbl_802EF0A8)->field_50A0;
         idx = *(s32*)&lbl_803A6748 - *(s32*)((u8*)&lbl_803A6748 + 0x8);
         if (idx >= 10) {
             idx = 9;
