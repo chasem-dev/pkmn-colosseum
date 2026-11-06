@@ -12,6 +12,7 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 
 /* ===== External SDK / engine functions ===== */
@@ -938,7 +939,7 @@ asm void fn_800D7820(void) {
 #else
 void gfxSetVtxDesc(u32 val) {
     if (*(s32*)lbl_8047AA80 == 1) { gfxRecordCommand(0x46, 1, val); }
-    else { *(s32*)(lbl_8047AA80 + 0x24) = val; }
+    else { ((GSgfxState*)lbl_8047AA80)->field_24 = val; }
 }
 #endif
 
@@ -1557,7 +1558,7 @@ void _gfxSetFlagsImm(u32 mask) {
     s32 i;
     u8* textureSlot;
 
-    *(u32*)(lbl_8047AA80 + 0x414) |= mask;
+    ((GSgfxState*)lbl_8047AA80)->field_414 |= mask;
     if (mask & 2) {
         for (i = 0; i < 8; i++) {
             ((u32*)lbl_8047AA80)[i + 10] = 0;
@@ -1572,7 +1573,7 @@ void _gfxSetFlagsImm(u32 mask) {
                 GXSetTevDirect(i);
             }
         }
-        *(u8*)(lbl_8047AA80 + 0x3ac) = 0;
+        ((GSgfxState*)lbl_8047AA80)->field_3AC = 0;
         GXSetNumIndStages(0);
     }
 }
@@ -1585,7 +1586,7 @@ asm void fn_800D888C(void) {
 #else
 void gfxClearFlags(u32 mask) {
     if (*(s32*)lbl_8047AA80 == 1) { gfxRecordCommand(0x29, 1, mask); }
-    else { *(s32*)(lbl_8047AA80 + 0x10) &= ~mask; }
+    else { ((GSgfxState*)lbl_8047AA80)->field_10 &= ~mask; }
 }
 #endif
 
@@ -1596,7 +1597,7 @@ asm void fn_800D88DC(void) {
 #else
 void gfxSetFlags(u32 mask) {
     if (*(s32*)lbl_8047AA80 == 1) { gfxRecordCommand(0x28, 1, mask); }
-    else { *(s32*)(lbl_8047AA80 + 0x10) |= mask; }
+    else { ((GSgfxState*)lbl_8047AA80)->field_10 |= mask; }
 }
 #endif
 #endif

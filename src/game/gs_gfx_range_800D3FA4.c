@@ -12,6 +12,7 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 #include "dolphin/gx/GX.h"
 
@@ -61,7 +62,7 @@ extern void  GXSetViewportJitter(void);                        /* GXSetProjectio
 extern void  GXSetViewport(void);                        /* GXLoadPosMtxImm */
 extern void  GXInvalidateTexAll(void);                        /* GXInvalidateTexAll */
 
-typedef struct GSgfxState {
+typedef struct GSgfxRequestView {
     u8 pad_000[0x48c];
     u16 requestBufferHandle;
     u16 pad_48e;
@@ -69,7 +70,7 @@ typedef struct GSgfxState {
     void* requestBufferPos;
     u32 requestBufferSize;
     u8 requestBufferFlag;
-} GSgfxState;
+} GSgfxRequestView;
 
 
 /* ===== String constants (rodata) ===== */
@@ -484,9 +485,9 @@ static inline void gfxSetupLayerCamera(u32 layer, u8 pass) {
 }
 
 static inline void gfxRunQueue(void) {
-    u32 cursor = *(u32*)((u8*)lbl_8047AA80 + 0x490);
+    u32 cursor = ((GSgfxState*)lbl_8047AA80)->field_490;
 
-    while (cursor < *(u32*)((u8*)lbl_8047AA80 + 0x494)) {
+    while (cursor < ((GSgfxState*)lbl_8047AA80)->field_494) {
         cursor = (u32)gfxPlayCommands((u32*)cursor);
     }
 }
@@ -508,7 +509,7 @@ static inline void gfxRenderPass(u32 flags, u8 setupCamera, u8 pass) {
 
     if (flags & 0x10) {
         start = OSGetTick();
-        *(u32*)((u8*)lbl_8047AA80 + 0x04) = 0x10;
+        ((GSgfxState*)lbl_8047AA80)->frameCounter = 0x10;
         if (setupCamera != 0) {
             gfxSetupLayerCamera(0x10, pass);
         }
@@ -518,7 +519,7 @@ static inline void gfxRenderPass(u32 flags, u8 setupCamera, u8 pass) {
 
     if (flags & 0x1000) {
         start = OSGetTick();
-        *(u32*)((u8*)lbl_8047AA80 + 0x04) = 0x1000;
+        ((GSgfxState*)lbl_8047AA80)->frameCounter = 0x1000;
         if (setupCamera != 0) {
             gfxSetupLayerCamera(0x1000, pass);
         }
@@ -527,7 +528,7 @@ static inline void gfxRenderPass(u32 flags, u8 setupCamera, u8 pass) {
 
     if (flags & 0x2000) {
         start = OSGetTick();
-        *(u32*)((u8*)lbl_8047AA80 + 0x04) = 0x2000;
+        ((GSgfxState*)lbl_8047AA80)->frameCounter = 0x2000;
         if (setupCamera != 0) {
             gfxSetupLayerCamera(0x2000, pass);
         }
@@ -557,7 +558,7 @@ void GSgfxDrawScene(u32 flags, u8 setupCamera, u8 resetQueue) {
 
     gfxRenderPass(flags, setupCamera, 0);
 
-    *(u32*)((u8*)lbl_8047AA80 + 0x04) = -1;
+    ((GSgfxState*)lbl_8047AA80)->frameCounter = -1;
     oldAlpha = ((u8*)lbl_8047AA80)[0x1A];
     ((u8*)lbl_8047AA80)[0x1A] = ((u8*)lbl_8047AA80)[0x1B];
     gfxSetUpdates(((u8*)lbl_8047AA80)[0x49C], 0, 1);
@@ -590,10 +591,10 @@ void GSgfxDrawScene(u32 flags, u8 setupCamera, u8 resetQueue) {
     ((u8*)lbl_8047AA80)[0x1B] = 0;
     gfxSetUpdates(1, 1, 1);
     gfxSetZMode(1, 2, 2);
-    *(u32*)((u8*)lbl_8047AA80 + 0x00) = oldMode;
-    *(u32*)((u8*)lbl_8047AA80 + 0x04) = oldMask;
+    ((GSgfxState*)lbl_8047AA80)->mode = oldMode;
+    ((GSgfxState*)lbl_8047AA80)->frameCounter = oldMask;
     if (resetQueue != 0) {
-        *(u32*)((u8*)lbl_8047AA80 + 0x494) = *(u32*)((u8*)lbl_8047AA80 + 0x490);
+        ((GSgfxState*)lbl_8047AA80)->field_494 = ((GSgfxState*)lbl_8047AA80)->field_490;
     }
 }
 #endif
@@ -1010,7 +1011,7 @@ void fn_800D4604(u32 val) { *(u32*)lbl_8047AA80 = val; }
 #endif
 
 void fn_800D4610(u8 val) {
-    GSgfxState* state = (GSgfxState*)lbl_8047AA80;
+    GSgfxRequestView* state = (GSgfxRequestView*)lbl_8047AA80;
 
     state->requestBufferFlag = val;
 }
@@ -1069,8 +1070,8 @@ void gfxVtxMtxIdx(u8 val) {
     if (!*(u8*)(lbl_8047AA80 + 0x47e) && *(s32*)lbl_8047AA80 == 1) {
         gfxRecordCommand(0x23, 1, (u8)val);
     } else {
-        *(u32*)(lbl_8047AA80 + 0x4a0) = (u32)_gfxEmitMtxIdx;
-        *(u8*)(lbl_8047AA80 + 0x4a4) = val;
+        ((GSgfxState*)lbl_8047AA80)->emitMtxIdx = (u32)_gfxEmitMtxIdx;
+        ((GSgfxState*)lbl_8047AA80)->field_4A4 = val;
     }
 }
 #endif
@@ -1306,8 +1307,8 @@ void gfxVtxNormal1x8(u8 val) {
     if (!*(u8*)(lbl_8047AA80 + 0x47e) && *(s32*)lbl_8047AA80 == 1) {
         gfxRecordCommand(0x15, 1, (u8)val);
     } else {
-        *(s32*)(lbl_8047AA80 + 0x4c4) = (u32)_gfxEmitNormal1x8;
-        *(u8*)(lbl_8047AA80 + 0x4c8) = val;
+        ((GSgfxState*)lbl_8047AA80)->emitNormal = (u32)_gfxEmitNormal1x8;
+        ((GSgfxState*)lbl_8047AA80)->field_4C8 = val;
     }
 }
 #endif
@@ -1321,8 +1322,8 @@ void gfxVtxNormal1x16(u16 val) {
     if (!*(u8*)(lbl_8047AA80 + 0x47e) && *(s32*)lbl_8047AA80 == 1) {
         gfxRecordCommand(0x14, 1, (u16)val);
     } else {
-        *(s32*)(lbl_8047AA80 + 0x4c4) = (u32)_gfxEmitNormal1x16;
-        *(u16*)(lbl_8047AA80 + 0x4cc) = val;
+        ((GSgfxState*)lbl_8047AA80)->emitNormal = (u32)_gfxEmitNormal1x16;
+        ((GSgfxState*)lbl_8047AA80)->field_4CC = val;
     }
 }
 #endif
@@ -1337,9 +1338,9 @@ void gfxVtxNormal3s8(s8 a, s8 b, s8 c) {
     if (!*(u8*)(state + 0x47e) && *(s32*)state == 1) { gfxRecordCommand(0x13, 3, (s32)a, (s32)b, (s32)c); }
     else {
         *(s32*)(state + 0x4c4) = (u32)_gfxEmitNormal3s8;
-        *(u8*)(lbl_8047AA80 + 0x4c8) = a;
-        *(u8*)(lbl_8047AA80 + 0x4c9) = b;
-        *(u8*)(lbl_8047AA80 + 0x4ca) = c;
+        ((GSgfxState*)lbl_8047AA80)->field_4C8 = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4C9 = b;
+        ((GSgfxState*)lbl_8047AA80)->field_4CA = c;
     }
 }
 #endif
@@ -1354,9 +1355,9 @@ void gfxVtxNormal3s16(s16 a, s16 b, s16 c) {
     if (!*(u8*)(state + 0x47e) && *(s32*)state == 1) { gfxRecordCommand(0x12, 3, (s32)a, (s32)b, (s32)c); }
     else {
         *(s32*)(state + 0x4c4) = (u32)_gfxEmitNormal3s16;
-        *(u16*)(lbl_8047AA80 + 0x4cc) = a;
-        *(u16*)(lbl_8047AA80 + 0x4ce) = b;
-        *(u16*)(lbl_8047AA80 + 0x4d0) = c;
+        ((GSgfxState*)lbl_8047AA80)->field_4CC = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4CE = b;
+        ((GSgfxState*)lbl_8047AA80)->field_4D0 = c;
     }
 }
 #endif
@@ -1370,10 +1371,10 @@ void gfxVtxNormal3f32(f32 x, f32 y, f32 z) {
     if (!*(u8*)(lbl_8047AA80 + 0x47e) && *(s32*)lbl_8047AA80 == 1) {
         gfxRecordCommand(0x11, 0xd, x, y, z);
     } else {
-        *(s32*)(lbl_8047AA80 + 0x4c4) = (u32)_gfxEmitNormal3f32;
-        *(f32*)(lbl_8047AA80 + 0x4d4) = x;
-        *(f32*)(lbl_8047AA80 + 0x4d8) = y;
-        *(f32*)(lbl_8047AA80 + 0x4dc) = z;
+        ((GSgfxState*)lbl_8047AA80)->emitNormal = (u32)_gfxEmitNormal3f32;
+        ((GSgfxState*)lbl_8047AA80)->field_4D4 = x;
+        ((GSgfxState*)lbl_8047AA80)->field_4D8 = y;
+        ((GSgfxState*)lbl_8047AA80)->field_4DC = z;
     }
 }
 #endif
@@ -1388,9 +1389,9 @@ void gfxVtxPos1x8(u8 val) {
     if (!*(u8*)(state + 0x47e) && *(s32*)state == 1) { gfxRecordCommand(0x10, 1, (u32)val); }
     else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos1x8;
-        *(u8*)(lbl_8047AA80 + 0x4ac) = val;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos1x8;
+        ((GSgfxState*)lbl_8047AA80)->field_4AC = val;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1405,9 +1406,9 @@ void gfxVtxPos1x16(u16 val) {
     if (!*(u8*)(state + 0x47e) && *(s32*)state == 1) { gfxRecordCommand(0xf, 1, (u32)val); }
     else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos1x16;
-        *(u16*)(lbl_8047AA80 + 0x4b0) = val;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos1x16;
+        ((GSgfxState*)lbl_8047AA80)->field_4B0 = val;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1423,10 +1424,10 @@ void gfxVtxPos2s8(s8 a, s8 b) {
         gfxRecordCommand(0xe, 2, (s32)a, (s32)b);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos2s8;
-        *(u8*)(lbl_8047AA80 + 0x4ac) = a;
-        *(u8*)(lbl_8047AA80 + 0x4ad) = b;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos2s8;
+        ((GSgfxState*)lbl_8047AA80)->field_4AC = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4AD = b;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1442,10 +1443,10 @@ void gfxVtxPos2u8(u8 a, u8 b) {
         gfxRecordCommand(0xd, 2, (u32)a, (u32)b);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos2u8;
-        *(u8*)(lbl_8047AA80 + 0x4ac) = a;
-        *(u8*)(lbl_8047AA80 + 0x4ad) = b;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos2u8;
+        ((GSgfxState*)lbl_8047AA80)->field_4AC = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4AD = b;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1461,10 +1462,10 @@ void gfxVtxPos2s16(s16 a, s16 b) {
         gfxRecordCommand(0xc, 2, (s32)a, (s32)b);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos2s16;
-        *(u16*)(lbl_8047AA80 + 0x4b0) = a;
-        *(u16*)(lbl_8047AA80 + 0x4b2) = b;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos2s16;
+        ((GSgfxState*)lbl_8047AA80)->field_4B0 = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4B2 = b;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1480,10 +1481,10 @@ void gfxVtxPos2u16(u16 a, u16 b) {
         gfxRecordCommand(0xb, 2, (u32)a, (u32)b);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos2u16;
-        *(u16*)(lbl_8047AA80 + 0x4b0) = a;
-        *(u16*)(lbl_8047AA80 + 0x4b2) = b;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos2u16;
+        ((GSgfxState*)lbl_8047AA80)->field_4B0 = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4B2 = b;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1499,10 +1500,10 @@ void gfxVtxPos2f32(f32 a, f32 b) {
         gfxRecordCommand(0xa, 0xc, a, b);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos2f32;
-        *(f32*)(lbl_8047AA80 + 0x4b8) = a;
-        *(f32*)(lbl_8047AA80 + 0x4bc) = b;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos2f32;
+        ((GSgfxState*)lbl_8047AA80)->field_4B8 = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4BC = b;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1518,11 +1519,11 @@ void gfxVtxPos3s8(s8 a, s8 b, s8 c) {
         gfxRecordCommand(9, 3, (s32)a, (s32)b, (s32)c);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos3s8;
-        *(u8*)(lbl_8047AA80 + 0x4ac) = a;
-        *(u8*)(lbl_8047AA80 + 0x4ad) = b;
-        *(u8*)(lbl_8047AA80 + 0x4ae) = c;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos3s8;
+        ((GSgfxState*)lbl_8047AA80)->field_4AC = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4AD = b;
+        ((GSgfxState*)lbl_8047AA80)->field_4AE = c;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1538,11 +1539,11 @@ void gfxVtxPos3u8(u8 a, u8 b, u8 c) {
         gfxRecordCommand(8, 3, (u32)a, (u32)b, (u32)c);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos3u8;
-        *(u8*)(lbl_8047AA80 + 0x4ac) = a;
-        *(u8*)(lbl_8047AA80 + 0x4ad) = b;
-        *(u8*)(lbl_8047AA80 + 0x4ae) = c;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos3u8;
+        ((GSgfxState*)lbl_8047AA80)->field_4AC = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4AD = b;
+        ((GSgfxState*)lbl_8047AA80)->field_4AE = c;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1558,11 +1559,11 @@ void gfxVtxPos3s16(s16 a, s16 b, s16 c) {
         gfxRecordCommand(7, 3, (s32)a, (s32)b, (s32)c);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos3s16;
-        *(s16*)(lbl_8047AA80 + 0x4b0) = a;
-        *(s16*)(lbl_8047AA80 + 0x4b2) = b;
-        *(s16*)(lbl_8047AA80 + 0x4b4) = c;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos3s16;
+        ((GSgfxState*)lbl_8047AA80)->field_4B0 = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4B2 = b;
+        ((GSgfxState*)lbl_8047AA80)->field_4B4 = c;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1578,11 +1579,11 @@ void gfxVtxPos3u16(u16 a, u16 b, u16 c) {
         gfxRecordCommand(6, 3, (u32)a, (u32)b, (u32)c);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos3u16;
-        *(u16*)(lbl_8047AA80 + 0x4b0) = a;
-        *(u16*)(lbl_8047AA80 + 0x4b2) = b;
-        *(u16*)(lbl_8047AA80 + 0x4b4) = c;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos3u16;
+        ((GSgfxState*)lbl_8047AA80)->field_4B0 = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4B2 = b;
+        ((GSgfxState*)lbl_8047AA80)->field_4B4 = c;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1598,11 +1599,11 @@ void gfxVtxPos(f32 a, f32 b, f32 c) {
         gfxRecordCommand(5, 0xd, a, b, c);
     } else {
         gfxFlushPendingVertex();
-        *(u32*)(lbl_8047AA80 + 0x4a8) = (u32)_gfxEmitPos3f32;
-        *(f32*)(lbl_8047AA80 + 0x4b8) = a;
-        *(f32*)(lbl_8047AA80 + 0x4bc) = b;
-        *(f32*)(lbl_8047AA80 + 0x4c0) = c;
-        *(u8*)(lbl_8047AA80 + 0x49f) = 1;
+        ((GSgfxState*)lbl_8047AA80)->emitPos = (u32)_gfxEmitPos3f32;
+        ((GSgfxState*)lbl_8047AA80)->field_4B8 = a;
+        ((GSgfxState*)lbl_8047AA80)->field_4BC = b;
+        ((GSgfxState*)lbl_8047AA80)->field_4C0 = c;
+        ((GSgfxState*)lbl_8047AA80)->field_49F = 1;
     }
 }
 #endif
@@ -1646,7 +1647,7 @@ asm void fn_800D67BC(void) {
 #else
 /* Linked owner: gs_gfx_candidate_800D67BC.c (standalone carve). */
 void gfxBegin(u16 vertCount) {
-    if (*(u8*)(lbl_8047AA80 + 0x47e) == 1) {
+    if (((GSgfxState*)lbl_8047AA80)->gammaMode == 1) {
         fn_800DB758(vertCount);
         return;
     }
@@ -1654,37 +1655,37 @@ void gfxBegin(u16 vertCount) {
         gfxRecordCommand(2, 1, vertCount);
         return;
     }
-    if (*(u8*)(lbl_8047AA80 + 0x1b) != *(u8*)(lbl_8047AA80 + 0x1a)) {
+    if (((GSgfxState*)lbl_8047AA80)->scissorDirty != ((GSgfxState*)lbl_8047AA80)->viewportDirty) {
         return;
     }
-    if ((*(u32*)(lbl_8047AA80 + 0x4) & *(u32*)(lbl_8047AA80 + 0x8)) == 0) {
+    if (((u32)((GSgfxState*)lbl_8047AA80)->frameCounter & ((GSgfxState*)lbl_8047AA80)->fifoSize) == 0) {
         return;
     }
 
-    if (*(u32*)(lbl_8047AA80 + 0x24) == 0) {
-        gfxVtxDescClear((u8*)*(u32*)(lbl_8047AA80 + 0x20));
-        gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 1, 0, 1, 4, 0, 0, 0);
-        if (*(u32*)(lbl_8047AA80 + 0x10) & 4) {
-            gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 2, 0, 2, 4, 0, 0, 0);
+    if (((GSgfxState*)lbl_8047AA80)->field_24 == 0) {
+        gfxVtxDescClear((u8*)((GSgfxState*)lbl_8047AA80)->lightMask);
+        gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 1, 0, 1, 4, 0, 0, 0);
+        if (((GSgfxState*)lbl_8047AA80)->field_10 & 4) {
+            gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 2, 0, 2, 4, 0, 0, 0);
         }
-        if (*(u32*)(lbl_8047AA80 + 0x10) & 1) {
-            gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 4, 0, 6, 10, 0, 0, 0);
+        if (((GSgfxState*)lbl_8047AA80)->field_10 & 1) {
+            gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 4, 0, 6, 10, 0, 0, 0);
         }
-        if (*(u32*)(lbl_8047AA80 + 0x10) & 2) {
-            gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 6, 0, 8, 4, 0, 0, 0);
+        if (((GSgfxState*)lbl_8047AA80)->field_10 & 2) {
+            gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 6, 0, 8, 4, 0, 0, 0);
         }
-        *(u32*)(lbl_8047AA80 + 0x24) = *(u32*)(lbl_8047AA80 + 0x20);
+        ((GSgfxState*)lbl_8047AA80)->field_24 = ((GSgfxState*)lbl_8047AA80)->lightMask;
     }
 
-    if (*(s32*)(lbl_8047AA80 + 0x14) == 7) {
+    if ((s32)((GSgfxState*)lbl_8047AA80)->drawFlags == 7) {
         vertCount = (vertCount & 0x7fff) << 1;
     }
 
-    gfxLoadVtxDesc(*(u32*)(lbl_8047AA80 + 0x24));
-    gfxSetupChannelsTev(*(u32*)(lbl_8047AA80 + 0x24));
-    GXBegin(lbl_80314350[*(u32*)(lbl_8047AA80 + 0x14)],
-                *(u32*)(*(u32*)(lbl_8047AA80 + 0x24) + 0x4), vertCount);
-    fn_800D6A80(vertCount, *(s32*)(lbl_8047AA80 + 0x14),
+    gfxLoadVtxDesc(((GSgfxState*)lbl_8047AA80)->field_24);
+    gfxSetupChannelsTev(((GSgfxState*)lbl_8047AA80)->field_24);
+    GXBegin(lbl_80314350[((GSgfxState*)lbl_8047AA80)->drawFlags],
+                *(u32*)(((GSgfxState*)lbl_8047AA80)->field_24 + 0x4), vertCount);
+    fn_800D6A80(vertCount, (s32)((GSgfxState*)lbl_8047AA80)->drawFlags,
                 (u32*)(lbl_804001F0 + 0xc), (u32*)(lbl_804001F0 + 0x4));
 }
 #endif
@@ -1700,7 +1701,7 @@ asm void fn_800D6A00(void) {
 void gfxSetPrimitive(u32 val) {
     if (*(u8*)(lbl_8047AA80 + 0x47e) == 1) { *(s32*)(lbl_8047AA80 + 0x488) = val; }
     else if (*(s32*)lbl_8047AA80 == 1) { gfxRecordCommand(0x1, 1, val); }
-    else { *(s32*)(lbl_8047AA80 + 0x14) = val; }
+    else { ((GSgfxState*)lbl_8047AA80)->drawFlags = val; }
 }
 #endif
 

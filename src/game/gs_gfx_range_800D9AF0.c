@@ -14,6 +14,7 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 
 extern void gfxLoadIdentity(void);
@@ -477,10 +478,10 @@ void gfxSetViewport(u32 x0, u32 y0, u32 x1, u32 y1) {
                 (f32)((u16)x1 - (u16)x0 + 1),
                 (f32)((u16)y1 - (u16)y0 + 1), lbl_8047CA50,
                 1.0f);
-    *(u16*)(lbl_8047AA80 + 0x476) = (u16)x0;
-    *(u16*)(lbl_8047AA80 + 0x478) = (u16)y0;
-    *(u16*)(lbl_8047AA80 + 0x47a) = (u16)x1;
-    *(u16*)(lbl_8047AA80 + 0x47c) = (u16)y1;
+    ((GSgfxState*)lbl_8047AA80)->field_476 = (u16)x0;
+    ((GSgfxState*)lbl_8047AA80)->field_478 = (u16)y0;
+    ((GSgfxState*)lbl_8047AA80)->field_47A = (u16)x1;
+    ((GSgfxState*)lbl_8047AA80)->field_47C = (u16)y1;
     camera = GScameraGetActiveCamera();
     if (camera != 0) {
         GScameraSetViewport((void*)camera, x0, y0, x1, y1);
