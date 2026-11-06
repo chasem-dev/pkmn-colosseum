@@ -14,6 +14,10 @@ typedef struct LightningWork LightningWork;
 typedef struct ElectronWork ElectronWork;
 typedef struct AuraWork AuraWork;
 typedef struct BillboardWork BillboardWork;
+typedef struct LeafEntry LeafEntry;
+typedef struct LeafWork LeafWork;
+typedef struct BoltEntry BoltEntry;
+typedef struct BoltWork BoltWork;
 
 struct FilterKey {
     /* 0x00 */ u8 start[4];
@@ -142,6 +146,70 @@ struct BillboardWork {
     /* 0x20 */ void* particle;
 };
 
+struct LeafEntry {
+    /* 0x00 */ u8 pad_00[0x50];
+    /* 0x50 */ f32 scale;
+    /* 0x54 */ f32 t;
+    /* 0x58 */ void* model;
+};
+
+struct LeafWork {
+    /* 0x00 */ u8 pad_00[0x4];
+    /* 0x04 */ u16 entriesHandle;
+    /* 0x06 */ u8 pad_06[0x2];
+    /* 0x08 */ void* model;
+    /* 0x0C */ f32 sizeScale;
+    /* 0x10 */ f32 sizeBase;
+    /* 0x14 */ f32 sizeRange;
+    /* 0x18 */ f32 heightBase;
+    /* 0x1C */ f32 heightRange;
+    /* 0x20 */ f32 radiusBase;
+    /* 0x24 */ f32 radiusRange;
+    /* 0x28 */ f32 lift;
+    /* 0x2C */ f32 speed;
+    /* 0x30 */ f32 spreadBase;
+    /* 0x34 */ f32 spreadRange;
+    /* 0x38 */ u16 count;
+    /* 0x3A */ u16 fadeStart;
+    /* 0x3C */ u16 frame;
+    /* 0x3E */ u16 fadeEnd;
+    /* 0x40 */ u16 resGroup;
+    /* 0x42 */ u16 res42;
+    /* 0x44 */ u16 modelRes;
+    /* 0x46 */ u16 sourceGroup;
+    /* 0x48 */ u16 sourceRes;
+    /* 0x4A */ s16 sourcePart;
+};
+
+struct BoltEntry {
+    /* 0x00 */ u8 pad_00[0x12D8];
+    /* 0x12D8 */ u8 color[4];
+    /* 0x12DC */ u16 startFrame;
+    /* 0x12DE */ u16 endFrame;
+    /* 0x12E0 */ u16 visible;
+    /* 0x12E2 */ u16 pointCount;
+};
+
+struct BoltWork {
+    /* 0x00 */ u8 pad_00[0x4];
+    /* 0x04 */ u16 entriesHandle;
+    /* 0x06 */ u8 pad_06[0x26];
+    /* 0x2C */ f32 spread[3];
+    /* 0x38 */ f32 height;
+    /* 0x3C */ f32 field_3C;
+    /* 0x40 */ f32 branchChance;
+    /* 0x44 */ u16 count;
+    /* 0x46 */ u16 depth;
+    /* 0x48 */ u16 frame;
+    /* 0x4A */ u16 endFrame;
+    /* 0x4C */ u16 resGroup;
+    /* 0x4E */ u16 resId;
+    /* 0x50 */ s32 part;
+    /* 0x54 */ void* vtxDesc;
+    /* 0x58 */ void* texture;
+    /* 0x5C */ u8 color[4];
+};
+
 #if defined(__clang__)
 _Static_assert(__builtin_offsetof(FilterKey, start) == 0x0, "FilterKey");
 _Static_assert(__builtin_offsetof(FilterKey, end) == 0x4, "FilterKey");
@@ -228,6 +296,52 @@ _Static_assert(__builtin_offsetof(BillboardWork, animType) == 0x18, "BillboardWo
 _Static_assert(__builtin_offsetof(BillboardWork, animIndex) == 0x1C, "BillboardWork");
 _Static_assert(__builtin_offsetof(BillboardWork, particleArg) == 0x1E, "BillboardWork");
 _Static_assert(__builtin_offsetof(BillboardWork, particle) == 0x20, "BillboardWork");
+_Static_assert(__builtin_offsetof(LeafEntry, scale) == 0x50, "LeafEntry");
+_Static_assert(__builtin_offsetof(LeafEntry, t) == 0x54, "LeafEntry");
+_Static_assert(__builtin_offsetof(LeafEntry, model) == 0x58, "LeafEntry");
+_Static_assert(__builtin_offsetof(LeafWork, entriesHandle) == 0x4, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, model) == 0x8, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, sizeScale) == 0xC, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, sizeBase) == 0x10, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, sizeRange) == 0x14, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, heightBase) == 0x18, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, heightRange) == 0x1C, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, radiusBase) == 0x20, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, radiusRange) == 0x24, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, lift) == 0x28, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, speed) == 0x2C, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, spreadBase) == 0x30, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, spreadRange) == 0x34, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, count) == 0x38, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, fadeStart) == 0x3A, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, frame) == 0x3C, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, fadeEnd) == 0x3E, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, resGroup) == 0x40, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, res42) == 0x42, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, modelRes) == 0x44, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, sourceGroup) == 0x46, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, sourceRes) == 0x48, "LeafWork");
+_Static_assert(__builtin_offsetof(LeafWork, sourcePart) == 0x4A, "LeafWork");
+_Static_assert(__builtin_offsetof(BoltEntry, color) == 0x12D8, "BoltEntry");
+_Static_assert(__builtin_offsetof(BoltEntry, startFrame) == 0x12DC, "BoltEntry");
+_Static_assert(__builtin_offsetof(BoltEntry, endFrame) == 0x12DE, "BoltEntry");
+_Static_assert(__builtin_offsetof(BoltEntry, visible) == 0x12E0, "BoltEntry");
+_Static_assert(__builtin_offsetof(BoltEntry, pointCount) == 0x12E2, "BoltEntry");
+_Static_assert(__builtin_offsetof(BoltWork, entriesHandle) == 0x4, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, spread) == 0x2C, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, height) == 0x38, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, field_3C) == 0x3C, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, branchChance) == 0x40, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, count) == 0x44, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, depth) == 0x46, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, frame) == 0x48, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, endFrame) == 0x4A, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, resGroup) == 0x4C, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, resId) == 0x4E, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, part) == 0x50, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, vtxDesc) == 0x54, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, texture) == 0x58, "BoltWork");
+_Static_assert(__builtin_offsetof(BoltWork, color) == 0x5C, "BoltWork");
 _Static_assert(sizeof(FilterKey) == 0x14, "FilterKey");
 _Static_assert(sizeof(FilterWork) == 0x5C, "FilterWork");
 _Static_assert(sizeof(EffectValueKey) == 0x14, "EffectValueKey");
@@ -238,6 +352,10 @@ _Static_assert(sizeof(LightningWork) == 0x70, "LightningWork");
 _Static_assert(sizeof(ElectronWork) == 0x24, "ElectronWork");
 _Static_assert(sizeof(AuraWork) == 0x34, "AuraWork");
 _Static_assert(sizeof(BillboardWork) == 0x24, "BillboardWork");
+_Static_assert(sizeof(LeafEntry) == 0x5C, "LeafEntry");
+_Static_assert(sizeof(LeafWork) == 0x4C, "LeafWork");
+_Static_assert(sizeof(BoltEntry) == 0x12E4, "BoltEntry");
+_Static_assert(sizeof(BoltWork) == 0x60, "BoltWork");
 #endif
 
 #endif

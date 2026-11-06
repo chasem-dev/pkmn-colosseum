@@ -903,8 +903,8 @@ asm void fn_80138B74(void* ptr) {
 #else
 u32 _leaffxDestroy(void* ptr) {
     if (ptr) {
-        fn_800F9210(*(u16*)((u8*)ptr + 0x40), *(u16*)((u8*)ptr + 0x44));
-        fn_800F9210(*(u16*)((u8*)ptr + 0x40), *(u16*)((u8*)ptr + 0x42));
+        fn_800F9210(((LeafWork*)ptr)->resGroup, ((LeafWork*)ptr)->modelRes);
+        fn_800F9210(((LeafWork*)ptr)->resGroup, ((LeafWork*)ptr)->res42);
     }
     return 1;
 }
@@ -937,18 +937,18 @@ u32 _leaffxStop(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        entryCount = *(u16*)(p + 0x38);
+        entryCount = ((LeafWork*)p)->count;
         entry = *(u8**)p;
-        handle = *(u16*)(p + 0x4);
+        handle = ((LeafWork*)p)->entriesHandle;
         for (i = 0; i < entryCount; i++, entry += 0x5C) {
-            if (*(void**)(entry + 0x58) != NULL) {
-                GSmodelSetVisibility(*(void**)(entry + 0x58), 0);
-                GSmodelFree(*(void**)(entry + 0x58));
-                *(void**)(entry + 0x58) = NULL;
+            if (((LeafEntry*)entry)->model != NULL) {
+                GSmodelSetVisibility(((LeafEntry*)entry)->model, 0);
+                GSmodelFree(((LeafEntry*)entry)->model);
+                ((LeafEntry*)entry)->model = NULL;
             }
         }
 
-        model = *(void**)(p + 0x8);
+        model = ((LeafWork*)p)->model;
         modelCount = GSmodelWalkJObjs(model);
         for (k = 0; k < modelCount; k++) {
             part = GSmodelGetPart(model, k);
@@ -993,34 +993,34 @@ u32 leaffxStartEffect(void* ptr) {
     }
 
     p = ptr;
-    count = *(u16*)(p + 0x38);
+    count = ((LeafWork*)p)->count;
     if (count > 0x20) {
         count = 0x20;
-        *(u16*)(p + 0x38) = count;
+        ((LeafWork*)p)->count = count;
     }
 
-    *(void**)(p + 0x8) = GSresGetResource(*(u16*)(p + 0x40), *(u16*)(p + 0x44));
-    if (*(void**)(p + 0x8) == NULL) {
+    ((LeafWork*)p)->model = GSresGetResource(((LeafWork*)p)->resGroup, ((LeafWork*)p)->modelRes);
+    if (((LeafWork*)p)->model == NULL) {
         goto resource_error;
     }
 
     size = count * 0x5C;
     handle = _toolentryAlloc__FUl(size);
-    *(u16*)(p + 0x4) = handle;
+    ((LeafWork*)p)->entriesHandle = handle;
     if (handle == 0) {
         goto allocation_error;
     }
 
     entry = *(u8**)p = GSmemLock(handle);
     memset(*(void**)p, 0, size);
-    *(u16*)(p + 0x3C) = 0;
+    ((LeafWork*)p)->frame = 0;
     for (i = 0; i < count; i++, entry += 0x5C) {
         _leaffxGenerateLeafData(p, entry);
     }
     return 1;
 
 resource_error:
-    GSlogWrite((const char*)lbl_80272C30, *(u16*)(p + 0x40), *(u16*)(p + 0x44));
+    GSlogWrite((const char*)lbl_80272C30, ((LeafWork*)p)->resGroup, ((LeafWork*)p)->modelRes);
     return 0;
 
 allocation_error:
@@ -1071,19 +1071,19 @@ u32 _leaffxUpdate(void* ptr, u32 delta) {
 
     if (ptr != NULL) {
         p = ptr;
-        fadeEnd = *(u16*)(p + 0x3E);
-        if (*(u16*)(p + 0x3C) < fadeEnd) {
-            deltaScale = *(f32*)(p + 0x2C) * (f32)delta;
-            next = *(u16*)(p + 0x3C) + delta;
-            fadeStart = *(u16*)(p + 0x3A);
-            entryCount = *(u16*)(p + 0x38);
+        fadeEnd = ((LeafWork*)p)->fadeEnd;
+        if (((LeafWork*)p)->frame < fadeEnd) {
+            deltaScale = ((LeafWork*)p)->speed * (f32)delta;
+            next = ((LeafWork*)p)->frame + delta;
+            fadeStart = ((LeafWork*)p)->fadeStart;
+            entryCount = ((LeafWork*)p)->count;
             entry = *(u8**)p;
-            *(u16*)(p + 0x3C) = next;
+            ((LeafWork*)p)->frame = next;
 
             if (next < fadeStart) {
                 deltaScale *= 2.0f - ((f32)next / (f32)fadeStart);
             } else {
-                model = GSresGetResource(*(u16*)(p + 0x40), *(u16*)(p + 0x44));
+                model = GSresGetResource(((LeafWork*)p)->resGroup, ((LeafWork*)p)->modelRes);
                 alpha = 1.0f - ((f32)(next - fadeStart) / (f32)(fadeEnd - fadeStart));
                 modelCount = GSmodelWalkJObjs(model);
                 for (i = 0; i < modelCount; i++) {
@@ -1103,21 +1103,21 @@ u32 _leaffxUpdate(void* ptr, u32 delta) {
             }
 
             for (k = 0; k < entryCount; k++, entry += 0x5C) {
-                if (*(void**)(entry + 0x58) != NULL) {
-                    *(f32*)(entry + 0x54) += deltaScale;
-                    if (*(f32*)(entry + 0x54) >= 1.0f) {
+                if (((LeafEntry*)entry)->model != NULL) {
+                    ((LeafEntry*)entry)->t += deltaScale;
+                    if (((LeafEntry*)entry)->t >= 1.0f) {
                         _leaffxMoveLeaf(p, entry);
                     }
 
-                    GSbezierCalculateVector(position, entry, *(f32*)(entry + 0x54));
+                    GSbezierCalculateVector(position, entry, ((LeafEntry*)entry)->t);
                     if (position[1] < 0.0f) {
-                        GSmodelSetVisibility(*(void**)(entry + 0x58), 0);
-                        GSmodelFree(*(void**)(entry + 0x58));
-                        *(void**)(entry + 0x58) = NULL;
+                        GSmodelSetVisibility(((LeafEntry*)entry)->model, 0);
+                        GSmodelFree(((LeafEntry*)entry)->model);
+                        ((LeafEntry*)entry)->model = NULL;
                     } else {
-                        leafModel = *(void**)(entry + 0x58);
-                        scale = *(f32*)(entry + 0x50);
-                        GSquatSlerp(rotation, entry + 0x30, entry + 0x40, *(f32*)(entry + 0x54));
+                        leafModel = ((LeafEntry*)entry)->model;
+                        scale = ((LeafEntry*)entry)->scale;
+                        GSquatSlerp(rotation, entry + 0x30, entry + 0x40, ((LeafEntry*)entry)->t);
                         GSmtxFromQuat(matrix, rotation);
                         fn_800E02C4(matrix, scale, scale, scale);
                         fn_800E03B4(matrix, position);
@@ -1183,12 +1183,12 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     f32 cosYaw2;
     f32 distance0;
 
-    farBase = *(f32*)(config + 0x20);
-    nearBase = *(f32*)(config + 0x18);
-    farRange = *(f32*)(config + 0x24);
-    nearRange = *(f32*)(config + 0x1C);
+    farBase = ((LeafWork*)config)->radiusBase;
+    nearBase = ((LeafWork*)config)->heightBase;
+    farRange = ((LeafWork*)config)->radiusRange;
+    nearRange = ((LeafWork*)config)->heightRange;
 
-    *(f32*)(leaf + 0x54) -= 1.0f;
+    ((LeafEntry*)leaf)->t -= 1.0f;
     fn_800E076C(leaf + 0x30, leaf + 0x40);
 
     yaw0 = *(f32*)&lbl_8047D180 * GSrandf();
@@ -1207,7 +1207,7 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     GSvecSub(vec, vec, leaf + 0xC);
     GSvecNormalize(vec, vec);
     distance0 = farRange * fn_800E0BA0() + farBase;
-    distance0 *= *(f32*)(leaf + 0x50);
+    distance0 *= ((LeafEntry*)leaf)->scale;
     vecScale(vec, vec, -distance0);
     GSvecAdd(vec, vec, leaf);
 
@@ -1216,13 +1216,13 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     pitch1 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch1 = sin(pitch1);
     distance1 = nearRange * fn_800E0BA0() + nearBase;
-    distance1 *= *(f32*)(leaf + 0x50);
+    distance1 *= ((LeafEntry*)leaf)->scale;
     sinYaw1 = sin(yaw1);
     cosPitch1 = cos(pitch1);
     cosYaw1 = cos(yaw1);
     set__5GSvecFfff(vec, sinPitch1 * cosYaw1, cosPitch1, sinPitch1 * sinYaw1);
     vecScale(vec, vec, distance1);
-    vec[1] += *(f32*)(config + 0x28);
+    vec[1] += ((LeafWork*)config)->lift;
     GSvecAdd(vec, vec, leaf);
 
     vec = (f32*)(leaf + 0x24);
@@ -1230,7 +1230,7 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     pitch2 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch2 = sin(pitch2);
     distance2 = farRange * fn_800E0BA0() + farBase;
-    distance2 *= *(f32*)(leaf + 0x50);
+    distance2 *= ((LeafEntry*)leaf)->scale;
     sinYaw2 = sin(yaw2);
     cosPitch2 = cos(pitch2);
     cosYaw2 = cos(yaw2);
@@ -1307,25 +1307,25 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
 
     p = ptr;
     e = entry;
-    radiusBase = *(f32*)(p + 0x20);
-    heightBase = *(f32*)(p + 0x18);
-    radiusRange = *(f32*)(p + 0x24);
-    heightRange = *(f32*)(p + 0x1C);
-    source = GSresGetResource(*(u16*)(p + 0x46), *(u16*)(p + 0x48));
+    radiusBase = ((LeafWork*)p)->radiusBase;
+    heightBase = ((LeafWork*)p)->heightBase;
+    radiusRange = ((LeafWork*)p)->radiusRange;
+    heightRange = ((LeafWork*)p)->heightRange;
+    source = GSresGetResource(((LeafWork*)p)->sourceGroup, ((LeafWork*)p)->sourceRes);
     part = NULL;
     if (source == NULL) {
         return 0;
     }
 
-    *(void**)(e + 0x58) = GSmodelClone(*(void**)(p + 0x08));
-    if (*(void**)(e + 0x58) == NULL) {
+    ((LeafEntry*)e)->model = GSmodelClone(((LeafWork*)p)->model);
+    if (((LeafEntry*)e)->model == NULL) {
         GSlogWrite((const char*)lbl_80272CC4);
         return 0;
     }
 
-    GSmodelSetVisibility(*(void**)(e + 0x58), 1);
-    if (*(s16*)(p + 0x4A) >= 0) {
-        part = GSmodelGetPart(source, *(s16*)(p + 0x4A));
+    GSmodelSetVisibility(((LeafEntry*)e)->model, 1);
+    if (((LeafWork*)p)->sourcePart >= 0) {
+        part = GSmodelGetPart(source, ((LeafWork*)p)->sourcePart);
     }
 
     if (part != NULL) {
@@ -1335,9 +1335,9 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
         GSmodelGetPosition(source, position);
     }
 
-    *(f32*)(e + 0x50) = *(f32*)(p + 0x14) * fn_800E0BA0() + *(f32*)(p + 0x10);
-    *(f32*)(e + 0x50) *= *(f32*)(p + 0x0C);
-    *(f32*)(e + 0x54) = lbl_8047D168;
+    ((LeafEntry*)e)->scale = ((LeafWork*)p)->sizeRange * fn_800E0BA0() + ((LeafWork*)p)->sizeBase;
+    ((LeafEntry*)e)->scale *= ((LeafWork*)p)->sizeScale;
+    ((LeafEntry*)e)->t = lbl_8047D168;
 
     yaw0 = *(f32*)&lbl_8047D180 * GSrandf();
     pitch0 = *(f32*)&lbl_8047D184 * GSrandf();
@@ -1364,7 +1364,7 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
 
     vec = (f32*)(e + 0x18);
     radius2 = radiusRange * fn_800E0BA0() + radiusBase;
-    radius2 *= *(f32*)(e + 0x50);
+    radius2 *= ((LeafEntry*)e)->scale;
     yaw2 = *(f32*)&lbl_8047D180 * GSrandf();
     pitch2 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch2 = sin(pitch2);
@@ -1380,8 +1380,8 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
     pitch3 = *(f32*)&lbl_8047D188 * GSrandf();
     sinPitch3 = sin(pitch3);
     radius3 = heightRange * fn_800E0BA0() + heightBase;
-    radius3 *= *(f32*)(p + 0x34) * fn_800E0BA0() + *(f32*)(p + 0x30);
-    radius3 *= *(f32*)(e + 0x50);
+    radius3 *= ((LeafWork*)p)->spreadRange * fn_800E0BA0() + ((LeafWork*)p)->spreadBase;
+    radius3 *= ((LeafEntry*)e)->scale;
     sinYaw3 = sin(yaw3);
     cosPitch3 = cos(pitch3);
     cosYaw3 = cos(yaw3);
@@ -1394,7 +1394,7 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
     pitch4 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch4 = sin(pitch4);
     radius4 = radiusRange * fn_800E0BA0() + radiusBase;
-    radius4 *= *(f32*)(e + 0x50);
+    radius4 *= ((LeafEntry*)e)->scale;
     sinYaw4 = sin(yaw4);
     cosPitch4 = cos(pitch4);
     cosYaw4 = cos(yaw4);
@@ -1403,9 +1403,9 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
     GSvecAdd(vec, vec, e + 0x0C);
 
     GSmtxFromQuat(matrix, (u8*)e + 0x30);
-    fn_800E02C4(matrix, *(f32*)(e + 0x50), *(f32*)(e + 0x50), *(f32*)(e + 0x50));
+    fn_800E02C4(matrix, ((LeafEntry*)e)->scale, ((LeafEntry*)e)->scale, ((LeafEntry*)e)->scale);
     fn_800E03B4(matrix, position);
-    GSmodelSetMatrix(*(void**)(e + 0x58), matrix);
+    GSmodelSetMatrix(((LeafEntry*)e)->model, matrix);
     return 1;
 }
 #endif
@@ -1443,8 +1443,8 @@ u32 _boltDestroy(void* ptr) {
     if (ptr) {
         GXDrawDone();
         GXInvalidateVtxCache();
-        if (*(void**)((u8*)ptr + 0x58) != NULL) {
-            GStextureFree(*(void**)((u8*)ptr + 0x58));
+        if (((BoltWork*)ptr)->texture != NULL) {
+            GStextureFree(((BoltWork*)ptr)->texture);
         }
     }
     return 1;
@@ -1458,7 +1458,7 @@ asm void fn_801398E0(void* ptr) {
 u32 _boltStop(void* ptr) {
     u32 val;
     if (ptr) {
-        val = *(u16*)((u8*)ptr + 0x4);
+        val = ((BoltWork*)ptr)->entriesHandle;
         if (val) {
             GXDrawDone();
             GXInvalidateVtxCache();
@@ -1486,16 +1486,16 @@ u32 _boltRender(void* ptr) {
     if (ptr != NULL) {
         p = ptr;
         camera = GScameraGetActiveCamera();
-        count = *(u16*)(p + 0x44);
+        count = ((BoltWork*)p)->count;
         entry = *(void**)p;
-        model = GSresGetResource(*(u16*)(p + 0x4c), *(u16*)(p + 0x4e));
-        if (*(void**)(p + 0x58) == NULL) {
+        model = GSresGetResource(((BoltWork*)p)->resGroup, ((BoltWork*)p)->resId);
+        if (((BoltWork*)p)->texture == NULL) {
             return 0;
         }
         _cameraLoadCameraMatrix__FP9_GScamera12GSgfxLayerID();
         if (model != NULL) {
             GSmodelGetPosition(model, pos);
-            if (*(s32*)(p + 0x50) > 0) {
+            if (((BoltWork*)p)->part > 0) {
                 part = GSmodelGetPart(model, *(u32*)(p + 0x50));
                 if (part != NULL) {
                     if ((u8)fn_800EE7E0(part) != 0) {
@@ -1514,12 +1514,12 @@ u32 _boltRender(void* ptr) {
         gfxSetCullMode(0);
         gfxSetFlags(3);
         gfxClearFlags(4);
-        gfxSetVtxDesc(*(void**)(p + 0x54));
-        gfxLoadTexture(0, *(void**)(p + 0x58));
+        gfxSetVtxDesc(((BoltWork*)p)->vtxDesc);
+        gfxLoadTexture(0, ((BoltWork*)p)->texture);
         gfxSetPrimitive(6);
         i = 0;
         while (i < count) {
-            if (*(u16*)(entry + 0x12e0) != 0) {
+            if (((BoltEntry*)entry)->visible != 0) {
                 _boltDrawStrip(entry, p, cameraPos, pos);
             }
             i++;
@@ -1549,18 +1549,18 @@ BOOL _boltUpdate(void* ptr, u32 tick) {
 
     if (ptr != NULL) {
         p = ptr;
-    frame = *(u16*)(p + 0x48);
-    if (*(void**)(p + 0x58) == NULL) {
+    frame = ((BoltWork*)p)->frame;
+    if (((BoltWork*)p)->texture == NULL) {
         return 0;
     }
 
-    endFrame = *(u16*)(p + 0x4A);
+    endFrame = ((BoltWork*)p)->endFrame;
     if (frame < endFrame) {
-    count = *(u16*)(p + 0x44);
+    count = ((BoltWork*)p)->count;
     entry = *(u8**)p;
     for (i = 0; i < count; i++, entry += 0x12E4) {
-        if (frame >= *(u16*)(entry + 0x12DC) &&
-            frame < *(u16*)(entry + 0x12DE)) {
+        if (frame >= ((BoltEntry*)entry)->startFrame &&
+            frame < ((BoltEntry*)entry)->endFrame) {
                 f32 random_offset[3];
                 f32 offset[3];
                 f32 fade;
@@ -1569,7 +1569,7 @@ BOOL _boltUpdate(void* ptr, u32 tick) {
                 u8* point;
 
                 GSvecCopy(offset, p + 8);
-                segment_count = *(u16*)(entry + 0x12E2);
+                segment_count = ((BoltEntry*)entry)->pointCount;
                 point = entry;
                 for (segment = 0; segment < segment_count; segment++, point += 0x18) {
                     set__5GSvecFfff(random_offset,
@@ -1579,25 +1579,25 @@ BOOL _boltUpdate(void* ptr, u32 tick) {
                     GSvecAdd(point, point, random_offset);
                 }
 
-                if (*(u16*)(p + 0x48) >
-                    ((*(u16*)(entry + 0x12DE) +
-                      *(u16*)(entry + 0x12DC)) >> 1)) {
-                    fade = (f32)(*(u16*)(entry + 0x12DE) -
-                                 *(u16*)(p + 0x48)) /
-                           (f32)((*(u16*)(entry + 0x12DE) -
-                                  *(u16*)(entry + 0x12DC)) >> 1);
-                    *(u8*)(entry + 0x12D8) = (u8)(p[0x5C] * fade);
-                    *(u8*)(entry + 0x12D9) = (u8)(p[0x5D] * fade);
-                    *(u8*)(entry + 0x12DA) = (u8)(p[0x5E] * fade);
-                    *(u8*)(entry + 0x12DB) = (u8)(p[0x5F] * fade);
+                if (((BoltWork*)p)->frame >
+                    ((((BoltEntry*)entry)->endFrame +
+                      ((BoltEntry*)entry)->startFrame) >> 1)) {
+                    fade = (f32)(((BoltEntry*)entry)->endFrame -
+                                 ((BoltWork*)p)->frame) /
+                           (f32)((((BoltEntry*)entry)->endFrame -
+                                  ((BoltEntry*)entry)->startFrame) >> 1);
+                    ((BoltEntry*)entry)->color[0] = (u8)(p[0x5C] * fade);
+                    ((BoltEntry*)entry)->color[1] = (u8)(p[0x5D] * fade);
+                    ((BoltEntry*)entry)->color[2] = (u8)(p[0x5E] * fade);
+                    ((BoltEntry*)entry)->color[3] = (u8)(p[0x5F] * fade);
                 }
-                *(u16*)(entry + 0x12E0) = 1;
+                ((BoltEntry*)entry)->visible = 1;
         } else {
-            *(u16*)(entry + 0x12E0) = 0;
+            ((BoltEntry*)entry)->visible = 0;
         }
     }
 
-    *(u16*)(p + 0x48) = *(u16*)(p + 0x48) + tick;
+    ((BoltWork*)p)->frame = ((BoltWork*)p)->frame + tick;
         return 1;
     }
     }
@@ -1623,17 +1623,17 @@ u32 boltStartEffect(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        count = *(u16*)(p + 0x44);
-        if (*(void**)(p + 0x58) == NULL) {
+        count = ((BoltWork*)p)->count;
+        if (((BoltWork*)p)->texture == NULL) {
             return 0;
         }
 
         if (count > 1) {
-            span = *(u16*)(p + 0x4A) / (count - 1);
-            step = (*(u16*)(p + 0x4A) - span) / count;
+            span = ((BoltWork*)p)->endFrame / (count - 1);
+            step = (((BoltWork*)p)->endFrame - span) / count;
         } else {
             step = 0;
-            span = *(u16*)(p + 0x4A);
+            span = ((BoltWork*)p)->endFrame;
         }
 
         size = count * 0x12E4;
@@ -1643,21 +1643,21 @@ u32 boltStartEffect(void* ptr) {
             return 0;
         }
 
-        *(u16*)(p + 0x4) = handle;
+        ((BoltWork*)p)->entriesHandle = handle;
         entry = *(u8**)p = GSmemLock(handle);
         memset(entry, 0, size);
         for (i = 0; i < count; i++, entry += 0x12E4) {
-            *(u16*)(entry + 0x12E2) = 0;
-            set__5GSvecFfff(entry + 0x12C0, 0.0f, *(f32*)(p + 0x38), 0.0f);
-            _boltSubdivide(entry, p, (struct ElectronPoint*)(entry + 0x12C0), 0, *(f32*)(p + 0x3C));
+            ((BoltEntry*)entry)->pointCount = 0;
+            set__5GSvecFfff(entry + 0x12C0, 0.0f, ((BoltWork*)p)->height, 0.0f);
+            _boltSubdivide(entry, p, (struct ElectronPoint*)(entry + 0x12C0), 0, ((BoltWork*)p)->field_3C);
             entry[0x12D8] = p[0x5C];
             entry[0x12D9] = p[0x5D];
             entry[0x12DA] = p[0x5E];
             entry[0x12DB] = p[0x5F];
-            *(u16*)(entry + 0x12DC) = i * step;
-            *(u16*)(entry + 0x12DE) = *(u16*)(entry + 0x12DC) + span;
+            ((BoltEntry*)entry)->startFrame = i * step;
+            ((BoltEntry*)entry)->endFrame = ((BoltEntry*)entry)->startFrame + span;
         }
-        *(u16*)(p + 0x48) = 0;
+        ((BoltWork*)p)->frame = 0;
         return 1;
     }
 
@@ -1716,13 +1716,13 @@ void _boltDrawStrip(u8* e, u8* p, void* cameraPos, void* modelPos) {
                 start);
     GSvecSub(interpolated, modelPos, interpolated);
     if (current < halfSpan) {
-        threshold = *(f32*)(p + 0x38);
+        threshold = ((BoltWork*)p)->height;
         threshold *= 1.0f - (f32)current / (f32)halfSpan;
     } else {
         threshold = 0.0f;
     }
 
-    count = *(u16*)(e + 0x12E2);
+    count = ((BoltEntry*)e)->pointCount;
     visible = 0;
     pointEntry = e;
     for (i = 0; i < count; i++, pointEntry += 0x18) {
@@ -1737,7 +1737,7 @@ void _boltDrawStrip(u8* e, u8* p, void* cameraPos, void* modelPos) {
     gfxPushMultMatrix(matrix);
     gfxBegin((visible * 4) & 0xFFFC);
 
-    count = *(u16*)(e + 0x12E2);
+    count = ((BoltEntry*)e)->pointCount;
     pointEntry = e;
     for (i = 0; i < count; i++, pointEntry += 0x18) {
         if (*(f32*)(*(u8**)(pointEntry + 0xC) + 4) > threshold) {
@@ -1816,7 +1816,7 @@ void _boltSubdivide(u8* entry, u8* parent, ElectronPoint* origin, u32 depth, f32
 
     previous = origin;
     GSvecCopy(spread, parent + 0x14);
-    startCount = *(u16*)(entry + 0x12E2);
+    startCount = ((BoltEntry*)entry)->pointCount;
     if (depth != 0) {
         stopHeight = 0.25f * origin->y;
     } else {
@@ -1833,12 +1833,12 @@ void _boltSubdivide(u8* entry, u8* parent, ElectronPoint* origin, u32 depth, f32
 
         set__5GSvecFfff(
             current,
-            spread[0] * fn_800E0BA0() + *(f32*)(parent + 0x2C),
-            spread[1] * fn_800E0BA0() + *(f32*)(parent + 0x30),
-            spread[2] * fn_800E0BA0() + *(f32*)(parent + 0x34));
+            spread[0] * fn_800E0BA0() + ((BoltWork*)parent)->spread[0],
+            spread[1] * fn_800E0BA0() + ((BoltWork*)parent)->spread[1],
+            spread[2] * fn_800E0BA0() + ((BoltWork*)parent)->spread[2]);
         GSvecAdd(current, current, point);
 
-        (*(u16*)(entry + 0x12E2))++;
+        (((BoltEntry*)entry)->pointCount)++;
         if (current->y < stopHeight || spawnChance < GSrandf()) {
             if (depth == 0) {
                 GSvecCopy(entry + 0x12CC, current);
@@ -1847,14 +1847,14 @@ void _boltSubdivide(u8* entry, u8* parent, ElectronPoint* origin, u32 depth, f32
         }
     }
 
-    if (depth >= *(u16*)(parent + 0x46)) {
+    if (depth >= ((BoltWork*)parent)->depth) {
         return;
     }
 
-    branchChance = *(f32*)(parent + 0x40) *
-                  (f32)(*(u16*)(parent + 0x46) - depth) /
-                  (f32)*(u16*)(parent + 0x46);
-    count = *(u16*)(entry + 0x12E2);
+    branchChance = ((BoltWork*)parent)->branchChance *
+                  (f32)(((BoltWork*)parent)->depth - depth) /
+                  (f32)((BoltWork*)parent)->depth;
+    count = ((BoltEntry*)entry)->pointCount;
     if (depth != 0) {
         branchDecay = weight / (f32)(count - startCount);
     } else {
