@@ -13,6 +13,7 @@
  * fn_80056A80 (0x80056A80): exact pure-C recovery. Other source-backed
  * functions remain candidates until their own exact islands are proven.
  */
+#include "game/records/lbl_803A9768.h"
 #include "dolphin/types.h"
 
 extern void pokemonInit(u8* ptr);
@@ -439,8 +440,8 @@ void fn_80056C54(u8* a, u8* b, u32 c) {
     f32 t0;
     f32 s1;
 
-    *(s16*)(a + 0x84) = (s16)*(f32*)(lbl_803A9768 + 0x27c);
-    *(s16*)(a + 0x86) = (s16)*(f32*)(lbl_803A9768 + 0x280);
+    *(s16*)(a + 0x84) = (s16)((Work803A9768*)lbl_803A9768)->field_27C;
+    *(s16*)(a + 0x86) = (s16)((Work803A9768*)lbl_803A9768)->field_280;
     fn_800FE6D0((s16)(*(s16*)(a + 0x84) + *(s16*)(b + 0x50)),
                 (s16)(*(s16*)(a + 0x86) + *(s16*)(b + 0x52)));
     spriteSetEnv();
@@ -512,8 +513,8 @@ void fn_80056C54(u8* a, u8* b, u32 c) {
 
 #pragma scheduling off
 void fn_80057094(s16* a, s16* b) {
-    *a = (s16)(s32)*(f32*)(lbl_803A9768 + 0x27c);
-    *b = (s16)(s32)*(f32*)(lbl_803A9768 + 0x280);
+    *a = (s16)(s32)((Work803A9768*)lbl_803A9768)->field_27C;
+    *b = (s16)(s32)((Work803A9768*)lbl_803A9768)->field_280;
 }
 /* RULE-EXCEPTION(user-approved): local compiler-control pragma (scheduling on; scheduling off) needed for the byte match of the code it covers - see docs/RULE_EXCEPTIONS.md */
 #pragma scheduling on
@@ -521,7 +522,7 @@ void fn_80057094(s16* a, s16* b) {
 #pragma scheduling off
 u32 fn_800570D0(u8* a, u8* b) {
     s32 c;
-    c = (s32)(*(u32*)(lbl_803A9768 + 0x278) + 1);
+    c = (s32)(((Work803A9768*)lbl_803A9768)->field_278 + 1);
     fn_80056C54(a, b, (u32)(c % 2));
     return 0;
 }
@@ -530,7 +531,7 @@ u32 fn_800570D0(u8* a, u8* b) {
 
 #pragma scheduling off
 u32 fn_80057114(u8* a, u8* b) {
-    fn_80056C54(a, b, *(u32*)(lbl_803A9768 + 0x278));
+    fn_80056C54(a, b, ((Work803A9768*)lbl_803A9768)->field_278);
     return 0;
 }
 
@@ -552,15 +553,15 @@ u32 fn_80057144(u8* ctx, u8* p) {
     s32 shown;
 
     *(Tbl14*)table = *(Tbl14*)lbl_802676B4;
-    variant = *(s32*)(lbl_803A9768 + 4);
+    variant = ((Work803A9768*)lbl_803A9768)->field_4;
     if (*(s16*)(p + 6) == table[*(s32*)lbl_803A9768][variant != 0 ? 1 : 0]) {
         shown = 1;
     } else {
         shown = 0;
     }
     winSpriteSetDisp(p, shown);
-    *(s16*)(ctx + 0x84) = *(f32*)(lbl_803A9768 + 0x27c);
-    *(s16*)(ctx + 0x86) = *(f32*)(lbl_803A9768 + 0x280);
+    *(s16*)(ctx + 0x84) = ((Work803A9768*)lbl_803A9768)->field_27C;
+    *(s16*)(ctx + 0x86) = ((Work803A9768*)lbl_803A9768)->field_280;
     return 0;
 }
 #pragma pop
@@ -634,7 +635,7 @@ void* pcBoxGetCursorPokemon(void) {
 u32 fn_800573C0(void) {
     s32 state;
 
-    if (*(f32*)(lbl_803A9768 + 0x288) <= 0.0f) {
+    if (((Work803A9768*)lbl_803A9768)->field_288 <= 0.0f) {
         state = *(s32*)lbl_803A9768;
         if (state == 0 || state == 3) {
             return 0;
@@ -646,10 +647,10 @@ u32 fn_800573C0(void) {
 void fn_80057400(void) {
     s32 value;
 
-    value = (s32)(*(u32*)(lbl_803A9768 + 0x278) + 1);
-    *(u32*)(lbl_803A9768 + 0x278) = value;
+    value = (s32)(((Work803A9768*)lbl_803A9768)->field_278 + 1);
+    ((Work803A9768*)lbl_803A9768)->field_278 = value;
     if (value > 1) {
-        *(u32*)(lbl_803A9768 + 0x278) = 0;
+        ((Work803A9768*)lbl_803A9768)->field_278 = 0;
     }
 }
 
@@ -662,7 +663,7 @@ void fn_8005744C(void) {
 }
 
 void fn_80057458(u8* src) {
-    s32 next = (s32)(*(u32*)(lbl_803A9768 + 0x278) + 1) % 2;
+    s32 next = (s32)(((Work803A9768*)lbl_803A9768)->field_278 + 1) % 2;
     Tbl78* dstState = (Tbl78*)(lbl_803A9768 + next * 0x138 + 8);
     Tbl78* srcState = (Tbl78*)src;
 
@@ -674,12 +675,12 @@ void fn_80057458(u8* src) {
 #pragma scheduling off
 #pragma optimization_level 4
 void fn_800574A8(void) {
-    pokemonInit((u8*)(lbl_803A9768 + *(u32*)(lbl_803A9768 + 0x278) * 0x138 + 8));
+    pokemonInit((u8*)(lbl_803A9768 + ((Work803A9768*)lbl_803A9768)->field_278 * 0x138 + 8));
 }
 #pragma pop
 
 u8* fn_800574E0(void) {
-    return lbl_803A9768 + *(u32*)(lbl_803A9768 + 0x278) * 0x138 + 8;
+    return lbl_803A9768 + ((Work803A9768*)lbl_803A9768)->field_278 * 0x138 + 8;
 }
 
 void fn_800574FC(u8* src) {
@@ -687,7 +688,7 @@ void fn_800574FC(u8* src) {
     Tbl78* srcState;
     u32 slot;
 
-    slot = *(u32*)(lbl_803A9768 + 0x278);
+    slot = ((Work803A9768*)lbl_803A9768)->field_278;
     dstState = (Tbl78*)(lbl_803A9768 + slot * 0x138 + 8);
     srcState = (Tbl78*)src;
     *dstState = *srcState;
@@ -714,7 +715,7 @@ u32 fn_80057538(void) {
             return 1;
         }
         *(Tbl14*)table = *(Tbl14*)lbl_802676B4;
-        variant = *(s32*)(lbl_803A9768 + 4);
+        variant = ((Work803A9768*)lbl_803A9768)->field_4;
         if (fn_80107170(0xa0, (u16)table[state][variant != 0 ? 1 : 0]) != 0) {
             return 0;
         }
@@ -735,15 +736,15 @@ u32 fn_80057538(void) {
     defined(MENUCB_TU_80056C54_ONLY)
 
 u32 fn_80057694(void) {
-    return *(u32*)(lbl_803A9768 + 4);
+    return (u32)((Work803A9768*)lbl_803A9768)->field_4;
 }
 
 void fn_800576A4(u32 a) {
-    *(u32*)(lbl_803A9768 + 4) = a;
+    ((Work803A9768*)lbl_803A9768)->field_4 = a;
 }
 
 u32 fn_800576B4(void) {
-    return *(u32*)(lbl_803A9768 + 0);
+    return ((Work803A9768*)lbl_803A9768)->field_0;
 }
 
 /* RULE-EXCEPTION(user-approved): local peephole-control pragma — see docs/RULE_EXCEPTIONS.md */
@@ -761,7 +762,7 @@ void fn_800576C4(s32 state) {
     if (count > 0 && object != 0) {
         s32 variant;
         *(Tbl14*)table = *(Tbl14*)lbl_802676B4;
-        variant = *(s32*)(lbl_803A9768 + 4);
+        variant = ((Work803A9768*)lbl_803A9768)->field_4;
         fn_801081F8(object,
                     (u16)table[*(s32*)lbl_803A9768][variant != 0 ? 1 : 0],
                     (u16)count);
@@ -783,23 +784,23 @@ void fn_800576C4(s32 state) {
 #pragma peephole off
 void fn_80057830(s32 x, s32 y, s32 reset) {
     if (reset != 0) {
-        *(f32*)(lbl_803A9768 + 0x27c) = (f32)x;
-        *(f32*)(lbl_803A9768 + 0x280) = (f32)y;
-        *(f32*)(lbl_803A9768 + 0x294) = (f32)x;
-        *(f32*)(lbl_803A9768 + 0x298) = (f32)y;
-        *(f32*)(lbl_803A9768 + 0x28c) = (f32)x;
-        *(f32*)(lbl_803A9768 + 0x290) = (f32)y;
-        *(f32*)(lbl_803A9768 + 0x284) = 1.0f;
-        *(f32*)(lbl_803A9768 + 0x288) = 0.0f;
+        ((Work803A9768*)lbl_803A9768)->field_27C = (f32)x;
+        ((Work803A9768*)lbl_803A9768)->field_280 = (f32)y;
+        ((Work803A9768*)lbl_803A9768)->field_294 = (f32)x;
+        ((Work803A9768*)lbl_803A9768)->field_298 = (f32)y;
+        ((Work803A9768*)lbl_803A9768)->field_28C = (f32)x;
+        ((Work803A9768*)lbl_803A9768)->field_290 = (f32)y;
+        ((Work803A9768*)lbl_803A9768)->field_284 = 1.0f;
+        ((Work803A9768*)lbl_803A9768)->field_288 = 0.0f;
     } else {
-        *(f32*)(lbl_803A9768 + 0x28c) =
-            *(f32*)(lbl_803A9768 + 0x27c);
-        *(f32*)(lbl_803A9768 + 0x290) =
-            *(f32*)(lbl_803A9768 + 0x280);
-        *(f32*)(lbl_803A9768 + 0x294) = (f32)x;
-        *(f32*)(lbl_803A9768 + 0x298) = (f32)y;
-        *(f32*)(lbl_803A9768 + 0x284) = 0.0f;
-        *(f32*)(lbl_803A9768 + 0x288) = 0.16666667f;
+        ((Work803A9768*)lbl_803A9768)->field_28C =
+            ((Work803A9768*)lbl_803A9768)->field_27C;
+        ((Work803A9768*)lbl_803A9768)->field_290 =
+            ((Work803A9768*)lbl_803A9768)->field_280;
+        ((Work803A9768*)lbl_803A9768)->field_294 = (f32)x;
+        ((Work803A9768*)lbl_803A9768)->field_298 = (f32)y;
+        ((Work803A9768*)lbl_803A9768)->field_284 = 0.0f;
+        ((Work803A9768*)lbl_803A9768)->field_288 = 0.16666667f;
     }
 }
 #pragma pop
@@ -807,20 +808,20 @@ void fn_80057830(s32 x, s32 y, s32 reset) {
 void fn_80057948(void) {
     extern f32 lbl_8047A58C;
 
-    if (*(f32*)(lbl_803A9768 + 0x288) > 0.0f) {
-        *(f32*)(lbl_803A9768 + 0x284) += *(f32*)(lbl_803A9768 + 0x288);
-        if (*(f32*)(lbl_803A9768 + 0x284) >= 1.0f) {
-            *(f32*)(lbl_803A9768 + 0x284) = 1.0f;
-            *(f32*)(lbl_803A9768 + 0x288) = 0.0f;
+    if (((Work803A9768*)lbl_803A9768)->field_288 > 0.0f) {
+        ((Work803A9768*)lbl_803A9768)->field_284 += ((Work803A9768*)lbl_803A9768)->field_288;
+        if (((Work803A9768*)lbl_803A9768)->field_284 >= 1.0f) {
+            ((Work803A9768*)lbl_803A9768)->field_284 = 1.0f;
+            ((Work803A9768*)lbl_803A9768)->field_288 = 0.0f;
         }
-        *(f32*)(lbl_803A9768 + 0x27c) =
-            *(f32*)(lbl_803A9768 + 0x284) *
-                (*(f32*)(lbl_803A9768 + 0x294) - *(f32*)(lbl_803A9768 + 0x28c)) +
-            *(f32*)(lbl_803A9768 + 0x28c);
-        *(f32*)(lbl_803A9768 + 0x280) =
-            *(f32*)(lbl_803A9768 + 0x284) *
-                (*(f32*)(lbl_803A9768 + 0x298) - *(f32*)(lbl_803A9768 + 0x290)) +
-            *(f32*)(lbl_803A9768 + 0x290);
+        ((Work803A9768*)lbl_803A9768)->field_27C =
+            ((Work803A9768*)lbl_803A9768)->field_284 *
+                (((Work803A9768*)lbl_803A9768)->field_294 - ((Work803A9768*)lbl_803A9768)->field_28C) +
+            ((Work803A9768*)lbl_803A9768)->field_28C;
+        ((Work803A9768*)lbl_803A9768)->field_280 =
+            ((Work803A9768*)lbl_803A9768)->field_284 *
+                (((Work803A9768*)lbl_803A9768)->field_298 - ((Work803A9768*)lbl_803A9768)->field_290) +
+            ((Work803A9768*)lbl_803A9768)->field_290;
     }
     lbl_8047A58C += 1.0f / 60.0f;
     if (lbl_8047A58C > 1.0f) {
