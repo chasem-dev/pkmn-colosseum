@@ -1,4 +1,5 @@
 /* Standalone copy of fn_8003B2D8 from pda_range_80037158.c, linked on its own. */
+#include "game/records/lbl_803A6748.h"
 #include "dolphin/types.h"
 
 typedef struct PdaListEntry {
@@ -80,7 +81,7 @@ void pdaSnagListDrawEntry(u8* context)
     u32 owner;
     u32 caption;
 
-    context[0x8B] = lbl_8047BAC0 * *(f32*)(lbl_803A6748 + 0x44);
+    context[0x8B] = lbl_8047BAC0 * ((Work803A6748*)lbl_803A6748)->field_44;
     ownerText = pda_8003B2D8_OwnerText();
     owner = ownerText;
     if (ownerText == 0) {
