@@ -5,6 +5,14 @@
 
 #include "dolphin/types.h"
 
+typedef struct GSlightFields {
+    u8 pad_00[0x5C];
+    u32 animType; /* 0x5C */
+} GSlightFields;
+#ifdef __clang__
+_Static_assert(__builtin_offsetof(GSlightFields, animType) == 0x5C, "GSlightFields.animType");
+#endif
+
 typedef struct FightActionBiosFields {
     u8 pad_00[0x1C];
     u32 fifoBanme; /* 0x1C */
@@ -525,6 +533,50 @@ typedef struct FloorCharacterBiosFields {
 _Static_assert(__builtin_offsetof(FloorCharacterBiosFields, nameID) == 0x8, "FloorCharacterBiosFields.nameID");
 _Static_assert(__builtin_offsetof(FloorCharacterBiosFields, moveSctID) == 0x10, "FloorCharacterBiosFields.moveSctID");
 _Static_assert(__builtin_offsetof(FloorCharacterBiosFields, talkSctID) == 0x14, "FloorCharacterBiosFields.talkSctID");
+#endif
+
+typedef struct ItemBallDataBiosFields {
+    u16 fightKoukaDataId; /* 0x00 */
+} ItemBallDataBiosFields;
+#ifdef __clang__
+_Static_assert(__builtin_offsetof(ItemBallDataBiosFields, fightKoukaDataId) == 0x0, "ItemBallDataBiosFields.fightKoukaDataId");
+#endif
+
+typedef struct ItemBiosFields {
+    u16 itemDataId; /* 0x00 */
+    u16 num; /* 0x02 */
+} ItemBiosFields;
+#ifdef __clang__
+_Static_assert(__builtin_offsetof(ItemBiosFields, itemDataId) == 0x0, "ItemBiosFields.itemDataId");
+_Static_assert(__builtin_offsetof(ItemBiosFields, num) == 0x2, "ItemBiosFields.num");
+#endif
+
+typedef struct ItemDataBiosFields {
+    u8 pad_00[0x6];
+    u16 price; /* 0x06 */
+    u8 pad_08[0x2];
+    u16 itemSoubiDataId; /* 0x0A */
+    u16 fightUseKoukaDataId; /* 0x0C */
+    u8 pad_0E[0x2];
+    u32 name; /* 0x10 */
+    u32 doc; /* 0x14 */
+    u32 buff; /* 0x18 */
+} ItemDataBiosFields;
+#ifdef __clang__
+_Static_assert(__builtin_offsetof(ItemDataBiosFields, price) == 0x6, "ItemDataBiosFields.price");
+_Static_assert(__builtin_offsetof(ItemDataBiosFields, itemSoubiDataId) == 0xA, "ItemDataBiosFields.itemSoubiDataId");
+_Static_assert(__builtin_offsetof(ItemDataBiosFields, fightUseKoukaDataId) == 0xC, "ItemDataBiosFields.fightUseKoukaDataId");
+_Static_assert(__builtin_offsetof(ItemDataBiosFields, name) == 0x10, "ItemDataBiosFields.name");
+_Static_assert(__builtin_offsetof(ItemDataBiosFields, doc) == 0x14, "ItemDataBiosFields.doc");
+_Static_assert(__builtin_offsetof(ItemDataBiosFields, buff) == 0x18, "ItemDataBiosFields.buff");
+#endif
+
+typedef struct NpcEventFields {
+    u8 pad_00[0x8B];
+    u8 msgFlags; /* 0x8B */
+} NpcEventFields;
+#ifdef __clang__
+_Static_assert(__builtin_offsetof(NpcEventFields, msgFlags) == 0x8B, "NpcEventFields.msgFlags");
 #endif
 
 typedef struct WazaDataBiosFields {

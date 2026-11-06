@@ -1,4 +1,5 @@
 #include "dolphin/types.h"
+#include "game/bios_records.h"
 
 extern void HSD_LObjGetPosition(void* lobj, void* position);
 extern void HSD_LObjGetInterest(void* lobj, void* interest);
@@ -51,7 +52,7 @@ void GSlightStartAnimation(u8* object)
 
 void GSlightSetAnimType(u8* object, u32 type)
 {
-    *(u32*)(object + 0x5c) = type;
+    ((GSlightFields*)object)->animType = type;
 }
 
 void GSlightSetAnimFrame(u8* object, f32 frame)
