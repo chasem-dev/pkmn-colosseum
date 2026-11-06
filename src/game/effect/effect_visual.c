@@ -2586,8 +2586,8 @@ asm u32 fn_8013B504(void* ptr) {
 u32 _surfDestroy(void* ptr) {
     if (ptr) {
         if (*(s32*)((u8*)ptr + 0x58) != 0) {
-            fn_800F9210(*(u32*)((u8*)ptr + 0x50), *(u32*)((u8*)ptr + 0x54));
-            fn_800F9210(*(u32*)((u8*)ptr + 0x50), *(u32*)((u8*)ptr + 0x58));
+            fn_800F9210(((SurfWork*)ptr)->resGroup, ((SurfWork*)ptr)->modelRes);
+            fn_800F9210(((SurfWork*)ptr)->resGroup, ((SurfWork*)ptr)->res58);
         }
     }
     return 1;
@@ -2606,12 +2606,12 @@ u32 _surfStop(void* ptr) {
         }
         GXDrawDone();
         GXInvalidateVtxCache();
-        val = *(u16*)((u8*)ptr + 0x20);
+        val = ((SurfWork*)ptr)->meshHandle;
         if (val) {
             fn_800E24B0(val);
             GSmemFree(val);
         }
-        val = *(u16*)((u8*)ptr + 0xc0);
+        val = ((SurfWork*)ptr)->waveHandle;
         if (val) {
             fn_800E24B0(val);
             GSmemFree(val);
@@ -2658,32 +2658,32 @@ static inline u8 surfAllocMesh(u8* p, void* model) {
     u32 texcoordSize;
     u32 colorSize;
 
-    columns = *(u16*)(p + 0x4E);
-    rows = *(u16*)(p + 0x4C);
+    columns = ((SurfWork*)p)->columns;
+    rows = ((SurfWork*)p)->rows;
     *(void**)p = model;
-    *(u16*)(p + 0x1C) = rows + 1;
-    *(u16*)(p + 0x1E) = columns + 1;
-    pointCount = *(u16*)(p + 0x1C) * *(u16*)(p + 0x1E);
+    ((SurfWork*)p)->pointRows = rows + 1;
+    ((SurfWork*)p)->pointColumns = columns + 1;
+    pointCount = ((SurfWork*)p)->pointRows * ((SurfWork*)p)->pointColumns;
     vectorSize = (pointCount * 0xC + 0x1F) & ~0x1F;
     colorSize = (pointCount * 4 + 0x1F) & ~0x1F;
     texcoordSize = (pointCount * 8 + 0x1F) & ~0x1F;
-    *(u32*)(p + 0x18) = (columns * (*(u16*)(p + 0x1C) * 0x10 + 3) + 0x1F) & ~0x1F;
-    totalSize = vectorSize + vectorSize + colorSize + texcoordSize + *(u32*)(p + 0x18);
+    ((SurfWork*)p)->displayListSize = (columns * (((SurfWork*)p)->pointRows * 0x10 + 3) + 0x1F) & ~0x1F;
+    totalSize = vectorSize + vectorSize + colorSize + texcoordSize + ((SurfWork*)p)->displayListSize;
 
     handle = GSmemAlloc(totalSize, 0x20);
     if (handle != 0) {
         data = GSmemLock(handle);
-        *(u16*)(p + 0x20) = handle;
+        ((SurfWork*)p)->meshHandle = handle;
         memset(data, 0, totalSize);
-        *(u8**)(p + 0x14) = data;
-        cursor = data + *(u32*)(p + 0x18);
-        *(u8**)(p + 0x4) = cursor;
+        ((SurfWork*)p)->displayList = data;
+        cursor = data + ((SurfWork*)p)->displayListSize;
+        ((SurfWork*)p)->positions = cursor;
         cursor += vectorSize;
-        *(u8**)(p + 0x8) = cursor;
+        ((SurfWork*)p)->normals = cursor;
         cursor += vectorSize;
-        *(u8**)(p + 0x10) = cursor;
+        ((SurfWork*)p)->colors = cursor;
         cursor += colorSize;
-        *(u8**)(p + 0xC) = cursor;
+        ((SurfWork*)p)->texcoords = cursor;
         GSmemDumpMap(0, 0);
         return TRUE;
     }
@@ -2694,10 +2694,10 @@ static inline u8 surfAllocMesh(u8* p, void* model) {
 static inline u8 surfAllocColumn(u8* p) {
     u16 handle;
 
-    handle = _toolentryAlloc__FUl((*(u16*)(p + 0x4E) + 1) * 0xC);
+    handle = _toolentryAlloc__FUl((((SurfWork*)p)->columns + 1) * 0xC);
     if (handle != 0) {
-        *(u16*)(p + 0xC0) = handle;
-        *(void**)(p + 0xBC) = GSmemLock(handle);
+        ((SurfWork*)p)->waveHandle = handle;
+        ((SurfWork*)p)->wave = GSmemLock(handle);
         return TRUE;
     }
     return FALSE;
@@ -2713,13 +2713,13 @@ u16 surfEffectStart(void* ptr) {
     }
 
     p = ptr;
-    *(u16*)(p + 0xCC) = 0;
+    ((SurfWork*)p)->frame = 0;
     memset(p, 0, 0x24);
     if (*(s32*)(p + 0x54) == 0) {
         goto fail;
     }
 
-    model = GSresGetResource(*(u32*)(p + 0x50), *(u32*)(p + 0x54));
+    model = GSresGetResource(((SurfWork*)p)->resGroup, ((SurfWork*)p)->modelRes);
     if (model == NULL) {
         goto fail;
     }
@@ -2729,8 +2729,8 @@ u16 surfEffectStart(void* ptr) {
         goto fail;
     }
 
-    _surfBuildMesh(p, p + 0x24, p + 0x3C, *(f32*)(p + 0x40), *(f32*)(p + 0x44),
-                *(f32*)(p + 0x48));
+    _surfBuildMesh(p, p + 0x24, p + 0x3C, ((SurfWork*)p)->sizeX, ((SurfWork*)p)->sizeZ,
+                ((SurfWork*)p)->meshScale);
     if (!(u8)_surfSetupMaterial(model, p)) {
         goto cleanup;
     }
@@ -2750,12 +2750,12 @@ u16 surfEffectStart(void* ptr) {
     return 1;
 
 cleanup:
-    handle = *(u16*)(p + 0x20);
-    *(u16*)(p + 0x20) = 0;
+    handle = ((SurfWork*)p)->meshHandle;
+    ((SurfWork*)p)->meshHandle = 0;
     fn_800E24B0(handle);
     GSmemFree(handle);
-    handle = *(u16*)(p + 0xC0);
-    *(u16*)(p + 0xC0) = 0;
+    handle = ((SurfWork*)p)->waveHandle;
+    ((SurfWork*)p)->waveHandle = 0;
     if (handle != 0) {
         fn_800E24B0(handle);
         GSmemFree(handle);
@@ -2786,27 +2786,27 @@ u32 _surfUpdate(void* ptr, u32 delta) {
 
     if (ptr != NULL) {
         p = ptr;
-        t = (f32)*(u16*)(p + 0xCC) / (f32)*(u16*)(p + 0xCE);
+        t = (f32)((SurfWork*)p)->frame / (f32)((SurfWork*)p)->duration;
         GSmodelSetVisibility(*(void**)p, 1);
         _surfCalcWaveProfile(p, t);
 
-        count = *(u16*)(p + 0x1E);
+        count = ((SurfWork*)p)->pointColumns;
         if (count % 2 != 0) {
             half = count >> 1;
             firstCount = half + 1;
-            fn_800E09E8(*(void**)(p + 0xBC), p + 0x5C, firstCount);
-            fn_800E09E8(*(u8**)(p + 0xBC) + firstCount * 0xC, p + 0x8C, half);
+            fn_800E09E8(((SurfWork*)p)->wave, p + 0x5C, firstCount);
+            fn_800E09E8(((SurfWork*)p)->wave + firstCount * 0xC, p + 0x8C, half);
         } else {
             evenHalf = count >> 1;
-            fn_800E09E8(*(void**)(p + 0xBC), p + 0x5C, evenHalf);
-            fn_800E09E8(*(u8**)(p + 0xBC) + evenHalf * 0xC, p + 0x8C, evenHalf);
+            fn_800E09E8(((SurfWork*)p)->wave, p + 0x5C, evenHalf);
+            fn_800E09E8(((SurfWork*)p)->wave + evenHalf * 0xC, p + 0x8C, evenHalf);
         }
 
-        count = *(u16*)(p + 0x1C);
-        columns = *(u16*)(p + 0x1E);
-        points = *(u8**)(p + 0x4);
+        count = ((SurfWork*)p)->pointRows;
+        columns = ((SurfWork*)p)->pointColumns;
+        points = ((SurfWork*)p)->positions;
         for (row = 0; row < count; row++) {
-            source = *(u8**)(p + 0xBC);
+            source = ((SurfWork*)p)->wave;
             for (column = 0; column < columns; column++, source += 0xC, points += 0xC) {
                 *(f32*)(points + 0x4) = *(f32*)(source + 0x4);
                 *(f32*)(points + 0x8) = *(f32*)(source + 0x8);
@@ -2814,8 +2814,8 @@ u32 _surfUpdate(void* ptr, u32 delta) {
         }
 
         _surfCalcNormals(p);
-        *(u16*)(p + 0xCC) = *(u16*)(p + 0xCC) + delta;
-        return (*(u16*)(p + 0xCC) < *(u16*)(p + 0xCE));
+        ((SurfWork*)p)->frame = ((SurfWork*)p)->frame + delta;
+        return (((SurfWork*)p)->frame < ((SurfWork*)p)->duration);
     }
     return 0;
 }
@@ -2846,10 +2846,10 @@ void _surfCalcNormals(void* ptr) {
     f32 nextDelta[3];
 
     p = ptr;
-    points = *(u8**)(p + 0x4);
-    vectors = *(u8**)(p + 0x8);
-    width = *(u16*)(p + 0x1E);
-    depth = *(u16*)(p + 0x1C);
+    points = ((SurfWork*)p)->positions;
+    vectors = ((SurfWork*)p)->normals;
+    width = ((SurfWork*)p)->pointColumns;
+    depth = ((SurfWork*)p)->pointRows;
     point = points + 0xC;
 
     GSvecCopy(vectors, lbl_8031554C);
@@ -2894,7 +2894,7 @@ void _surfCalcWaveProfile(void* ptr, f32 t) {
     f32 halfWidth;
 
     p = ptr;
-    halfWidth = 0.5f * *(f32*)(p + 0x44);
+    halfWidth = 0.5f * ((SurfWork*)p)->sizeZ;
     clear__5GSvecFv(upperLeft);
     clear__5GSvecFv(upperRight);
     clear__5GSvecFv(lowerRight);
@@ -2902,29 +2902,29 @@ void _surfCalcWaveProfile(void* ptr, f32 t) {
     clear__5GSvecFv(lowerLeft);
     clear__5GSvecFv(lowerFar);
 
-    lowerLeft[2] = *(f32*)(p + 0xC4);
-    lowerFar[2] = *(f32*)(p + 0xC4);
+    lowerLeft[2] = ((SurfWork*)p)->waveDepth;
+    lowerFar[2] = ((SurfWork*)p)->waveDepth;
     upperLeft[2] = -halfWidth;
     lowerRight[2] = halfWidth;
-    upperRight[1] = *(f32*)(p + 0xC8);
+    upperRight[1] = ((SurfWork*)p)->waveHeight;
 
     if (t < 0.33333334f) {
         t *= 3.0f;
         lowerRight[2] = halfWidth * t;
         upperRight[2] = 0.5f * (upperLeft[2] + lowerRight[2]);
-        upperRight[1] = *(f32*)(p + 0xC8) * t;
+        upperRight[1] = ((SurfWork*)p)->waveHeight * t;
     } else if (t < 0.6666667f) {
         t -= 0.33333334f;
         t *= 3.0f;
         upperRight[2] = halfWidth * t;
-        lowerFar[2] = *(f32*)(p + 0xC4) * (1.0f - t);
+        lowerFar[2] = ((SurfWork*)p)->waveDepth * (1.0f - t);
         offset[2] = upperRight[2];
     } else {
         t -= 0.6666667f;
         t *= 3.0f;
         upperRight[2] = halfWidth;
-        upperRight[1] = *(f32*)(p + 0xC8) * (1.0f - t);
-        lowerFar[2] = *(f32*)(p + 0xC4) * -t;
+        upperRight[1] = ((SurfWork*)p)->waveHeight * (1.0f - t);
+        lowerFar[2] = ((SurfWork*)p)->waveDepth * -t;
         offset[2] = halfWidth * (1.0f + t);
     }
 
@@ -2954,13 +2954,13 @@ asm void fn_8013BE04(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
 void _surfBuildMesh(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
     u8* p = ptr;
     u16 row;
-    u16 rows = *(u16*)(p + 0x1C);
+    u16 rows = ((SurfWork*)p)->pointRows;
     u16 column;
-    u16 cols = *(u16*)(p + 0x1E);
-    u8* positions = *(u8**)(p + 4);
-    u8* normals = *(u8**)(p + 8);
-    u8* texcoords = *(u8**)(p + 0xC);
-    u8* colors = *(u8**)(p + 0x10);
+    u16 cols = ((SurfWork*)p)->pointColumns;
+    u8* positions = ((SurfWork*)p)->positions;
+    u8* normals = ((SurfWork*)p)->normals;
+    u8* texcoords = ((SurfWork*)p)->texcoords;
+    u8* colors = ((SurfWork*)p)->colors;
     f32 base[3];
     f32 current[3];
     f32 rowStep[3];
@@ -3243,8 +3243,8 @@ u32 _seaDestroy(void* ptr) {
         GXDrawDone();
         GXInvalidateVtxCache();
         if (*(s32*)((u8*)ptr + 0x7c) != 0) {
-            fn_800F9210(*(u32*)((u8*)ptr + 0x74), *(u32*)((u8*)ptr + 0x78));
-            fn_800F9210(*(u32*)((u8*)ptr + 0x74), *(u32*)((u8*)ptr + 0x7c));
+            fn_800F9210(((SeaWork*)ptr)->resGroup, ((SeaWork*)ptr)->modelRes);
+            fn_800F9210(((SeaWork*)ptr)->resGroup, ((SeaWork*)ptr)->res7C);
         }
     }
     return 1;
@@ -3275,14 +3275,14 @@ u32 _seaStop(void* arg) {
 
         {
             u16 val;
-            val = *(u16*)((u8*)ptr + 0x1c);
+            val = ((SeaWork*)ptr)->meshHandle;
             if (val != 0) {
                 fn_800E24B0(val);
                 GSmemFree(val);
             }
         }
 
-        ptr = (void*)(u32)*(u16*)((u8*)ptr + 0x8c);
+        ptr = (void*)(u32)((SeaWork*)ptr)->randomHandle;
         if (ptr != 0) {
             fn_800E24B0((u32)ptr);
             GSmemFree((u32)ptr);
@@ -3331,33 +3331,33 @@ static inline u8 seaAllocMesh(u8* p, void* model) {
     u32 texcoordSize;
     u32 colorSize;
 
-    columns = *(u16*)(p + 0x72);
-    rows = *(u16*)(p + 0x70);
+    columns = ((SeaWork*)p)->columns;
+    rows = ((SeaWork*)p)->rows;
     *(void**)p = model;
-    *(u16*)(p + 0x18) = rows + 1;
-    *(u16*)(p + 0x1A) = columns + 1;
-    pointCount = *(u16*)(p + 0x18) * *(u16*)(p + 0x1A);
-    *(u32*)(p + 0x14) = (columns * (*(u16*)(p + 0x18) * 0x10 + 3) + 0x1F) & ~0x1F;
+    ((SeaWork*)p)->pointRows = rows + 1;
+    ((SeaWork*)p)->pointColumns = columns + 1;
+    pointCount = ((SeaWork*)p)->pointRows * ((SeaWork*)p)->pointColumns;
+    ((SeaWork*)p)->displayListSize = (columns * (((SeaWork*)p)->pointRows * 0x10 + 3) + 0x1F) & ~0x1F;
     vectorSize = (pointCount * 0xC + 0x1F) & ~0x1F;
     colorSize = (pointCount * 4 + 0x1F) & ~0x1F;
     texcoordSize = (pointCount * 8 + 0x1F) & ~0x1F;
     /* RULE-EXCEPTION(user-approved): pointCount reused for the total size,
        which gives retail's callee-saved register — see
        docs/RULE_EXCEPTIONS.md */
-    pointCount = vectorSize + colorSize + texcoordSize + *(u32*)(p + 0x14);
+    pointCount = vectorSize + colorSize + texcoordSize + ((SeaWork*)p)->displayListSize;
 
     handle = GSmemAlloc(pointCount, 0x20);
     if (handle != 0) {
         data = GSmemLock(handle);
-        *(u16*)(p + 0x1C) = handle;
+        ((SeaWork*)p)->meshHandle = handle;
         memset(data, 0, pointCount);
-        *(u8**)(p + 0x10) = data;
-        cursor = data + *(u32*)(p + 0x14);
-        *(u8**)(p + 0x4) = cursor;
+        ((SeaWork*)p)->displayList = data;
+        cursor = data + ((SeaWork*)p)->displayListSize;
+        ((SeaWork*)p)->positions = cursor;
         cursor += vectorSize;
-        *(u8**)(p + 0xC) = cursor;
+        ((SeaWork*)p)->colors = cursor;
         cursor += colorSize;
-        *(u8**)(p + 0x8) = cursor;
+        ((SeaWork*)p)->texcoords = cursor;
         return TRUE;
     }
     return FALSE;
@@ -3373,20 +3373,20 @@ static inline u8 seaAllocRandomTable(u8* p) {
     u16 handle;
     f32 low;
 
-    rowCount = *(u16*)(p + 0x70) + 1;
+    rowCount = ((SeaWork*)p)->rows + 1;
     handle = _toolentryAlloc__FUl(rowCount * 3 * sizeof(f32));
     if (handle != 0) {
-        *(u16*)(p + 0x8C) = handle;
-        randomX = *(f32**)(p + 0x80) = GSmemLock(handle);
+        ((SeaWork*)p)->randomHandle = handle;
+        randomX = ((SeaWork*)p)->randomX = GSmemLock(handle);
         randomZ = randomX + rowCount;
         randomAngle = randomZ + rowCount;
-        *(f32**)(p + 0x84) = randomZ;
-        *(f32**)(p + 0x88) = randomAngle;
+        ((SeaWork*)p)->randomZ = randomZ;
+        ((SeaWork*)p)->randomAngle = randomAngle;
         for (i = 0; i < rowCount; randomX++, i++, randomZ++, randomAngle++) {
-            low = *(f32*)(p + 0x90);
-            *randomX = low + (*(f32*)(p + 0x94) - low) * GSrandf();
-            low = *(f32*)(p + 0x98);
-            *randomZ = low + (*(f32*)(p + 0x9C) - low) * GSrandf();
+            low = ((SeaWork*)p)->xLow;
+            *randomX = low + (((SeaWork*)p)->xHigh - low) * GSrandf();
+            low = ((SeaWork*)p)->zLow;
+            *randomZ = low + (((SeaWork*)p)->zHigh - low) * GSrandf();
             *randomAngle = *(f32*)&lbl_8047D230 * GSrandf();
         }
         return TRUE;
@@ -3404,13 +3404,13 @@ u16 seaEffectStart(void* ptr) {
     }
 
     p = ptr;
-    *(u16*)(p + 0xA4) = 0;
+    ((SeaWork*)p)->frame = 0;
     memset(p, 0, 0x48);
     if (*(s32*)(p + 0x78) == 0) {
         goto fail;
     }
 
-    model = GSresGetResource(*(u32*)(p + 0x74), *(u32*)(p + 0x78));
+    model = GSresGetResource(((SeaWork*)p)->resGroup, ((SeaWork*)p)->modelRes);
     if (model == NULL) {
         goto fail;
     }
@@ -3421,8 +3421,8 @@ u16 seaEffectStart(void* ptr) {
         goto fail;
     }
 
-    _seaBuildMesh(p, p + 0x48, p + 0x60, *(f32*)(p + 0x64), *(f32*)(p + 0x68),
-                *(f32*)(p + 0x6C));
+    _seaBuildMesh(p, p + 0x48, p + 0x60, ((SeaWork*)p)->sizeX, ((SeaWork*)p)->sizeZ,
+                ((SeaWork*)p)->meshScale);
     if (!(u8)_seaSetupMaterial(model, p)) {
         goto cleanup;
     }
@@ -3431,7 +3431,7 @@ u16 seaEffectStart(void* ptr) {
     }
 
     GSmodelSetVisibility(model, 1);
-    *(f32*)(p + 0x58) += *(f32*)&lbl_8047D234;
+    ((SeaWork*)p)->field_58 += *(f32*)&lbl_8047D234;
     GSmodelSetRotation(model, p + 0x54);
     GSmodelLinkTexAnimToAnim(model, 0);
     if (GSmodelCanTexAnimate(model)) {
@@ -3445,14 +3445,14 @@ u16 seaEffectStart(void* ptr) {
 
 cleanup:
     GSmodelSetVisibility(model, 0);
-    handle = *(u16*)(p + 0x1C);
-    *(u16*)(p + 0x1C) = 0;
+    handle = ((SeaWork*)p)->meshHandle;
+    ((SeaWork*)p)->meshHandle = 0;
     if (handle != 0) {
         fn_800E24B0(handle);
         GSmemFree(handle);
     }
-    handle = *(u16*)(p + 0x8C);
-    *(u16*)(p + 0x8C) = 0;
+    handle = ((SeaWork*)p)->randomHandle;
+    ((SeaWork*)p)->randomHandle = 0;
     if (handle != 0) {
         fn_800E24B0(handle);
         GSmemFree(handle);
@@ -3517,37 +3517,37 @@ u32 _seaUpdate(void* ptr, u32 delta) {
 
     p = ptr;
     if (p != NULL) {
-        if (*(u16*)(p + 0xA4) >= *(u16*)(p + 0xA6)) {
+        if (((SeaWork*)p)->frame >= ((SeaWork*)p)->duration) {
             return 0;
         }
 
-        amplitude = (f32)*(u16*)(p + 0xA4) / (f32)*(u16*)(p + 0xA6);
-        randomX = *(f32**)(p + 0x80);
-        randomZ = *(f32**)(p + 0x84);
-        randomAngle = *(f32**)(p + 0x88);
-        rows = *(u16*)(p + 0x18);
-        columns = *(u16*)(p + 0x1A);
+        amplitude = (f32)((SeaWork*)p)->frame / (f32)((SeaWork*)p)->duration;
+        randomX = ((SeaWork*)p)->randomX;
+        randomZ = ((SeaWork*)p)->randomZ;
+        randomAngle = ((SeaWork*)p)->randomAngle;
+        rows = ((SeaWork*)p)->pointRows;
+        columns = ((SeaWork*)p)->pointColumns;
 
         GXDrawDone();
         GXInvalidateVtxCache();
         set__5GSvecFfff(lbl_80363CB8, lbl_8047D23C, 1.0f,
                         lbl_8047D23C);
 
-        span = 360.0f * *(f32*)(p + 0x68);
-        amplitude = amplitude * (span * *(f32*)(p + 0xA0));
+        span = 360.0f * ((SeaWork*)p)->sizeZ;
+        amplitude = amplitude * (span * ((SeaWork*)p)->speed);
         angleStep = span / (f32)(columns - 1);
-        grid = *(f32**)(p + 0x4);
+        grid = ((SeaWork*)p)->positions;
         for (row = 0; row < rows; row++, randomX++, randomZ++, randomAngle++) {
             rowAngleStep = angleStep / *randomZ;
             angle = *randomAngle + amplitude / *randomZ;
             for (column = 0; column < columns; column++) {
-                grid[1] = *(f32*)(p + 0x4C) + *randomX * fn_800E0CA0(angle);
+                grid[1] = ((SeaWork*)p)->height + *randomX * fn_800E0CA0(angle);
                 angle += rowAngleStep;
                 grid += 3;
             }
         }
 
-        *(u16*)(p + 0xA4) = *(u16*)(p + 0xA4) + delta;
+        ((SeaWork*)p)->frame = ((SeaWork*)p)->frame + delta;
         return 1;
     }
     return 0;
@@ -3562,11 +3562,11 @@ asm void fn_8013CBF0(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
 #else
 void _seaBuildMesh(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
     u8* p = ptr;
-    u32 rows = *(u16*)(p + 0x18);
-    u32 columns = *(u16*)(p + 0x1A);
-    f32* positions = *(f32**)(p + 0x4);
-    f32* texcoords = *(f32**)(p + 0x8);
-    u8* colors = *(u8**)(p + 0xC);
+    u32 rows = ((SeaWork*)p)->pointRows;
+    u32 columns = ((SeaWork*)p)->pointColumns;
+    f32* positions = ((SeaWork*)p)->positions;
+    f32* texcoords = ((SeaWork*)p)->texcoords;
+    u8* colors = ((SeaWork*)p)->colors;
     f32 offset[3];
     f32 current[3];
     f32 rowStep[3];
@@ -3719,8 +3719,8 @@ u32 _seaResetMaterial(void* inner, void* ptr) {
         stageIndex++;
         stages += 0x18;
     }
-    *(u32*)(material + 0x10) = *(u32*)(p + 0x40);
-    *(u16*)(material + 0xE) = *(u16*)(p + 0x44);
+    *(u32*)(material + 0x10) = ((SeaWork*)p)->materialField10;
+    *(u16*)(material + 0xE) = ((SeaWork*)p)->materialField0E;
     return 1;
 }
 #endif
