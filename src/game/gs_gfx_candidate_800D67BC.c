@@ -14,6 +14,7 @@
  * defining the same fn_800D6A80 source `inline` ahead of the caller, which
  * emits no second fn_800D6A80 symbol.
  */
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 
 extern void fn_800DB758(u16 vertCount);
@@ -40,7 +41,7 @@ inline void fn_800D6A80(u16 vertCount, s32 type, u32* totalVerts, u32* totalPrim
 }
 
 void gfxBegin(u16 vertCount) {
-    if (*(u8*)(lbl_8047AA80 + 0x47e) == 1) {
+    if (((GSgfxState*)lbl_8047AA80)->gammaMode == 1) {
         fn_800DB758(vertCount);
         return;
     }
@@ -48,36 +49,36 @@ void gfxBegin(u16 vertCount) {
         gfxRecordCommand(2, 1, vertCount);
         return;
     }
-    if (*(u8*)(lbl_8047AA80 + 0x1b) != *(u8*)(lbl_8047AA80 + 0x1a)) {
+    if (((GSgfxState*)lbl_8047AA80)->scissorDirty != ((GSgfxState*)lbl_8047AA80)->viewportDirty) {
         return;
     }
-    if ((*(u32*)(lbl_8047AA80 + 0x4) & *(u32*)(lbl_8047AA80 + 0x8)) == 0) {
+    if (((u32)((GSgfxState*)lbl_8047AA80)->frameCounter & ((GSgfxState*)lbl_8047AA80)->fifoSize) == 0) {
         return;
     }
 
-    if (*(u32*)(lbl_8047AA80 + 0x24) == 0) {
-        gfxVtxDescClear((u8*)*(u32*)(lbl_8047AA80 + 0x20));
-        gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 1, 0, 1, 4, 0, 0, 0);
-        if (*(u32*)(lbl_8047AA80 + 0x10) & 4) {
-            gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 2, 0, 2, 4, 0, 0, 0);
+    if (((GSgfxState*)lbl_8047AA80)->field_24 == 0) {
+        gfxVtxDescClear((u8*)((GSgfxState*)lbl_8047AA80)->lightMask);
+        gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 1, 0, 1, 4, 0, 0, 0);
+        if (((GSgfxState*)lbl_8047AA80)->field_10 & 4) {
+            gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 2, 0, 2, 4, 0, 0, 0);
         }
-        if (*(u32*)(lbl_8047AA80 + 0x10) & 1) {
-            gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 4, 0, 6, 10, 0, 0, 0);
+        if (((GSgfxState*)lbl_8047AA80)->field_10 & 1) {
+            gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 4, 0, 6, 10, 0, 0, 0);
         }
-        if (*(u32*)(lbl_8047AA80 + 0x10) & 2) {
-            gfxVtxDescSetAttr((u8*)*(u32*)(lbl_8047AA80 + 0x20), 6, 0, 8, 4, 0, 0, 0);
+        if (((GSgfxState*)lbl_8047AA80)->field_10 & 2) {
+            gfxVtxDescSetAttr((u8*)((GSgfxState*)lbl_8047AA80)->lightMask, 6, 0, 8, 4, 0, 0, 0);
         }
-        *(u32*)(lbl_8047AA80 + 0x24) = *(u32*)(lbl_8047AA80 + 0x20);
+        ((GSgfxState*)lbl_8047AA80)->field_24 = ((GSgfxState*)lbl_8047AA80)->lightMask;
     }
 
-    if (*(s32*)(lbl_8047AA80 + 0x14) == 7) {
+    if ((s32)((GSgfxState*)lbl_8047AA80)->drawFlags == 7) {
         vertCount = (vertCount & 0x7fff) << 1;
     }
 
-    gfxLoadVtxDesc(*(u32*)(lbl_8047AA80 + 0x24));
-    gfxSetupChannelsTev(*(u32*)(lbl_8047AA80 + 0x24));
-    GXBegin(lbl_80314350[*(u32*)(lbl_8047AA80 + 0x14)],
-                *(u32*)(*(u32*)(lbl_8047AA80 + 0x24) + 0x4), vertCount);
-    fn_800D6A80(vertCount, *(s32*)(lbl_8047AA80 + 0x14),
+    gfxLoadVtxDesc(((GSgfxState*)lbl_8047AA80)->field_24);
+    gfxSetupChannelsTev(((GSgfxState*)lbl_8047AA80)->field_24);
+    GXBegin(lbl_80314350[((GSgfxState*)lbl_8047AA80)->drawFlags],
+                *(u32*)(((GSgfxState*)lbl_8047AA80)->field_24 + 0x4), vertCount);
+    fn_800D6A80(vertCount, (s32)((GSgfxState*)lbl_8047AA80)->drawFlags,
                 (u32*)(lbl_804001F0 + 0xc), (u32*)(lbl_804001F0 + 0x4));
 }

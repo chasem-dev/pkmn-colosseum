@@ -14,6 +14,7 @@
  * messages through one string-pool base register; GC/1.3.2 keeps the first
  * one as `addi r3,r31,0` where GC/1.3 emits `mr`.
  */
+#include "game/records/lbl_804001F0.h"
 #include "dolphin/types.h"
 #include "dolphin/gx/GX.h"
 #include "crt/stdarg.h"
@@ -140,7 +141,7 @@ void gfxAllocRequestBuffer(u32 size)
     lbl_8047AA80->requestBuffer = GSmemLock(lbl_8047AA80->requestBufferHandle);
     lbl_8047AA80->requestBufferPos = lbl_8047AA80->requestBuffer;
     lbl_8047AA80->requestBufferSize = size;
-    *(u32*)(lbl_804001F0 + 0x28) = 0;
+    ((Work804001F0*)lbl_804001F0)->field_28 = 0;
     GSlogWrite("GSgfx: alloced request buffer of %d bytes at %08X\n",
                lbl_8047AA80->requestBufferSize, lbl_8047AA80->requestBuffer);
 }

@@ -9,6 +9,7 @@
  * Split out of the former monolithic game/gs_thread_hi.c
  * (0x800F8268-0x800FF0A0 per config/GC6E01/splits.txt).
  */
+#include "game/gs_msg_work.h"
 #include "dolphin/types.h"
 #include "dolphin/gx/GX.h"
 #include "game/gs_thread.h"
@@ -476,11 +477,11 @@ static inline u8 GSmsgDispatchControl(u8* work, u32 control) {
                 next = GSmsgFindMessage(result, NULL);
                 break;
             }
-            if (*(s8*)(work + 0x40) >= 3) {
+            if (((MSG_TASK_WORK*)work)->depth >= 3) {
                 GSlogWrite((const char*)lbl_80271700, lbl_80315678);
             } else {
-                *(u8**)(work + 0x34 + (*(s8*)(work + 0x40))++ * 4) = *(u8**)(work + 0x30);
-                *(u8**)(work + 0x30) = next;
+                *(u8**)(work + 0x34 + (((MSG_TASK_WORK*)work)->depth)++ * 4) = ((MSG_TASK_WORK*)work)->cursor;
+                ((MSG_TASK_WORK*)work)->cursor = next;
             }
         }
     }
@@ -495,13 +496,13 @@ static inline u16 GSmsgReadCode(u8* work) {
     s8 depth;
 
     for (;;) {
-        cursor = *(u16**)(work + 0x30);
+        cursor = (u16*)((MSG_TASK_WORK*)work)->cursor;
         code = *cursor;
         if (code == 0) {
-            depth = *(s8*)(work + 0x40);
+            depth = ((MSG_TASK_WORK*)work)->depth;
             if (depth == 0) return code;
             depth--;
-            *(s8*)(work + 0x40) = depth;
+            ((MSG_TASK_WORK*)work)->depth = depth;
             *(u16**)(work + 0x30) = *(u16**)(work + 0x34 + depth * 4);
         } else {
             *(u16**)(work + 0x30) = cursor + 1;
@@ -541,14 +542,14 @@ u8* GSmsgGetText(u8* destination, s32 capacity, u32 key) {
     /* RULE-EXCEPTION(title-path): extern named stand-in for the TU's own
      * pool literal (lbl_8047CD08, 1.0f), so the function links as its own
      * unit - see docs/RULE_EXCEPTIONS.md */
-    *(f32*)(lbl_80401DE0 + 0x60) = GS_MSG_ONE;
-    *(f32*)(lbl_80401DE0 + 0x64) = GS_MSG_ONE;
-    *(s32*)(lbl_80401DE0 + 0x24) = -1;
-    *(u8**)(lbl_80401DE0 + 0x28) = text;
-    *(u8**)(lbl_80401DE0 + 0x2C) = text;
-    *(u8**)(lbl_80401DE0 + 0x30) = text;
-    *(u16*)(lbl_80401DE0 + 0x20) = bank->fontId;
-    *(u32*)(lbl_80401DE0 + 0x1C) = key;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->field_60 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->field_64 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->color = -1;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->field_28 = text;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->field_2C = text;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->cursor = text;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->font = bank->fontId;
+    ((MSG_TASK_WORK*)lbl_80401DE0)->flags = key;
     lbl_80401DE0[1] = 1;
 
     for (;;) {
@@ -563,7 +564,7 @@ u8* GSmsgGetText(u8* destination, s32 capacity, u32 key) {
         dst += 2;
         if (code != 0xFFFF) continue;
 
-        control = *(*(u8**)(work + 0x30))++;
+        control = *(((MSG_TASK_WORK*)work)->cursor)++;
         count++;
         if (maxBytes >= count) {
             *dst++ = (u8)control;
@@ -572,13 +573,13 @@ u8* GSmsgGetText(u8* destination, s32 capacity, u32 key) {
             break;
         }
 
-        parameters = *(u8**)(work + 0x30);
-        savedDepth = *(s8*)(work + 0x40);
+        parameters = ((MSG_TASK_WORK*)work)->cursor;
+        savedDepth = ((MSG_TASK_WORK*)work)->depth;
         GSmsgDispatchControl(work, control);
-        if (savedDepth == *(s8*)(work + 0x40)) {
-            count += (u32)(*(u8**)(work + 0x30) - parameters);
+        if (savedDepth == ((MSG_TASK_WORK*)work)->depth) {
+            count += (u32)(((MSG_TASK_WORK*)work)->cursor - parameters);
             if (maxBytes >= count) {
-                while (*(u8**)(work + 0x30) > parameters) {
+                while (((MSG_TASK_WORK*)work)->cursor > parameters) {
                     *dst++ = *parameters++;
                 }
             } else {
@@ -766,18 +767,18 @@ s32 GScharCmp(const u16* str1, const u16* str2) {
 void GSmsgAdjustAlign(u8* o) {
     s16 r5;
 
-    if (*(s16*)(o + 0x18) == 0) return;
-    r5 = (s16)((u32)GSmsgGetRect(*(u32*)(o + 0x1C)) >> 16);
+    if (((MSG_TASK_WORK*)o)->rectWidth == 0) return;
+    r5 = (s16)((u32)GSmsgGetRect(((MSG_TASK_WORK*)o)->flags) >> 16);
 
     switch (o[0x4A]) {
     case 0:
-        *(f32*)(o + 0xC) = *(f32*)(o + 0x4);
+        ((MSG_TASK_WORK*)o)->field_0C = ((MSG_TASK_WORK*)o)->x;
         break;
     case 1:
-        *(f32*)(o + 0xC) = *(f32*)(o + 0x4) + (f32)((*(s16*)(o + 0x18) - r5) / 2);
+        ((MSG_TASK_WORK*)o)->field_0C = ((MSG_TASK_WORK*)o)->x + (f32)((((MSG_TASK_WORK*)o)->rectWidth - r5) / 2);
         break;
     case 2:
-        *(f32*)(o + 0xC) = *(f32*)(o + 0x4) + (f32)*(s16*)(o + 0x18) - (f32)r5;
+        ((MSG_TASK_WORK*)o)->field_0C = ((MSG_TASK_WORK*)o)->x + (f32)((MSG_TASK_WORK*)o)->rectWidth - (f32)r5;
         break;
     }
 }
@@ -787,7 +788,7 @@ void GSmsgSetColor(void* obj) {
     GXColor clr = lbl_8047CD04;
     u32 color;
 
-    color = *(u32*)((u8*)obj + 0x24);
+    color = (u32)((MSG_TASK_WORK*)obj)->color;
     clr.r = color >> 24;
     clr.g = (color >> 16) & 0xFF;
     clr.b = (color >> 8) & 0xFF;
@@ -800,12 +801,12 @@ void GSmsgSetColor(void* obj) {
 static inline void msgInitTask(u8* work, u8* text) {
     memset(work, 0, 0x68);
     work[0] = 1;
-    *(f32*)(work + 0x60) = GS_MSG_ONE;
-    *(f32*)(work + 0x64) = GS_MSG_ONE;
-    *(s32*)(work + 0x24) = -1;
-    *(u8**)(work + 0x28) = text;
-    *(u8**)(work + 0x2C) = text;
-    *(u8**)(work + 0x30) = text;
+    ((MSG_TASK_WORK*)work)->field_60 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)work)->field_64 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)work)->color = -1;
+    ((MSG_TASK_WORK*)work)->field_28 = text;
+    ((MSG_TASK_WORK*)work)->field_2C = text;
+    ((MSG_TASK_WORK*)work)->cursor = text;
 }
 
 /* Font-slot lookup: copies the slot's glyph width/height into the task work
@@ -948,14 +949,14 @@ s32 GSmsgGetRect(arg0)
     work = (u8 *)&lbl_80401E48;
     memset(work, 0, 0x68);
     lbl_80401E48[0] = 1;
-    *(f32 *)(lbl_80401E48 + 0x60) = GS_MSG_ONE;
-    *(f32 *)(lbl_80401E48 + 0x64) = GS_MSG_ONE;
-    *(s32 *)(lbl_80401E48 + 0x24) = -1;
+    ((MSG_TASK_WORK*)lbl_80401E48)->field_60 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)lbl_80401E48)->field_64 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)lbl_80401E48)->color = -1;
     *(u32 *)(lbl_80401E48 + 0x28) = (u32)text;
     *(u32 *)(lbl_80401E48 + 0x2C) = (u32)text;
     *(u32 *)(lbl_80401E48 + 0x30) = (u32)text;
-    *(u16 *)(lbl_80401E48 + 0x20) = bank->fontId;
-    *(u32 *)(lbl_80401E48 + 0x1C) = arg0;
+    ((MSG_TASK_WORK*)lbl_80401E48)->font = bank->fontId;
+    ((MSG_TASK_WORK*)lbl_80401E48)->flags = arg0;
     lbl_80401E48[1] = 1;
     msgSetFontInfo(work);
 
@@ -963,32 +964,32 @@ s32 GSmsgGetRect(arg0)
         code = GSmsgReadCode(work);
         if (code == 0) break;
         if (code == 0xFFFF) {
-            ip = *(u8 **)(work + 0x30);
+            ip = (u8 *)((MSG_TASK_WORK*)work)->cursor;
             *(u8 **)(work + 0x30) = ip + 1;
             control = *ip;
 
             if (control == 3) {
-                *(f32 *)(work + 0x0C) += (f32)work[0x22];
-                if ((f32)maxX < *(f32 *)(work + 0x0C)) {
-                    maxX = (s16)*(f32 *)(work + 0x0C);
+                ((MSG_TASK_WORK*)work)->field_0C += (f32)work[0x22];
+                if ((f32)maxX < ((MSG_TASK_WORK*)work)->field_0C) {
+                    maxX = (s16)((MSG_TASK_WORK*)work)->field_0C;
                 }
             }
 
             GSmsgDispatchControl(work, control);
 
-            if (lineStart != 0 && *(f32 *)(work + 0x0C) == *(f32 *)(work + 0x04)) {
-                *(f32 *)(work + 0x0C) += (f32)(s32)work[0x22];
+            if (lineStart != 0 && ((MSG_TASK_WORK*)work)->field_0C == ((MSG_TASK_WORK*)work)->x) {
+                ((MSG_TASK_WORK*)work)->field_0C += (f32)(s32)work[0x22];
             }
         } else {
             if (work[0x4B] == 2) continue;
             if (code == 0x20) {
-                *(f32 *)(work + 0x14) = (f32)((work[0x22] / 2) * *(f32 *)(work + 0x60));
+                ((MSG_TASK_WORK*)work)->field_14 = (f32)((work[0x22] / 2) * ((MSG_TASK_WORK*)work)->field_60);
             } else {
                 fontInfo = _msgGetCodeInfo__FP13MSG_TASK_WORKUsPP12tagFONT_INFO(work, code, NULL);
                 if (fontInfo == NULL) {
-                    *(f32 *)(work + 0x14) = (f32)work[0x22] * *(f32 *)(work + 0x60);
+                    ((MSG_TASK_WORK*)work)->field_14 = (f32)work[0x22] * ((MSG_TASK_WORK*)work)->field_60;
                 } else {
-                    *(f32 *)(work + 0x14) = (f32)((u8 *)fontInfo)[2] * *(f32 *)(work + 0x60);
+                    ((MSG_TASK_WORK*)work)->field_14 = (f32)((u8 *)fontInfo)[2] * ((MSG_TASK_WORK*)work)->field_60;
                 }
             }
 
@@ -1001,17 +1002,17 @@ s32 GSmsgGetRect(arg0)
                 }
             }
 
-            *(f32 *)(work + 0x0C) += *(f32 *)(work + 0x14);
+            ((MSG_TASK_WORK*)work)->field_0C += ((MSG_TASK_WORK*)work)->field_14;
         }
-        if ((f32)maxX < *(f32 *)(work + 0x0C)) {
-            maxX = (s16)*(f32 *)(work + 0x0C);
+        if ((f32)maxX < ((MSG_TASK_WORK*)work)->field_0C) {
+            maxX = (s16)((MSG_TASK_WORK*)work)->field_0C;
         }
-        if ((f32)maxY < *(f32 *)(work + 0x10)) {
-            maxY = (s16)*(f32 *)(work + 0x10);
+        if ((f32)maxY < ((MSG_TASK_WORK*)work)->field_10) {
+            maxY = (s16)((MSG_TASK_WORK*)work)->field_10;
         }
     }
 
-    maxY += (f32)work[0x23] * *(f32 *)(work + 0x64) + GS_MSG_ONE;
+    maxY += (f32)work[0x23] * ((MSG_TASK_WORK*)work)->field_64 + GS_MSG_ONE;
     return ((u32)(maxX - 1) << 0x10) | maxY;
 }
 
@@ -1040,7 +1041,7 @@ void GSmsgInitRuby(arg0)
     for (i = 0; i < 3; i++) {
         resume[i] = *(u16**)(arg0 + 0x34 + i * 4);
     }
-    savedIp = *(u16 **)(arg0 + 0x30);
+    savedIp = (u16 *)((MSG_TASK_WORK*)arg0)->cursor;
     savedDepth = arg0[0x40];
     savedMode = (s8)arg0[0x45];
     savedFlag = arg0[1];
@@ -1085,20 +1086,20 @@ void GSmsgInitRuby(arg0)
 
             if (pass == 0) {
                 count0++;
-                width0 = (s16)((f32)width0 + ((f32)glyphWidth * *(f32 *)(arg0 + 0x60) + 2.0f));
+                width0 = (s16)((f32)width0 + ((f32)glyphWidth * ((MSG_TASK_WORK*)arg0)->field_60 + 2.0f));
             } else {
                 count1++;
-                width1 = (s16)((f32)width1 + (0.5f * ((f32)glyphWidth * *(f32 *)(arg0 + 0x60)) + 2.0f));
+                width1 = (s16)((f32)width1 + (0.5f * ((f32)glyphWidth * ((MSG_TASK_WORK*)arg0)->field_60) + 2.0f));
             }
         }
     }
 
-    rubyHeight = 0.5f * ((f32)arg0[0x22] * *(f32 *)(arg0 + 0x60));
+    rubyHeight = 0.5f * ((f32)arg0[0x22] * ((MSG_TASK_WORK*)arg0)->field_60);
     arg0[0x5A] = count0;
     arg0[0x5B] = count1;
-    *(f32 *)(arg0 + 0x4C) = *(f32 *)(arg0 + 0x0C) + (f32)((width0 - width1) / 2);
-    *(f32 *)(arg0 + 0x5C) = rubyHeight;
-    *(f32 *)(arg0 + 0x50) = -((0.4f * (f32)arg0[0x23]) - *(f32 *)(arg0 + 0x10));
+    ((MSG_TASK_WORK*)arg0)->field_4C = ((MSG_TASK_WORK*)arg0)->field_0C + (f32)((width0 - width1) / 2);
+    ((MSG_TASK_WORK*)arg0)->field_5C = rubyHeight;
+    ((MSG_TASK_WORK*)arg0)->field_50 = -((0.4f * (f32)arg0[0x23]) - ((MSG_TASK_WORK*)arg0)->field_10);
 
     *(u32 *)(arg0 + 0x30) = (u32)savedIp;
     arg0[0x40] = savedDepth;
@@ -1135,15 +1136,15 @@ static inline void msgSetChar(u8* work, u16 code) {
     s16 glyphWidth; /* last: its web must colour before the draw temps (r29) */
 
     if (code == 0x20) {
-        *(f32*)(work + 0x14) = (f32)(work[0x22] / 2) * *(f32*)(work + 0x60);
+        ((MSG_TASK_WORK*)work)->field_14 = (f32)(work[0x22] / 2) * ((MSG_TASK_WORK*)work)->field_60;
         return;
     }
     glyph = (u8*)_msgGetCodeInfo__FP13MSG_TASK_WORKUsPP12tagFONT_INFO(work, code, &outNode);
     if (glyph == NULL) {
-        drawX0 = (s16)*(f32*)(work + 0x0C);
-        drawY0 = (s16)((s32)*(f32*)(work + 0x10) + 2);
-        drawX1 = (s16)((f32)*(u8*)(work + 0x22) * *(f32*)(work + 0x60) + (f32)drawX0);
-        drawY1 = (s16)((f32)*(u8*)(work + 0x23) * *(f32*)(work + 0x64) + (f32)drawY0);
+        drawX0 = (s16)((MSG_TASK_WORK*)work)->field_0C;
+        drawY0 = (s16)((s32)((MSG_TASK_WORK*)work)->field_10 + 2);
+        drawX1 = (s16)((f32)((MSG_TASK_WORK*)work)->field_22 * ((MSG_TASK_WORK*)work)->field_60 + (f32)drawX0);
+        drawY1 = (s16)((f32)((MSG_TASK_WORK*)work)->field_23 * ((MSG_TASK_WORK*)work)->field_64 + (f32)drawY0);
         gfxClearFlags(0x80000002u);
         gfxSetPrimitive(7);
         gfxSetVtxDesc(lbl_80314E08);
@@ -1157,12 +1158,12 @@ static inline void msgSetChar(u8* work, u16 code) {
         gfxSetVtxDesc(lbl_80314F98);
         fn_800DC1D4(1);
         advance = (f32)work[0x22] * *(f32*)(work + 0x60);
-        *(f32*)(work + 0x14) = 2.0f + advance;
+        ((MSG_TASK_WORK*)work)->field_14 = 2.0f + advance;
     } else {
         glyphWidth = ((struct GlyphEntry*)glyph)->width;
         _msgMakeTexture(work, (u8*)outNode + ((struct FontBank*)outNode)->dataOffset + (((struct GlyphEntry*)glyph)->offset & 0xFFFFFF),
                     glyphWidth, ((struct GlyphEntry*)glyph)->height, (s8)(((struct GlyphEntry*)glyph)->offset >> 24));
-        *(f32*)(work + 0x14) = (f32)glyphWidth * *(f32*)(work + 0x60);
+        ((MSG_TASK_WORK*)work)->field_14 = (f32)glyphWidth * ((MSG_TASK_WORK*)work)->field_60;
     }
 }
 
@@ -1173,17 +1174,17 @@ static inline void msgSetChar(u8* work, u16 code) {
  * displacements, so the fill's addi survives to register allocation and
  * post-allocation CSE rewrites it as a copy of the clear pointer. */
 static inline void msgPrintRest(u8* t, u8* text, s32 x, s32 y, u32 color) {
-    *(f32*)(t + 0x60) = GS_MSG_ONE;
-    *(f32*)(t + 0x64) = GS_MSG_ONE;
-    *(s32*)(t + 0x24) = -1;
-    *(u8**)(t + 0x28) = text;
-    *(u8**)(t + 0x2C) = text;
-    *(u8**)(t + 0x30) = text;
-    *(f32*)(t + 0x04) = (f32)x;
-    *(f32*)(t + 0x08) = (f32)y;
-    *(u32*)(t + 0x24) = color;
+    ((MSG_TASK_WORK*)t)->field_60 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)t)->field_64 = GS_MSG_ONE;
+    ((MSG_TASK_WORK*)t)->color = -1;
+    ((MSG_TASK_WORK*)t)->field_28 = text;
+    ((MSG_TASK_WORK*)t)->field_2C = text;
+    ((MSG_TASK_WORK*)t)->cursor = text;
+    ((MSG_TASK_WORK*)t)->x = (f32)x;
+    ((MSG_TASK_WORK*)t)->y = (f32)y;
+    ((MSG_TASK_WORK*)t)->color = color;
     t[2] = 1;
-    *(u16*)(t + 0x20) = 2;
+    ((MSG_TASK_WORK*)t)->font = 2;
 }
 
 /* 0x800FAEF8 | 0x544 */
@@ -1245,7 +1246,7 @@ s32 GSmsgPrintf(s32 x, s32 y, u32 color, const char* fmt, ...) {
             continue;
         }
         msgSetChar(work, code);
-        *(f32*)(work + 0x0C) += *(f32*)(work + 0x14);
+        ((MSG_TASK_WORK*)work)->field_0C += ((MSG_TASK_WORK*)work)->field_14;
     }
 
     GStextureUnlockImage(lbl_80478B08->textures[lbl_80478B08->textureIndex]);
@@ -1270,14 +1271,14 @@ static inline s32 msgPrintRect(s32 x, s32 y, s16 width, s16 height, s32 color, u
 
     msgInitTask(work, text);
     fontId = group->fontId;
-    *(u16*)(work + 0x20) = fontId;
-    *(u32*)(work + 0x1C) = key;
-    *(f32*)(work + 0x04) = (f32)x;
-    *(f32*)(work + 0x08) = (f32)y;
-    *(s16*)(work + 0x18) = width;
-    *(s16*)(work + 0x1A) = height;
+    ((MSG_TASK_WORK*)work)->font = fontId;
+    ((MSG_TASK_WORK*)work)->flags = key;
+    ((MSG_TASK_WORK*)work)->x = (f32)x;
+    ((MSG_TASK_WORK*)work)->y = (f32)y;
+    ((MSG_TASK_WORK*)work)->rectWidth = width;
+    ((MSG_TASK_WORK*)work)->rectHeight = height;
     work[0x44] = 3;
-    *(s32*)(work + 0x24) = color;
+    ((MSG_TASK_WORK*)work)->color = color;
     work[2] = 1;
 
     msgSetFontInfo(work);
@@ -1321,14 +1322,14 @@ s32 GSmsgPrintRect(s32 x, s32 y, s16 width, s16 height, s32 color, u32 key) {
 
     msgInitTask(work, text);
     fontId = group->fontId;
-    *(u16*)(work + 0x20) = fontId;
-    *(u32*)(work + 0x1C) = key;
-    *(f32*)(work + 0x04) = (f32)x;
-    *(f32*)(work + 0x08) = (f32)y;
-    *(s16*)(work + 0x18) = width;
-    *(s16*)(work + 0x1A) = height;
+    ((MSG_TASK_WORK*)work)->font = fontId;
+    ((MSG_TASK_WORK*)work)->flags = key;
+    ((MSG_TASK_WORK*)work)->x = (f32)x;
+    ((MSG_TASK_WORK*)work)->y = (f32)y;
+    ((MSG_TASK_WORK*)work)->rectWidth = width;
+    ((MSG_TASK_WORK*)work)->rectHeight = height;
     work[0x44] = 3;
-    *(s32*)(work + 0x24) = color;
+    ((MSG_TASK_WORK*)work)->color = color;
     work[2] = 1;
 
     msgSetFontInfo(work);
@@ -1622,8 +1623,8 @@ s32 GSmsgInit(u16 taskCount, u16 fontCount) {
     for (index = 0; index < taskCount; index++) {
         work = lbl_80478B08->tasks + index * 0x68;
         memset(work, 0, 0x68);
-        *(f32*)(work + 0x60) = GS_MSG_ONE; /* 1.0f scale */
-        *(f32*)(work + 0x64) = GS_MSG_ONE;
+        ((MSG_TASK_WORK*)work)->field_60 = GS_MSG_ONE; /* 1.0f scale */
+        ((MSG_TASK_WORK*)work)->field_64 = GS_MSG_ONE;
     }
     lbl_80478B08->taskCount = taskCount;
     for (index = 0; index < fontCount; index++) {
@@ -1726,7 +1727,7 @@ s32 msgTaskDraw(u8* arg0, u32 arg1, u32 arg2, u32 arg3)
                 }
 
                 if (code == 0xFFFF) {
-                    cursor = *(u16**)(arg0 + 0x30);
+                    cursor = (u16*)((MSG_TASK_WORK*)arg0)->cursor;
                     *(u16**)(arg0 + 0x30) = (u16*)((u8*)cursor + 1);
                     control = *(u8*)cursor;
                     continueFlag = GSmsgDispatchControl(arg0, control);
@@ -1752,20 +1753,20 @@ s32 msgTaskDraw(u8* arg0, u32 arg1, u32 arg2, u32 arg3)
     savedStack[0] = *(u32*)(arg0 + 0x34);
     savedStack[1] = *(u32*)(arg0 + 0x38);
     savedStack[2] = *(u32*)(arg0 + 0x3C);
-    savedCursor = *(u16**)(arg0 + 0x30);
+    savedCursor = (u16*)((MSG_TASK_WORK*)arg0)->cursor;
     savedDepth = arg0[0x40];
 
     arg0[1] = 1;
-    *(f32*)(arg0 + 0x0C) = *(f32*)(arg0 + 0x04);
-    *(f32*)(arg0 + 0x10) = *(f32*)(arg0 + 0x08);
+    ((MSG_TASK_WORK*)arg0)->field_0C = ((MSG_TASK_WORK*)arg0)->x;
+    ((MSG_TASK_WORK*)arg0)->field_10 = ((MSG_TASK_WORK*)arg0)->y;
     *(u32*)(arg0 + 0x30) = *(u32*)(arg0 + 0x2C);
     arg0[0x40] = 0;
     arg0[0x4B] = 0;
 
     for (;;) {
-        if (*(u16**)(arg0 + 0x30) == savedCursor) {
+        if ((u16*)((MSG_TASK_WORK*)arg0)->cursor == savedCursor) {
             s32 i;
-            stackDepth = *(s8*)(arg0 + 0x40);
+            stackDepth = ((MSG_TASK_WORK*)arg0)->depth;
             for (i = 0; i < stackDepth; i++) {
                 if (*(u32*)(arg0 + 0x34 + i * 4) != saved[i]) {
                     break;
@@ -1782,16 +1783,16 @@ s32 msgTaskDraw(u8* arg0, u32 arg1, u32 arg2, u32 arg3)
         }
 
         if (code == 0xFFFF) {
-            cursor = *(u16**)(arg0 + 0x30);
+            cursor = (u16*)((MSG_TASK_WORK*)arg0)->cursor;
             *(u16**)(arg0 + 0x30) = (u16*)((u8*)cursor + 1);
             control = *(u8*)cursor;
             GSmsgDispatchControl(arg0, control);
-            if (quoteFlag != 0 && *(f32*)(arg0 + 0x0C) == *(f32*)(arg0 + 0x04)) {
-                *(f32*)(arg0 + 0x0C) += (f32)(s32)arg0[0x22];
+            if (quoteFlag != 0 && ((MSG_TASK_WORK*)arg0)->field_0C == ((MSG_TASK_WORK*)arg0)->x) {
+                ((MSG_TASK_WORK*)arg0)->field_0C += (f32)(s32)arg0[0x22];
             }
         } else if (arg0[0x4B] != 2) {
             msgSetChar(arg0, code);
-            *(f32*)(arg0 + 0x0C) += *(f32*)(arg0 + 0x14);
+            ((MSG_TASK_WORK*)arg0)->field_0C += ((MSG_TASK_WORK*)arg0)->field_14;
             if ((s8)arg0[0x41] == 0) {
                 if (code == 0x300C) {
                     quoteFlag = 1;
@@ -1823,8 +1824,8 @@ s32 msgTaskDraw(u8* arg0, u32 arg1, u32 arg2, u32 arg3)
 
     if (arg0[0x46] != 0) {
         angle = ((3.1415927f * (f32)lbl_8047AC68) / 25.0f);
-        drawX = (s32)(2.0f + *(f32*)(arg0 + 0x0C));
-        drawY = (s32)(8.0f + *(f32*)(arg0 + 0x10));
+        drawX = (s32)(2.0f + ((MSG_TASK_WORK*)arg0)->field_0C);
+        drawY = (s32)(8.0f + ((MSG_TASK_WORK*)arg0)->field_10);
         amp = (f32)cos(angle);
         drawY += (s32)(4.0f * amp);
         lbl_8047AC68 += GSgetFrameStep();
@@ -1872,14 +1873,14 @@ void msgDrawRuby(u8* arg0)
     arg0[0x58]++;
     targetCount = (s32)(arg0[0x5B] * arg0[0x58]) / (s32)arg0[0x5A];
     drawCount = targetCount - arg0[0x59];
-    savedX = *(f32 *)(arg0 + 0x0C);
-    savedY = *(f32 *)(arg0 + 0x10);
-    *(f32 *)(arg0 + 0x0C) = *(f32 *)(arg0 + 0x4C);
-    *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 0x50);
-    *(f32 *)(arg0 + 0x60) *= 0.5f;
-    *(f32 *)(arg0 + 0x64) *= 0.5f;
+    savedX = ((MSG_TASK_WORK*)arg0)->field_0C;
+    savedY = ((MSG_TASK_WORK*)arg0)->field_10;
+    ((MSG_TASK_WORK*)arg0)->field_0C = ((MSG_TASK_WORK*)arg0)->field_4C;
+    ((MSG_TASK_WORK*)arg0)->field_10 = ((MSG_TASK_WORK*)arg0)->field_50;
+    ((MSG_TASK_WORK*)arg0)->field_60 *= 0.5f;
+    ((MSG_TASK_WORK*)arg0)->field_64 *= 0.5f;
 
-    scan = *(u8 **)(arg0 + 0x54);
+    scan = (u8 *)((MSG_TASK_WORK*)arg0)->field_54;
 
     while (drawCount != 0) {
         code = *(u16 *)scan;
@@ -1890,15 +1891,15 @@ void msgDrawRuby(u8* arg0)
         }
 
         if (code == 0x20) {
-            *(f32 *)(arg0 + 0x14) = (f32)((arg0[0x22] / 2) * *(f32 *)(arg0 + 0x60));
+            ((MSG_TASK_WORK*)arg0)->field_14 = (f32)((arg0[0x22] / 2) * ((MSG_TASK_WORK*)arg0)->field_60);
         } else {
             fontInfo = _msgGetCodeInfo__FP13MSG_TASK_WORKUsPP12tagFONT_INFO(arg0, code, &fontNode);
             if (fontInfo == NULL) {
                 glyphHeight = arg0[0x23];
-                x0 = (s16)*(f32 *)(arg0 + 0x0C);
-                y0 = (s16)((s32)*(f32 *)(arg0 + 0x10) + 2);
-                scaleX = *(f32 *)(arg0 + 0x60);
-                scaleY = *(f32 *)(arg0 + 0x64);
+                x0 = (s16)((MSG_TASK_WORK*)arg0)->field_0C;
+                y0 = (s16)((s32)((MSG_TASK_WORK*)arg0)->field_10 + 2);
+                scaleX = ((MSG_TASK_WORK*)arg0)->field_60;
+                scaleY = ((MSG_TASK_WORK*)arg0)->field_64;
                 x1 = (s16)((arg0[0x22] * scaleX) + (f32)x0);
                 y1 = (s16)(((f32)glyphHeight * scaleY) + (f32)y0);
 
@@ -1915,8 +1916,8 @@ void msgDrawRuby(u8* arg0)
                 gfxSetVtxDesc(lbl_80314F98);
                 fn_800DC1D4(1);
 
-                scaleX = arg0[0x22] * *(f32 *)(arg0 + 0x60);
-                *(f32 *)(arg0 + 0x14) = 2.0f + scaleX;
+                scaleX = arg0[0x22] * ((MSG_TASK_WORK*)arg0)->field_60;
+                ((MSG_TASK_WORK*)arg0)->field_14 = 2.0f + scaleX;
             } else {
                 glyphWidth = ((struct GlyphEntry *)fontInfo)->width;
                 _msgMakeTexture(arg0,
@@ -1924,22 +1925,22 @@ void msgDrawRuby(u8* arg0)
                                 (((struct GlyphEntry *)fontInfo)->offset & 0xFFFFFF),
                             glyphWidth, ((struct GlyphEntry *)fontInfo)->height,
                             (s8)(((struct GlyphEntry *)fontInfo)->offset >> 0x18));
-                *(f32 *)(arg0 + 0x14) = (f32)((s16)glyphWidth * *(f32 *)(arg0 + 0x60));
+                ((MSG_TASK_WORK*)arg0)->field_14 = (f32)((s16)glyphWidth * ((MSG_TASK_WORK*)arg0)->field_60);
             }
         }
 
         drawCount--;
-        *(f32 *)(arg0 + 0x0C) += *(f32 *)(arg0 + 0x14);
+        ((MSG_TASK_WORK*)arg0)->field_0C += ((MSG_TASK_WORK*)arg0)->field_14;
     }
 
-    *(f32 *)(arg0 + 0x4C) = *(f32 *)(arg0 + 0x0C);
-    *(f32 *)(arg0 + 0x50) = *(f32 *)(arg0 + 0x10);
+    ((MSG_TASK_WORK*)arg0)->field_4C = ((MSG_TASK_WORK*)arg0)->field_0C;
+    ((MSG_TASK_WORK*)arg0)->field_50 = ((MSG_TASK_WORK*)arg0)->field_10;
     *(u32 *)(arg0 + 0x54) = (u32)scan;
     arg0[0x59] = (u8)targetCount;
-    *(f32 *)(arg0 + 0x0C) = savedX;
-    *(f32 *)(arg0 + 0x10) = savedY;
-    *(f32 *)(arg0 + 0x60) *= 2.0f;
-    *(f32 *)(arg0 + 0x64) *= 2.0f;
+    ((MSG_TASK_WORK*)arg0)->field_0C = savedX;
+    ((MSG_TASK_WORK*)arg0)->field_10 = savedY;
+    ((MSG_TASK_WORK*)arg0)->field_60 *= 2.0f;
+    ((MSG_TASK_WORK*)arg0)->field_64 *= 2.0f;
 }
 
 /* 0x800FD69C | 0x880 (XD _msgMakeTexture)
@@ -2038,7 +2039,7 @@ void _msgMakeTexture(u8* arg0, const u8* arg1, s16 arg2, s16 arg3, s16 arg4)
     u1 = (f32)(curX + arg2) / 512.0f;
     v1 = (f32)(curY + arg3) / 512.0f;
 
-    color = *(u32 *)(arg0 + 0x24);
+    color = (u32)((MSG_TASK_WORK*)arg0)->color;
     outlineAlpha = (u8)(((color & 0xFF) * 0xC0) / 0xFF);
 
     gfxSetPrimitive(7);
@@ -2090,10 +2091,10 @@ void _msgMakeTexture(u8* arg0, const u8* arg1, s16 arg2, s16 arg3, s16 arg4)
     }
 
     gfxVtxPos2s16(drawX0, drawY0);
-    gfxVtxColor1u32(0, *(u32*)(arg0 + 0x24));
+    gfxVtxColor1u32(0, (u32)((MSG_TASK_WORK*)arg0)->color);
     gfxVtxTexCoord(0, u0, v0);
     gfxVtxPos2s16(drawX1, drawY1);
-    gfxVtxColor1u32(0, *(u32*)(arg0 + 0x24));
+    gfxVtxColor1u32(0, (u32)((MSG_TASK_WORK*)arg0)->color);
     gfxVtxTexCoord(0, u1, v1);
     gfxEnd();
 

@@ -67,11 +67,12 @@ struct WazaSequenceNode {
     /* 0x7C */ u32 runtimeFlags;
     /* 0x80 */ s32 field_80;
     /* 0x84 */ s32 animationMode;
-    /* 0x88 */ void* resource;
-    /* 0x8C */ s32 textureAnimationMode;
-    /* 0x90 */ s32 textureAnimation;
+    /* 0x88 */ union { void* resource; s32 animation; };           /* particle node; model node */
+    /* 0x8C */ union { s32 textureAnimationMode; void* particle; }; /* model node; particle node */
+    /* 0x90 */ union { s32 textureAnimation; u32 particleDone; };   /* model node; particle node */
     /* 0x94 */ s32 restoreTransform;
-    /* 0x98 */ u8 pad_98[8];
+    /* 0x98 */ s32 attachPart;
+    /* 0x9C */ u32 attachFlags;
     /* 0xA0 */ s32 attached;
     /* 0xA4 */ void* model;
     /* 0xA8 */ WazaSequenceNode* next;
@@ -88,13 +89,18 @@ struct WazaSequence {
     /* 0x14 */ u8 active;
     /* 0x15 */ u8 stopping;
     /* 0x16 */ u8 cameraActive;
-    /* 0x17 */ u8 pad_17[0x0D];
+    /* 0x17 */ u8 field_17;
+    /* 0x18 */ u32 field_18;
+    /* 0x1C */ u32 field_1C;
+    /* 0x20 */ u32 field_20;
     /* 0x24 */ WazaSequenceNode* firstNode;
-    /* 0x28 */ u8 pad_28[2];
+    /* 0x28 */ u16 memHandle;
     /* 0x2A */ u16 handle;
     /* 0x2C */ u16 moveIndex;
     /* 0x2E */ u16 animationMode;
-    /* 0x30 */ u8 pad_30[0x0C];
+    /* 0x30 */ u8 pad_30[0x04];
+    /* 0x34 */ WazaSequence* next;
+    /* 0x38 */ WazaSequence* previous;
     /* 0x3C */ WazaSequenceOwner* owner;
 };
 
@@ -129,13 +135,25 @@ struct WazaEffect {
     /* 0x30 */ u8 pad_30[0x02];
     /* 0x32 */ u16 index;                    /* table index */
     /* 0x34 */ u16 field_34;                 /* set by wazaSequenceOwnerSetAnim */
-    /* 0x36 */ u8 pad_36[0x32];
+    /* 0x36 */ u8 pad_36[0x02];
+    /* 0x38 */ s32 colorSwap[4];
+    /* 0x48 */ u8 modulation[4];          /* colour; [3] is alpha */
+    /* 0x4C */ u8 colorSwapOn;
+    /* 0x4D */ u8 modulationOn;
+    /* 0x4E */ u8 colorChangeRequested;
+    /* 0x4F */ u8 colorChangeApplied;
+    /* 0x50 */ u8 pad_50[0x0C];
+    /* 0x5C */ f32 rootPosition[3];
     /* 0x68 */ WazaSequence* sequenceList;
     /* 0x6C */ WazaSequence* currentSequence;
-    /* 0x70 */ u8 pad_70[0x04];
+    /* 0x70 */ u16 id;
+    /* 0x72 */ u8 pad_72[0x02];
     /* 0x74 */ u8 active;
     /* 0x75 */ u8 animationActive;
-    /* 0x76 */ u8 pad_76[0x0A];
+    /* 0x76 */ u8 pad_76;
+    /* 0x77 */ u8 motionComplete;
+    /* 0x78 */ s32 field_78;
+    /* 0x7C */ u8 pad_7C[0x04];
     /* 0x80 */ u8* field_80;                 /* secondary particle node */
     /* 0x84 */ u8* effect_handle;            /* particle node */
     /* 0x88 */ u8 pad_88[0x04];

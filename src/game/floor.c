@@ -24,6 +24,7 @@
  * Address range: 0x80112380 - 0x801140DC (.text), .rodata
  * 0x80272088 - 0x802721FA, .sdata2 0x8047CF70 - 0x8047CF9C. Linked.
  */
+#include "game/records/lbl_80408378.h"
 #include "dolphin/types.h"
 #include "game/world/gs_field.h"
 #include "game/gs_field_colquery_types.h"
@@ -268,7 +269,7 @@ void fn_801127BC(void) {
         fn_800D3074(2);
         break;
     }
-    if (*(u32*)(lbl_80408378 + 0x28) != 0) {
+    if (((Work80408378*)lbl_80408378)->field_28 != 0) {
         fn_800FF2A0(0, floorGetCurrentContext(), (void*)fn_80112844);
     }
 }
@@ -331,10 +332,10 @@ void fn_801128A0(void) {
         r = 0x399;
         break;
     }
-    *(u32*)(lbl_80408378 + 0x0) = 0;
-    *(u32*)(lbl_80408378 + 0x4) = r;
-    *(u8*)(lbl_80408378 + 0x8) = 1;
-    *(u32*)(lbl_80408378 + 0xC) = 0;
+    ((Work80408378*)lbl_80408378)->field_0 = 0;
+    ((Work80408378*)lbl_80408378)->field_4 = r;
+    ((Work80408378*)lbl_80408378)->field_8 = 1;
+    ((Work80408378*)lbl_80408378)->field_C = 0;
     GSfloorOpen(r);
     fn_800FF784(r);
     fn_80118020();
@@ -980,9 +981,9 @@ void floorChangePos(u32 floorId, s16 direction, f32 x, f32 y, f32 z) {
     set__5GSvecFfff((void*)(lbl_80408378 + 0x10), x, y, z);
     set__5GSvecFfff((void*)(lbl_80408378 + 0x1C), 0.0f,
                     0.017453292f * direction, 0.0f);
-    *(u32*)(lbl_80408378 + 0x0) = std092_getCurrentRoomID();
-    *(u32*)(lbl_80408378 + 0x4) = floorId;
-    *(u8*)(lbl_80408378 + 0x8) = 0;
+    ((Work80408378*)lbl_80408378)->field_0 = std092_getCurrentRoomID();
+    ((Work80408378*)lbl_80408378)->field_4 = floorId;
+    ((Work80408378*)lbl_80408378)->field_8 = 0;
     floorRequestChange(floorId);
 }
 
@@ -1011,9 +1012,9 @@ void floorLinkWithSE(void* a, void* b, s32 c) {
     if (a == NULL) {
         return;
     }
-    *(u32*)(lbl_80408378 + 0x0) = std092_getCurrentRoomID();
+    ((Work80408378*)lbl_80408378)->field_0 = std092_getCurrentRoomID();
     *(void**)(lbl_80408378 + 0x4) = a;
-    *(u8*)(lbl_80408378 + 0x8) = 1;
+    ((Work80408378*)lbl_80408378)->field_8 = 1;
     *(void**)(lbl_80408378 + 0xC) = b;
     switch (c) {
     case 0:
@@ -1032,22 +1033,22 @@ void floorLinkWithSE(void* a, void* b, s32 c) {
 
 /* 0x8011392C | 0x10 */
 u32 floorGetNextPosIndex(void) {
-    return *(u32*)(lbl_80408378 + 0xC);
+    return ((Work80408378*)lbl_80408378)->field_C;
 }
 
 /* 0x8011393C | 0x10 */
 u32 floorGetNextFloorID(void) {
-    return *(u32*)(lbl_80408378 + 0x4);
+    return ((Work80408378*)lbl_80408378)->field_4;
 }
 
 /* 0x8011394C | 0x10 */
 u32 floorGetPrevFloorID(void) {
-    return *(u32*)(lbl_80408378 + 0x0);
+    return ((Work80408378*)lbl_80408378)->field_0;
 }
 
 /* 0x8011395C | 0x10 */
 void floorSetPrevFloorID(u32 value) {
-    *(u32*)(lbl_80408378 + 0x0) = value;
+    ((Work80408378*)lbl_80408378)->field_0 = value;
 }
 
 /* 0x8011396C | 0x50 */
@@ -1355,17 +1356,17 @@ void floorReturnToSavedRoom(void) {
         c = (u8)gamedatasaveGetStatus(0, 8);
     }
     if (a != 0) {
-        *(u32*)(lbl_80408378 + 0x0) = std092_getCurrentRoomID();
-        *(u32*)(lbl_80408378 + 0x4) = a;
-        *(u8*)(lbl_80408378 + 0x8) = 1;
-        *(u32*)(lbl_80408378 + 0xC) = c;
+        ((Work80408378*)lbl_80408378)->field_0 = std092_getCurrentRoomID();
+        ((Work80408378*)lbl_80408378)->field_4 = a;
+        ((Work80408378*)lbl_80408378)->field_8 = 1;
+        ((Work80408378*)lbl_80408378)->field_C = c;
         floorRequestChange(a);
     }
     *(u8*)(state + 0x51) = 0;
-    *(u32*)(lbl_80408378 + 0x0) = b;
+    ((Work80408378*)lbl_80408378)->field_0 = b;
 }
 
 /* 0x801140C8 | 0x14 */
 void std162_fieldClearPending(void) {
-    *(u8*)(lbl_80408378 + 0x51) = 0;
+    ((Work80408378*)lbl_80408378)->field_51 = 0;
 }

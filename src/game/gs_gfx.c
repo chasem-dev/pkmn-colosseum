@@ -22,6 +22,7 @@
  * Address range: 0x800D3074 - 0x800D3E4C (approx.)
  */
 
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 #include "dolphin/gx/GX.h"
 #include "game/gs_gfx.h"
@@ -44,10 +45,10 @@ u32 GSgetFrameStep(void) {
 }
 
 u32 fn_800D3094(void) {
-    return *(u32*)((u8*)lbl_8047AA80 + 0x4C);
+    return ((GSgfxState*)lbl_8047AA80)->xfbCount;
 }
 void fn_800D30A0(u32 val) {
-    *(u32*)((u8*)lbl_8047AA80 + 0x48) = val;
+    ((GSgfxState*)lbl_8047AA80)->xfbIndex = val;
 }
 extern void gfxRecordCommand(s32 arg0, ...);
 extern void GXFlush(void);
@@ -199,21 +200,21 @@ void GSgfxRenderEnd(void) {
     }
 
     startTick = OSGetTick();
-    fn_800D1070((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+    fn_800D1070((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
     tick = OSGetTick();
     ((u32*)&lbl_804001F0)[0x2C / 4] += tick - startTick;
 
     startTick = OSGetTick();
-    GSlightUpdate((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+    GSlightUpdate((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
     tick = OSGetTick();
     ((u32*)&lbl_804001F0)[0x30 / 4] += tick - startTick;
 
     startTick = OSGetTick();
-    GSmodelAdvanceAll((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54), 0);
+    GSmodelAdvanceAll((void*)((GSgfxState*)lbl_8047AA80)->frameDelta, 0);
     tick = OSGetTick();
     ((u32*)&lbl_804001F0)[0x34 / 4] += tick - startTick;
 
-    r29count = *(s32*)((u8*)lbl_8047AA80 + 0x54);
+    r29count = (s32)((GSgfxState*)lbl_8047AA80)->frameDelta;
     ((u32*)&lbl_804001F0)[0x38 / 4] = 0;
 
     while (r29count-- != 0) {
@@ -291,22 +292,22 @@ void GSgfxRenderLayer(void* arg0, u8 arg1) {
     if (arg1 != 0) {
         /* reload state sub ptr and timing base inline each call (matches target) */
         startTick = OSGetTick();
-        fn_800D13C4((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+        fn_800D13C4((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
         tick = OSGetTick();
         ((u32*)&lbl_804001F0)[0x2C / 4] = tick - startTick;
 
         startTick = OSGetTick();
-        fn_800DC874((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+        fn_800DC874((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
         tick = OSGetTick();
         ((u32*)&lbl_804001F0)[0x30 / 4] = tick - startTick;
 
         startTick = OSGetTick();
-        GSmodelApplyAll((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+        GSmodelApplyAll((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
         tick = OSGetTick();
         ((u32*)&lbl_804001F0)[0x34 / 4] = tick - startTick;
 
         startTick = OSGetTick();
-        gsParticleUpdate((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+        gsParticleUpdate((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
         tick = OSGetTick();
         ((u32*)&lbl_804001F0)[0x38 / 4] = tick - startTick;
     }

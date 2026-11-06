@@ -11,6 +11,7 @@
  * evidence (anchor-name monotonicity checks) used to place this boundary.
  */
 #include "dolphin/types.h"
+#include "game/bios_records.h"
 #include "game/world/gs_field.h"
 /* ===== External SDK / engine functions ===== */
 extern void  GSlogWrite(const char* fmt, ...);         /* OSReport / GSlog */
@@ -1527,15 +1528,15 @@ void floorCharacterBiosSetPos(u8* dst, f32* src) {
 }
 /* 0x80116EB0 | 24 bytes | beq_default_getter */
 u32 floorCharacterBiosGetTalkSctID(void* ptr) {
-    return (ptr != NULL) ? *(u32*)((u8*)ptr + 0x14) : 0;
+    return (ptr != NULL) ? ((FloorCharacterBiosFields*)ptr)->talkSctID : 0;
 }
 /* 0x80116EC8 | 24 bytes | beq_default_getter */
 u32 floorCharacterBiosGetMoveSctID(void* ptr) {
-    return (ptr != NULL) ? *(u32*)((u8*)ptr + 0x10) : 0;
+    return (ptr != NULL) ? ((FloorCharacterBiosFields*)ptr)->moveSctID : 0;
 }
 /* 0x80116EE0 | 24 bytes | beq_default_getter */
 u32 floorCharacterBiosGetNameID(void* ptr) {
-    return (ptr != NULL) ? *(u16*)((u8*)ptr + 0x8) : 0;
+    return (ptr != NULL) ? ((FloorCharacterBiosFields*)ptr)->nameID : 0;
 }
 /* 0x80116EF8 | 0x1C */
 u32 floorCharacterBiosGetTalkWallThrough(u8* ptr) {

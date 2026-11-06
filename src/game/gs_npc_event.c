@@ -76,6 +76,7 @@
  *   lbl_80314F98: Default model resource pointer
  */
 
+#include "game/records/lbl_80266F68.h"
 #include "dolphin/types.h"
 
 /* =========================================================================
@@ -1813,11 +1814,11 @@ void fn_8003042C(u8* arg0, u8* arg1) {
 
     combined = (*(u32*)(arg1 + 0x64) & ~0xFF) | *(u8*)(arg0 + 0x8B);
     kind = 0;
-    if (*(s16*)(arg1 + 0x6) == *(u16*)(lbl_80266F68 + 0x12)) {
-        kind = *(u16*)(lbl_80266F68 + 0x0);
+    if (*(s16*)(arg1 + 0x6) == ((Work80266F68*)lbl_80266F68)->field_12) {
+        kind = ((Work80266F68*)lbl_80266F68)->field_0;
     }
-    if (*(s16*)(arg1 + 0x6) == *(u16*)(lbl_80266F68 + 0x26)) {
-        kind = *(u16*)(lbl_80266F68 + 0x14);
+    if (*(s16*)(arg1 + 0x6) == ((Work80266F68*)lbl_80266F68)->field_26) {
+        kind = ((Work80266F68*)lbl_80266F68)->field_14;
     }
 
     obj = 0;
@@ -1962,11 +1963,11 @@ void fn_800307A8(u8* arg0, u8* arg1) {
 
     combined = (*(u32*)(arg1 + 0x64) & ~0xFF) | *(u8*)(arg0 + 0x8B);
     kind = 0;
-    if (*(s16*)(arg1 + 0x6) == *(u16*)(lbl_80266F68 + 0x2)) {
-        kind = *(u16*)(lbl_80266F68 + 0x0);
+    if (*(s16*)(arg1 + 0x6) == ((Work80266F68*)lbl_80266F68)->field_2) {
+        kind = ((Work80266F68*)lbl_80266F68)->field_0;
     }
-    if (*(s16*)(arg1 + 0x6) == *(u16*)(lbl_80266F68 + 0x16)) {
-        kind = *(u16*)(lbl_80266F68 + 0x14);
+    if (*(s16*)(arg1 + 0x6) == ((Work80266F68*)lbl_80266F68)->field_16) {
+        kind = ((Work80266F68*)lbl_80266F68)->field_14;
     }
 
     obj = 0;

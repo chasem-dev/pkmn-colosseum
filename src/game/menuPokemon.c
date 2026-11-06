@@ -13,6 +13,7 @@
  * remains an unimplemented hole within this address range.
  */
 
+#include "game/records/lbl_803A1D40.h"
 #include "dolphin/types.h"
 
 /* One-function carves include this file with one of these defined. */
@@ -2055,8 +2056,8 @@ s32 fn_80019B48(s8 slot) {
     void* pokemon;
     s32 result;
 
-    pokemon = menuPokemonGetPokemon(*(s32*)(lbl_803A1D40 + 0x8), slot,
-                                    *(void**)(lbl_803A1D40 + 0xC));
+    pokemon = menuPokemonGetPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, slot,
+                                    ((Work803A1D40*)lbl_803A1D40)->field_C);
     if (pokemon == 0) {
         return -1;
     }
@@ -2101,8 +2102,8 @@ void* fn_80019D5C(void* current, s32 dir) {
         slot = 0;
     }
     if (slot != work[6]) {
-        pokemon = menuPokemonGetPokemon(*(s32*)(lbl_803A1D40 + 0x8), slot,
-                                        *(void**)(lbl_803A1D40 + 0xC));
+        pokemon = menuPokemonGetPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, slot,
+                                        ((Work803A1D40*)lbl_803A1D40)->field_C);
         if (pokemon != 0) {
             current = pokemon;
             work[6] = slot;
@@ -2242,8 +2243,8 @@ void menuPokemonDrawItem(u8* ctx, u8* pane) {
             case 0x3BC:
             case 0x12A1:
                 msgId = itemDataBiosGetWazaMachineNo(item);
-                mon = menuPokemonGetPokemon(*(s32*)(lbl_803A1D40 + 0x8), index,
-                                            *(void**)(lbl_803A1D40 + 0xC));
+                mon = menuPokemonGetPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, index,
+                                            ((Work803A1D40*)lbl_803A1D40)->field_C);
                 if ((u8)pokemonIsDarkPokemon(mon) != 0) {
                     msg = 0x2B65;
                 } else if ((u8)pokemonDataBiosGetWazaMcn((u8*)pokemonDataBiosGetPtr(pokemonBiosGetPokemonDataId(mon)), (u8)msgId) == 0) {
@@ -2441,7 +2442,7 @@ void menuPokemonDrawHelp(u8* a) {
     u32 msg;
 
     msg = 0;
-    switch (*(u8*)(lbl_803A1D40 + 0x14)) {
+    switch (((Work803A1D40*)lbl_803A1D40)->field_14) {
     case 0:
         switch (*(u8*)(lbl_803A1D40 + 0x0)) {
         case 3:
@@ -2465,7 +2466,7 @@ void menuPokemonDrawHelp(u8* a) {
         }
         break;
     case 1:
-        msgctrlSetValue(0x32, lbl_803A1C20 + (s8)*(u8*)(lbl_803A1D40 + 0x6) * 0x30);
+        msgctrlSetValue(0x32, lbl_803A1C20 + (s8)((Work803A1D40*)lbl_803A1D40)->field_6 * 0x30);
         msg = 0x2b5e;
         break;
     case 2:
@@ -2504,7 +2505,7 @@ void menuPokemonButton(u8* a) {
     u32 r31;
     u32 r3b;
     r31 = 0;
-    if (*(u8*)(lbl_803A1D40 + 0x1) == 0) {
+    if (((Work803A1D40*)lbl_803A1D40)->field_1 == 0) {
         *(u8*)(a + 0x98) = 0x1;
         return;
     }
@@ -2551,8 +2552,8 @@ void menuPokemonCursor(u8* ctx) {
     cursor = *(s8*)(ctx + 0x95);
     step = 0;
     for (i = 0; i < 6; i++) {
-        if (menuPokemonGetPokemon(*(s32*)(lbl_803A1D40 + 0x8), i,
-                                  *(void**)(lbl_803A1D40 + 0xC)) != 0) {
+        if (menuPokemonGetPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, i,
+                                  ((Work803A1D40*)lbl_803A1D40)->field_C) != 0) {
             valid[i] = 1;
         } else {
             valid[i] = 0;
@@ -2745,9 +2746,9 @@ void menuPokemonClose(void) {
     extern void floorSetFadeScript();
     extern void _threadSwitch();
     menuCloseCustom(0x63, 0x0, 0x1);
-    if (*(u8*)(lbl_803A1D40 + 0x2) != 0) {
+    if (((Work803A1D40*)lbl_803A1D40)->field_2 != 0) {
         floorBattleEndTerminateScripts();
-        if (*(u8*)(lbl_803A1D40 + 0x3) != 0x1) floorSetFadeScript(0x0, 0x0);
+        if (((Work803A1D40*)lbl_803A1D40)->field_3 != 0x1) floorSetFadeScript(0x0, 0x0);
         _threadSwitch();
     }
 }
@@ -2870,8 +2871,8 @@ s32 menuPokemonSub() {
     memset(lbl_803A1C20, 0, 0x120);
     for (slot.value = 0; slot.value < 6; slot.value++) {
         status = &((MenuPokemonStatus*)lbl_803A1C20)[slot.value];
-        pokemon = menuPokemonGetPokemon(*(s32*)(lbl_803A1D40 + 0x8), slot.value,
-                                        *(void**)(lbl_803A1D40 + 0xC));
+        pokemon = menuPokemonGetPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, slot.value,
+                                        ((Work803A1D40*)lbl_803A1D40)->field_C);
         if (pokemon == 0) {
             status->species = 0;
         } else {
@@ -2920,7 +2921,7 @@ s32 menuPokemonSub() {
                 switch (action.value) {
                 case 0:
                     if ((u8)menuPokemonCheckPokemonChange(*(void**)(lbl_803A1D40 + 0x18),
-                                                          *(void**)(lbl_803A1D40 + 0xC),
+                                                          ((Work803A1D40*)lbl_803A1D40)->field_C,
                                                           selection) != 0) {
                         action.value = -1;
                     } else {
@@ -2929,11 +2930,11 @@ s32 menuPokemonSub() {
                     break;
                 case 1:
                     menuCloseCustom(0x63, 0, 1);
-                    pokemon = menuPokemonGetSummaryPokemon(*(s32*)(lbl_803A1D40 + 0x8), selection,
-                                                           *(void**)(lbl_803A1D40 + 0xC));
+                    pokemon = menuPokemonGetSummaryPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, selection,
+                                                           ((Work803A1D40*)lbl_803A1D40)->field_C);
                     fadeSet(3, lbl_8047B7C0);
                     fadeCheck(1);
-                    fn_80097E58(*(void**)(lbl_803A1D40 + 0xC), pokemon, fn_80019D5C, 0);
+                    fn_80097E58(((Work803A1D40*)lbl_803A1D40)->field_C, pokemon, fn_80019D5C, 0);
                     summaryArg = *cursor;
                     menuOpenCustom(0x63, 0, &summaryArg, 0, 0, 1, lbl_803A1C20);
                     pokemon = windowSearchID(0x63);
@@ -2960,14 +2961,14 @@ s32 menuPokemonSub() {
             break;
         case 5:
             result = ((s32 (*)(s8, u8, u16, u16*))fn_8001C064)(selection, lbl_803A1D40[0x11],
-                                                              *(u16*)(lbl_803A1D40 + 0x12), &newItem);
+                                                              ((Work803A1D40*)lbl_803A1D40)->field_12, &newItem);
             break;
         case 6:
             result = -1;
             break;
         case 7: {
-            pokemon = menuPokemonGetPokemon(*(s32*)(lbl_803A1D40 + 0x8), selection,
-                                            *(void**)(lbl_803A1D40 + 0xC));
+            pokemon = menuPokemonGetPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, selection,
+                                            ((Work803A1D40*)lbl_803A1D40)->field_C);
             if (pokemon == 0) {
                 continue;
             }
@@ -2994,7 +2995,7 @@ s32 menuPokemonSub() {
     while ((u8)fn_8010B560() != 0) {
         _threadSwitch();
     }
-    *(s32*)(lbl_803A1D40 + 0x1C) = *cursor;
+    ((Work803A1D40*)lbl_803A1D40)->field_1C = *cursor;
     return result;
 }
 #endif
@@ -3021,67 +3022,67 @@ u32 menuPokemonOpenSub(u8 a0, u8 a1, u8 a2, u16 a3, u32 a4, u8 a5) {
     extern s32 menuPokemonSub(u8, u16, u32);
     s32 v;
 
-    *(u8*)(lbl_803A1D40 + 0x0) = a0;
-    *(u8*)(lbl_803A1D40 + 0x10) = a1;
-    *(u8*)(lbl_803A1D40 + 0x11) = a2;
-    *(u16*)(lbl_803A1D40 + 0x12) = a3;
+    ((Work803A1D40*)lbl_803A1D40)->field_0 = a0;
+    ((Work803A1D40*)lbl_803A1D40)->field_10 = a1;
+    ((Work803A1D40*)lbl_803A1D40)->field_11 = a2;
+    ((Work803A1D40*)lbl_803A1D40)->field_12 = a3;
     *(u32*)(lbl_803A1D40 + 0xC) = a4;
-    *(u8*)(lbl_803A1D40 + 0x1) = a5;
-    *(u32*)(lbl_803A1D40 + 0x1C) = 0;
-    *(u8*)(lbl_803A1D40 + 0x15) = 1;
+    ((Work803A1D40*)lbl_803A1D40)->field_1 = a5;
+    ((Work803A1D40*)lbl_803A1D40)->field_1C = 0;
+    ((Work803A1D40*)lbl_803A1D40)->field_15 = 1;
 
     switch ((s32)(u8)a0) {
     case 2:
     case 4:
-        *(u32*)(lbl_803A1D40 + 0x8) = 1;
+        ((Work803A1D40*)lbl_803A1D40)->field_8 = 1;
         break;
     case 3:
     default:
-        *(u32*)(lbl_803A1D40 + 0x8) = 0;
+        ((Work803A1D40*)lbl_803A1D40)->field_8 = 0;
         break;
     }
 
-    v = (s32)*(u8*)(lbl_803A1D40 + 0x0);
+    v = (s32)((Work803A1D40*)lbl_803A1D40)->field_0;
     switch (v) {
     case 3:
     case 4:
     case 5:
-        *(u8*)(lbl_803A1D40 + 0x2) = 0;
-        *(u8*)(lbl_803A1D40 + 0x3) = 0;
+        ((Work803A1D40*)lbl_803A1D40)->field_2 = 0;
+        ((Work803A1D40*)lbl_803A1D40)->field_3 = 0;
         break;
     case 1:
-        *(u8*)(lbl_803A1D40 + 0x2) = 1;
-        *(u8*)(lbl_803A1D40 + 0x3) = 0;
+        ((Work803A1D40*)lbl_803A1D40)->field_2 = 1;
+        ((Work803A1D40*)lbl_803A1D40)->field_3 = 0;
         break;
     case 2:
-        *(u8*)(lbl_803A1D40 + 0x2) = 1;
-        *(u8*)(lbl_803A1D40 + 0x3) = 1;
+        ((Work803A1D40*)lbl_803A1D40)->field_2 = 1;
+        ((Work803A1D40*)lbl_803A1D40)->field_3 = 1;
         if ((u16)a3 == 0) {
-            *(u8*)(lbl_803A1D40 + 0x15) = 0;
+            ((Work803A1D40*)lbl_803A1D40)->field_15 = 0;
         }
     case 6:
     case 7:
     default:
         menuCreateOffScreen(*(f32*)&lbl_8047B7C4 / (f32)fn_800D37CC());
-        *(u8*)(lbl_803A1D40 + 0x2) = 1;
-        *(u8*)(lbl_803A1D40 + 0x3) = 2;
+        ((Work803A1D40*)lbl_803A1D40)->field_2 = 1;
+        ((Work803A1D40*)lbl_803A1D40)->field_3 = 2;
         break;
     }
-    if (*(u8*)(lbl_803A1D40 + 0x2) == 1) {
+    if (((Work803A1D40*)lbl_803A1D40)->field_2 == 1) {
         _flagSet(1, 1);
         std098_mapWarpToMenuRoom(0x38f);
-        if (*(u8*)(lbl_803A1D40 + 0x3) != 1) {
+        if (((Work803A1D40*)lbl_803A1D40)->field_3 != 1) {
             floorSetFadeScript(0, 0);
         }
         _threadSwitch();
-        if (*(u8*)(lbl_803A1D40 + 0x3) == 2) {
+        if (((Work803A1D40*)lbl_803A1D40)->field_3 == 2) {
             menuReleaseOffScreen(*(f32*)&lbl_8047B7C4 / (f32)fn_800D37CC());
         }
     } else {
         menuPokemonSub(a0, (u16)a3, a4);
     }
-    *(u8*)(lbl_803A1D40 + 0x4) = 1;
-    return *(u32*)(lbl_803A1D40 + 0x1C);
+    ((Work803A1D40*)lbl_803A1D40)->field_4 = 1;
+    return ((Work803A1D40*)lbl_803A1D40)->field_1C;
 }
 #endif
 
@@ -3099,7 +3100,7 @@ asm void menuPokemonOpenItemGive(void) {
 void menuPokemonOpenItemGive(u32 a, u32 b, u32 c, u32 d) {
     extern u8 lbl_803A1D40[];
     extern void menuPokemonOpenSub(u32, u32, u32, u32, u32, u32);
-    *(u8*)(lbl_803A1D40 + 0x4) = 0x1;
+    ((Work803A1D40*)lbl_803A1D40)->field_4 = 0x1;
     menuPokemonOpenSub(0x5, a, b, c, d, 0x1);
 }
 #pragma pop
@@ -3117,7 +3118,7 @@ asm void menuPokemonOpenItemUse(void) {
 void menuPokemonOpenItemUse(u32 a, u32 b, u32 c, u32 d) {
     extern u8 lbl_803A1D40[];
     extern void menuPokemonOpenSub();
-    *(u8*)(lbl_803A1D40 + 0x4) = 0x1;
+    ((Work803A1D40*)lbl_803A1D40)->field_4 = 0x1;
     menuPokemonOpenSub(a, 0x0, 0x0, c, d, b);
 }
 #pragma pop
@@ -3136,11 +3137,11 @@ void menuPokemonOpenFight(u8 a, u8 b, u32 c, u32 d) {
     extern u8 lbl_803A1D40[];
     extern void menuPokemonOpenSub(u32, u32, u32, u32, u32, u32);
     if (a == 0x1) {
-        *(u8*)(lbl_803A1D40 + 0x4) = 0x0;
+        ((Work803A1D40*)lbl_803A1D40)->field_4 = 0x0;
     } else {
-        *(u8*)(lbl_803A1D40 + 0x4) = 0x1;
+        ((Work803A1D40*)lbl_803A1D40)->field_4 = 0x1;
     }
-    *(u32*)(lbl_803A1D40 + 0x18) = d;
+    ((Work803A1D40*)lbl_803A1D40)->field_18 = d;
     menuPokemonOpenSub(0x2, 0x0, 0x0, b, c, 0x1);
 }
 #pragma pop
@@ -3158,7 +3159,7 @@ asm void menuPokemonOpen(void) {
 void menuPokemonOpen(u32 a, u32 b, u32 c) {
     extern u8 lbl_803A1D40[];
     extern void menuPokemonOpenSub(u32, u32, u32, u32, u32, u32);
-    *(u8*)(lbl_803A1D40 + 0x4) = 0x1;
+    ((Work803A1D40*)lbl_803A1D40)->field_4 = 0x1;
     menuPokemonOpenSub(a, 0x0, 0x0, b, c, 0x1);
 }
 #pragma pop
@@ -3183,14 +3184,14 @@ s32 menuPokemonMain(void) {
     u8 r3;
     u16 r4;
     u32 r5;
-    r3 = *(u8*)(lbl_803A1D40 + 0x0);
-    r4 = *(u16*)(lbl_803A1D40 + 0x12);
+    r3 = ((Work803A1D40*)lbl_803A1D40)->field_0;
+    r4 = ((Work803A1D40*)lbl_803A1D40)->field_12;
     r5 = *(u32*)(lbl_803A1D40 + 0xC);
     menuPokemonSub((u32)r3, (u32)r4, r5);
     menuCloseCustom(0x63, 0x0, 0x1);
-    if (*(u8*)(lbl_803A1D40 + 0x2) != 0) {
+    if (((Work803A1D40*)lbl_803A1D40)->field_2 != 0) {
         floorBattleEndTerminateScripts();
-        if (*(u8*)(lbl_803A1D40 + 0x3) != 0x1) floorSetFadeScript(0x0, 0x0);
+        if (((Work803A1D40*)lbl_803A1D40)->field_3 != 0x1) floorSetFadeScript(0x0, 0x0);
         _threadSwitch();
     }
     return 0;
@@ -3211,8 +3212,8 @@ void* fn_8001BEBC(u16* index) {
     extern u8 lbl_803A1D40[];
     void* pokemon;
 
-    pokemon = menuPokemonGetPokemon(*(s32*)(lbl_803A1D40 + 0x8), *index,
-                                    *(void**)(lbl_803A1D40 + 0xC));
+    pokemon = menuPokemonGetPokemon(((Work803A1D40*)lbl_803A1D40)->field_8, *index,
+                                    ((Work803A1D40*)lbl_803A1D40)->field_C);
     (*index)++;
     return pokemon;
 }

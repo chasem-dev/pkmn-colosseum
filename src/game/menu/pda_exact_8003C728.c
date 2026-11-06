@@ -1,3 +1,4 @@
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -27,7 +28,7 @@ void fn_8003C728(PdaSprite* alphaSprite, PdaSprite* sprite)
     s16 baseY;
 
     alphaSprite->alphaByte = lbl_8047BAC0 * lbl_803A6748.alphaScale;
-    baseY = *(s16*)(lbl_802EF0A8 + 0x50a0);
+    baseY = ((Work802EF0A8*)lbl_802EF0A8)->field_50A0;
     row = *(s32*)&lbl_803A6748 - lbl_803A6748.field_08;
     if (row >= 10) {
         row = 9;

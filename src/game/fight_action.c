@@ -12,6 +12,7 @@
  */
 
 #include "game/colosseum.h"
+#include "game/bios_records.h"
 #include "game/fight_action.h"
 #include "game/trainer.h"
 #include "game/pokemon.h"
@@ -1595,19 +1596,19 @@ u32 fightActionFlowNullFunc(void* action) { return 1; }
 /* Address: 0x8020D78C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightActionBiosSetFifoBanme(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x1C]) = val;
+    ((FightActionBiosFields*)ptr)->fifoBanme = val;
 }
 
 /* Address: 0x8020D79C | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightActionKindDataBiosGetDispFuncPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x8]);
+    return ((FightActionKindDataBiosFields*)ptr)->dispFuncPtr;
 }
 
 /* Address: 0x8020D7B4 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightActionKindDataBiosGetFlowFuncPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x4]);
+    return ((FightActionKindDataBiosFields*)ptr)->flowFuncPtr;
 }
 
 /* fightActionKindDataBiosGetPri | Size: 0x1C | Read signed byte, return -128 if NULL */
@@ -1631,13 +1632,13 @@ void* fightActionKindDataBiosGetPtr(u16 index) {
 /* Address: 0x8020D814 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightActionDataBiosGetBuff(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x4]);
+    return ((FightActionDataBiosFields*)ptr)->buff;
 }
 
 /* Address: 0x8020D82C | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightActionDataBiosGetKind(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x0]);
+    return ((FightActionDataBiosFields*)ptr)->kind;
 }
 
 #endif

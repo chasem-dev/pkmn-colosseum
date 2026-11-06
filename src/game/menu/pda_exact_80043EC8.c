@@ -7,6 +7,7 @@
  * signed int-to-float bias is redirected by the temporary constant_import
  * build step to lbl_8047BCB0 in sdata2_8047BCA0.c.
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -60,5 +61,5 @@ void fn_80043EC8(PdaSprite* alphaSprite, PdaSprite* sprite)
     f1 = (f32)sin(f1);
     f3 = f1;
     sprite->field_52 = (s16)(lbl_8047BD0C * f3 +
-                              (f32)(s32)*(s16*)(lbl_802EF0A8 + 0x57bc));
+                              (f32)(s32)((Work802EF0A8*)lbl_802EF0A8)->field_57BC);
 }

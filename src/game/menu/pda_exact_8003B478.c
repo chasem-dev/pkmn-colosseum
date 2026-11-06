@@ -1,4 +1,5 @@
 /* Standalone copy of fn_8003B478 from pda_range_80037158.c. */
+#include "game/records/lbl_803A6748.h"
 #include "dolphin/types.h"
 
 typedef struct PdaListEntry {
@@ -48,7 +49,7 @@ void pdaSnagListCreatePokemon(u8* context)
     u16 curBattleId;
     u32 index;
 
-    context[0x8B] = lbl_8047BAC0 * *(f32*)(lbl_803A6748 + 0x44);
+    context[0x8B] = lbl_8047BAC0 * ((Work803A6748*)lbl_803A6748)->field_44;
     index = *(u32*)lbl_803A6748;
     species = lbl_8047A4D4[index].field_00;
     battleId = lbl_8047A4D4[index].battleId;
@@ -69,7 +70,7 @@ void pdaSnagListCreatePokemon(u8* context)
     }
 
     pokemonCreate(model, species, 0xA, gamedataGetStatus(0, 1));
-    rnd = *(u32*)(lbl_803A6748 + 0x98);
+    rnd = ((Work803A6748*)lbl_803A6748)->field_98;
     darkPokemonSaveGet8(battleId);
     pokemonBiosSetRnd(model, rnd);
     switch (battleState) {
@@ -91,7 +92,7 @@ void pdaSnagListCreatePokemon(u8* context)
             if (darkPokemonCheckFlag16(battleId) != 0) {
                 pokemonBiosSetRnd(liveModel, darkPokemonSaveGet8(battleId));
                 message = pokemonGetSex(liveModel);
-                pokemonBiosSetRnd(liveModel, *(u32*)(lbl_803A6748 + 0x98));
+                pokemonBiosSetRnd(liveModel, ((Work803A6748*)lbl_803A6748)->field_98);
             } else {
                 message = 2;
             }

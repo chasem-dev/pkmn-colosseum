@@ -139,6 +139,7 @@
 
 #include "dolphin/types.h"
 #include "game/effect/gs_effect.h"
+#include "game/effect/effect_work.h"
 
 /* ===== GS model / material / texture / vector helpers (their definitions' signatures) ===== */
 struct GSmodel;
@@ -541,8 +542,8 @@ u32 _lightningRenderMain(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        count = *(u16*)(p + 0x8);
-        model = GSresGetResource(*(u16*)(p + 0xA), *(u16*)(p + 0xC));
+        count = ((LightningWork*)p)->boltCount;
+        model = GSresGetResource(((LightningWork*)p)->resGroup, ((LightningWork*)p)->resId);
         if (model == NULL) {
             return 0;
         }
@@ -564,20 +565,20 @@ u32 _lightningRenderMain(void* ptr) {
         GXSetLineWidth((s32)(*(f32*)&lbl_8047D150 * scale), 5);
         gfxSetFlags(1);
         gfxClearFlags(6);
-        gfxSetVtxDesc(*(void**)(p + 0x14));
+        gfxSetVtxDesc(((LightningWork*)p)->vtxDesc);
         fn_800E05C0(matrix, modelPos[0], modelPos[1], modelPos[2]);
         gfxPushMultMatrix(matrix);
-        fn_800E048C(matrix, *(f32*)(p + 0x28), *(f32*)(p + 0x2C), *(f32*)(p + 0x30));
+        fn_800E048C(matrix, ((LightningWork*)p)->scale[0], ((LightningWork*)p)->scale[1], ((LightningWork*)p)->scale[2]);
         gfxPushMultMatrix(matrix);
         gfxSetPrimitive(2);
 
-        entry = *(u8**)(p + 0x4);
+        entry = ((LightningWork*)p)->bolts;
         for (i = 0; i < count; i++, entry += 0x97C) {
-            if (*(u32*)(entry + 0x978) != 0) {
-                gfxBegin((u16)(*(u32*)(entry + 0x978) + 1));
-                gfxVtxPos(*(f32*)(entry + 0x960), *(f32*)(entry + 0x964), *(f32*)(entry + 0x968));
+            if (((LightningBolt*)entry)->segments != 0) {
+                gfxBegin((u16)(((LightningBolt*)entry)->segments + 1));
+                gfxVtxPos(((LightningBolt*)entry)->start[0], ((LightningBolt*)entry)->start[1], ((LightningBolt*)entry)->start[2]);
                 gfxVtxColor4u8(0, p[0x20], p[0x21], p[0x22], p[0x23]);
-                segments = *(u32*)(entry + 0x978);
+                segments = ((LightningBolt*)entry)->segments;
                 point = entry;
                 for (j = 0; j < segments; j++, point += 0x18) {
                     gfxVtxPos(*(f32*)(point + 0), *(f32*)(point + 4), *(f32*)(point + 8));
@@ -587,51 +588,51 @@ u32 _lightningRenderMain(void* ptr) {
             }
         }
 
-        if (*(void**)(p + 0x1C) != NULL) {
+        if (((LightningWork*)p)->glowTexture != NULL) {
             gfxSetZMode(1, 2, 1);
             gfxSetUpdates(1, 1, 0);
             gfxSetFlags(3);
             gfxClearFlags(4);
-            gfxSetVtxDesc(*(void**)(p + 0x18));
-            gfxLoadTexture(0, *(void**)(p + 0x1C));
+            gfxSetVtxDesc(((LightningWork*)p)->glowVtxDesc);
+            gfxLoadTexture(0, ((LightningWork*)p)->glowTexture);
             gfxSetPrimitive(6);
             gfxBegin((u16)(count << 3));
-            entry = *(u8**)(p + 4);
+            entry = ((LightningWork*)p)->bolts;
             grow = *(f32*)&lbl_8047D158;
             for (i = 0; i < count; i++, entry += 0x97C) {
-                width = *(f32*)(p + 0x6C) * fn_800E0BA0() + *(f32*)(p + 0x68);
-            gfxVtxPos(*(f32*)(entry + 0x960) - width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) - width);
+                width = ((LightningWork*)p)->glowRange * fn_800E0BA0() + ((LightningWork*)p)->glowBase;
+            gfxVtxPos(((LightningBolt*)entry)->start[0] - width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] - width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D154);
-            gfxVtxPos(*(f32*)(entry + 0x960) + width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) - width);
+            gfxVtxPos(((LightningBolt*)entry)->start[0] + width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] - width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x960) + width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) + width);
+            gfxVtxPos(((LightningBolt*)entry)->start[0] + width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] + width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x960) - width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) + width);
+            gfxVtxPos(((LightningBolt*)entry)->start[0] - width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] + width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D154);
 
                 outer = width * grow;
-            gfxVtxPos(*(f32*)(entry + 0x96C) - outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) - outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] - outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] - outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D154);
-            gfxVtxPos(*(f32*)(entry + 0x96C) + outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) - outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] + outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] - outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x96C) + outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) + outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] + outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] + outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x96C) - outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) + outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] - outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] + outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D154);
             }
@@ -670,8 +671,8 @@ u32 _lightningDestroy(void* ptr) {
     if (ptr) {
         GXDrawDone();
         GXInvalidateVtxCache();
-        if (*(void**)((u8*)ptr + 0x1c) != NULL) {
-            GStextureFree(*(void**)((u8*)ptr + 0x1c));
+        if (((LightningWork*)ptr)->glowTexture != NULL) {
+            GStextureFree(((LightningWork*)ptr)->glowTexture);
         }
         return 1;
     }
@@ -719,23 +720,23 @@ u32 lightningStartEffect(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        if (GSresGetResource(*(u16*)(p + 0xA), *(u16*)(p + 0xC)) == NULL) {
+        if (GSresGetResource(((LightningWork*)p)->resGroup, ((LightningWork*)p)->resId) == NULL) {
             GSlogWrite("lightningStartEffect: Could not start lightning effect - invalid model: group %d, model %d.\n",
-                       *(u16*)(p + 0xA), *(u16*)(p + 0xC));
+                       ((LightningWork*)p)->resGroup, ((LightningWork*)p)->resId);
             return 0;
         }
 
-        handle = _toolentryAlloc__FUl(*(u16*)(p + 0x8) * 0x97C);
+        handle = _toolentryAlloc__FUl(((LightningWork*)p)->boltCount * 0x97C);
         *(u16*)p = handle;
         if (handle == 0) {
             GSlogWrite("lightningStartEffect: Could not start lightning effect - not enough memory!\n");
             return 0;
         }
 
-        *(void**)(p + 4) = GSmemLock(handle);
-        memset(*(void**)(p + 4), 0, *(u16*)(p + 0x8) * 0x97C);
+        ((LightningWork*)p)->bolts = GSmemLock(handle);
+        memset(((LightningWork*)p)->bolts, 0, ((LightningWork*)p)->boltCount * 0x97C);
         _lightningGenerate(p, 1);
-        *(u16*)(p + 0x10) = 0;
+        ((LightningWork*)p)->frame = 0;
         return 1;
     }
 
@@ -761,12 +762,12 @@ u32 _lightningUpdate(void* ptr, u32 delta) {
         goto fail;
     }
     p = ptr;
-    limit = *(u16*)(p + 0x12);
-    if (limit != 0 && *(u16*)(p + 0x10) >= limit) {
+    limit = ((LightningWork*)p)->duration;
+    if (limit != 0 && ((LightningWork*)p)->frame >= limit) {
         goto fail;
     }
     _lightningGenerate(p, 0);
-    *(u16*)(p + 0x10) = *(u16*)(p + 0x10) + d;
+    ((LightningWork*)p)->frame = ((LightningWork*)p)->frame + d;
     return 1;
 fail:
     return 0;
@@ -805,24 +806,24 @@ void _lightningGenerate(void* ptr, u32 b) {
     f32 step[4];
 
     p = ptr;
-    entry = *(u8**)(p + 0x4);
-    count = *(u16*)(p + 0x8);
+    entry = ((LightningWork*)p)->bolts;
+    count = ((LightningWork*)p)->boltCount;
     for (i = 0; i < count; i++, entry += 0x97C) {
         if (b != 0) {
             f32 angle;
             f32 radius;
 
-            radius = *(f32*)(p + 0x58) * fn_800E0BA0() + *(f32*)(p + 0x54);
+            radius = ((LightningWork*)p)->radiusRange * fn_800E0BA0() + ((LightningWork*)p)->radiusBase;
             angle = 6.2831855f * GSrandf();
-            *(f32*)(entry + 0x960) = radius * (f32)cos(angle);
-            *(f32*)(entry + 0x964) = 0.0f;
-            *(f32*)(entry + 0x968) = radius * (f32)sin(angle);
+            ((LightningBolt*)entry)->start[0] = radius * (f32)cos(angle);
+            ((LightningBolt*)entry)->start[1] = 0.0f;
+            ((LightningBolt*)entry)->start[2] = radius * (f32)sin(angle);
         }
 
         GSvecNormalize(base, entry + 0x960);
         set__5GSvecFfff(direction, base[0], 1.0f, base[2]);
         GSvecNormalize(direction, direction);
-        *(u32*)(entry + 0x978) = 0;
+        ((LightningBolt*)entry)->segments = 0;
         current = entry;
         previous = entry + 0x960;
 
@@ -833,31 +834,31 @@ void _lightningGenerate(void* ptr, u32 b) {
             fn_800DFFCC(tangent, direction, tangent);
             GSvecNormalize(tangent, tangent);
 
-            fn_800E0718(step, tangent, *(f32*)(p + 0x4C) * fn_800E0BA0());
+            fn_800E0718(step, tangent, ((LightningWork*)p)->stepRange * fn_800E0BA0());
             GSvecTransformQuat(direction, step, direction);
-            GSmtxMakeYRotation(rotation, *(f32*)(p + 0x50) * fn_800E0BA0());
+            GSmtxMakeYRotation(rotation, ((LightningWork*)p)->turnRange * fn_800E0BA0());
             GSvecTransform(direction, rotation, direction);
 
             if (b != 0) {
                 GSvecCopy(current + 0xC, direction);
             } else {
                 vecScale(current + 0xC, current + 0xC,
-                            1.0f - *(f32*)(p + 0x64));
-                vecScale(direction, direction, *(f32*)(p + 0x64));
+                            1.0f - ((LightningWork*)p)->bend);
+                vecScale(direction, direction, ((LightningWork*)p)->bend);
                 GSvecAdd(current + 0xC, direction, current + 0xC);
                 GSvecNormalize(current + 0xC, current + 0xC);
             }
 
             vecScale(direction, current + 0xC,
-                        *(f32*)(p + 0x60) * fn_800E0BA0() + *(f32*)(p + 0x5C));
-            set__5GSvecFfff(noise, *(f32*)(p + 0x40) * fn_800E0BA0(),
-                            *(f32*)(p + 0x44) * fn_800E0BA0(),
-                            *(f32*)(p + 0x48) * fn_800E0BA0());
+                        ((LightningWork*)p)->lengthRange * fn_800E0BA0() + ((LightningWork*)p)->lengthBase);
+            set__5GSvecFfff(noise, ((LightningWork*)p)->noise[0] * fn_800E0BA0(),
+                            ((LightningWork*)p)->noise[1] * fn_800E0BA0(),
+                            ((LightningWork*)p)->noise[2] * fn_800E0BA0());
             GSvecAdd(noise, noise, p + 0x34);
             GSvecAdd(direction, direction, noise);
             GSvecAdd(current, previous, direction);
             GSvecCopy(direction, current + 0xC);
-            *(u32*)(entry + 0x978) += 1;
+            ((LightningBolt*)entry)->segments += 1;
 
             if (*(f32*)(current + 0x4) < 0.0f) {
                 GSvecCopy(entry + 0x96C, previous);
@@ -902,8 +903,8 @@ asm void fn_80138B74(void* ptr) {
 #else
 u32 _leaffxDestroy(void* ptr) {
     if (ptr) {
-        fn_800F9210(*(u16*)((u8*)ptr + 0x40), *(u16*)((u8*)ptr + 0x44));
-        fn_800F9210(*(u16*)((u8*)ptr + 0x40), *(u16*)((u8*)ptr + 0x42));
+        fn_800F9210(((LeafWork*)ptr)->resGroup, ((LeafWork*)ptr)->modelRes);
+        fn_800F9210(((LeafWork*)ptr)->resGroup, ((LeafWork*)ptr)->res42);
     }
     return 1;
 }
@@ -936,18 +937,18 @@ u32 _leaffxStop(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        entryCount = *(u16*)(p + 0x38);
+        entryCount = ((LeafWork*)p)->count;
         entry = *(u8**)p;
-        handle = *(u16*)(p + 0x4);
+        handle = ((LeafWork*)p)->entriesHandle;
         for (i = 0; i < entryCount; i++, entry += 0x5C) {
-            if (*(void**)(entry + 0x58) != NULL) {
-                GSmodelSetVisibility(*(void**)(entry + 0x58), 0);
-                GSmodelFree(*(void**)(entry + 0x58));
-                *(void**)(entry + 0x58) = NULL;
+            if (((LeafEntry*)entry)->model != NULL) {
+                GSmodelSetVisibility(((LeafEntry*)entry)->model, 0);
+                GSmodelFree(((LeafEntry*)entry)->model);
+                ((LeafEntry*)entry)->model = NULL;
             }
         }
 
-        model = *(void**)(p + 0x8);
+        model = ((LeafWork*)p)->model;
         modelCount = GSmodelWalkJObjs(model);
         for (k = 0; k < modelCount; k++) {
             part = GSmodelGetPart(model, k);
@@ -992,34 +993,34 @@ u32 leaffxStartEffect(void* ptr) {
     }
 
     p = ptr;
-    count = *(u16*)(p + 0x38);
+    count = ((LeafWork*)p)->count;
     if (count > 0x20) {
         count = 0x20;
-        *(u16*)(p + 0x38) = count;
+        ((LeafWork*)p)->count = count;
     }
 
-    *(void**)(p + 0x8) = GSresGetResource(*(u16*)(p + 0x40), *(u16*)(p + 0x44));
-    if (*(void**)(p + 0x8) == NULL) {
+    ((LeafWork*)p)->model = GSresGetResource(((LeafWork*)p)->resGroup, ((LeafWork*)p)->modelRes);
+    if (((LeafWork*)p)->model == NULL) {
         goto resource_error;
     }
 
     size = count * 0x5C;
     handle = _toolentryAlloc__FUl(size);
-    *(u16*)(p + 0x4) = handle;
+    ((LeafWork*)p)->entriesHandle = handle;
     if (handle == 0) {
         goto allocation_error;
     }
 
     entry = *(u8**)p = GSmemLock(handle);
     memset(*(void**)p, 0, size);
-    *(u16*)(p + 0x3C) = 0;
+    ((LeafWork*)p)->frame = 0;
     for (i = 0; i < count; i++, entry += 0x5C) {
         _leaffxGenerateLeafData(p, entry);
     }
     return 1;
 
 resource_error:
-    GSlogWrite((const char*)lbl_80272C30, *(u16*)(p + 0x40), *(u16*)(p + 0x44));
+    GSlogWrite((const char*)lbl_80272C30, ((LeafWork*)p)->resGroup, ((LeafWork*)p)->modelRes);
     return 0;
 
 allocation_error:
@@ -1070,19 +1071,19 @@ u32 _leaffxUpdate(void* ptr, u32 delta) {
 
     if (ptr != NULL) {
         p = ptr;
-        fadeEnd = *(u16*)(p + 0x3E);
-        if (*(u16*)(p + 0x3C) < fadeEnd) {
-            deltaScale = *(f32*)(p + 0x2C) * (f32)delta;
-            next = *(u16*)(p + 0x3C) + delta;
-            fadeStart = *(u16*)(p + 0x3A);
-            entryCount = *(u16*)(p + 0x38);
+        fadeEnd = ((LeafWork*)p)->fadeEnd;
+        if (((LeafWork*)p)->frame < fadeEnd) {
+            deltaScale = ((LeafWork*)p)->speed * (f32)delta;
+            next = ((LeafWork*)p)->frame + delta;
+            fadeStart = ((LeafWork*)p)->fadeStart;
+            entryCount = ((LeafWork*)p)->count;
             entry = *(u8**)p;
-            *(u16*)(p + 0x3C) = next;
+            ((LeafWork*)p)->frame = next;
 
             if (next < fadeStart) {
                 deltaScale *= 2.0f - ((f32)next / (f32)fadeStart);
             } else {
-                model = GSresGetResource(*(u16*)(p + 0x40), *(u16*)(p + 0x44));
+                model = GSresGetResource(((LeafWork*)p)->resGroup, ((LeafWork*)p)->modelRes);
                 alpha = 1.0f - ((f32)(next - fadeStart) / (f32)(fadeEnd - fadeStart));
                 modelCount = GSmodelWalkJObjs(model);
                 for (i = 0; i < modelCount; i++) {
@@ -1102,21 +1103,21 @@ u32 _leaffxUpdate(void* ptr, u32 delta) {
             }
 
             for (k = 0; k < entryCount; k++, entry += 0x5C) {
-                if (*(void**)(entry + 0x58) != NULL) {
-                    *(f32*)(entry + 0x54) += deltaScale;
-                    if (*(f32*)(entry + 0x54) >= 1.0f) {
+                if (((LeafEntry*)entry)->model != NULL) {
+                    ((LeafEntry*)entry)->t += deltaScale;
+                    if (((LeafEntry*)entry)->t >= 1.0f) {
                         _leaffxMoveLeaf(p, entry);
                     }
 
-                    GSbezierCalculateVector(position, entry, *(f32*)(entry + 0x54));
+                    GSbezierCalculateVector(position, entry, ((LeafEntry*)entry)->t);
                     if (position[1] < 0.0f) {
-                        GSmodelSetVisibility(*(void**)(entry + 0x58), 0);
-                        GSmodelFree(*(void**)(entry + 0x58));
-                        *(void**)(entry + 0x58) = NULL;
+                        GSmodelSetVisibility(((LeafEntry*)entry)->model, 0);
+                        GSmodelFree(((LeafEntry*)entry)->model);
+                        ((LeafEntry*)entry)->model = NULL;
                     } else {
-                        leafModel = *(void**)(entry + 0x58);
-                        scale = *(f32*)(entry + 0x50);
-                        GSquatSlerp(rotation, entry + 0x30, entry + 0x40, *(f32*)(entry + 0x54));
+                        leafModel = ((LeafEntry*)entry)->model;
+                        scale = ((LeafEntry*)entry)->scale;
+                        GSquatSlerp(rotation, entry + 0x30, entry + 0x40, ((LeafEntry*)entry)->t);
                         GSmtxFromQuat(matrix, rotation);
                         fn_800E02C4(matrix, scale, scale, scale);
                         fn_800E03B4(matrix, position);
@@ -1182,12 +1183,12 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     f32 cosYaw2;
     f32 distance0;
 
-    farBase = *(f32*)(config + 0x20);
-    nearBase = *(f32*)(config + 0x18);
-    farRange = *(f32*)(config + 0x24);
-    nearRange = *(f32*)(config + 0x1C);
+    farBase = ((LeafWork*)config)->radiusBase;
+    nearBase = ((LeafWork*)config)->heightBase;
+    farRange = ((LeafWork*)config)->radiusRange;
+    nearRange = ((LeafWork*)config)->heightRange;
 
-    *(f32*)(leaf + 0x54) -= 1.0f;
+    ((LeafEntry*)leaf)->t -= 1.0f;
     fn_800E076C(leaf + 0x30, leaf + 0x40);
 
     yaw0 = *(f32*)&lbl_8047D180 * GSrandf();
@@ -1206,7 +1207,7 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     GSvecSub(vec, vec, leaf + 0xC);
     GSvecNormalize(vec, vec);
     distance0 = farRange * fn_800E0BA0() + farBase;
-    distance0 *= *(f32*)(leaf + 0x50);
+    distance0 *= ((LeafEntry*)leaf)->scale;
     vecScale(vec, vec, -distance0);
     GSvecAdd(vec, vec, leaf);
 
@@ -1215,13 +1216,13 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     pitch1 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch1 = sin(pitch1);
     distance1 = nearRange * fn_800E0BA0() + nearBase;
-    distance1 *= *(f32*)(leaf + 0x50);
+    distance1 *= ((LeafEntry*)leaf)->scale;
     sinYaw1 = sin(yaw1);
     cosPitch1 = cos(pitch1);
     cosYaw1 = cos(yaw1);
     set__5GSvecFfff(vec, sinPitch1 * cosYaw1, cosPitch1, sinPitch1 * sinYaw1);
     vecScale(vec, vec, distance1);
-    vec[1] += *(f32*)(config + 0x28);
+    vec[1] += ((LeafWork*)config)->lift;
     GSvecAdd(vec, vec, leaf);
 
     vec = (f32*)(leaf + 0x24);
@@ -1229,7 +1230,7 @@ void _leaffxMoveLeaf(void* entry, u8* leaf) {
     pitch2 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch2 = sin(pitch2);
     distance2 = farRange * fn_800E0BA0() + farBase;
-    distance2 *= *(f32*)(leaf + 0x50);
+    distance2 *= ((LeafEntry*)leaf)->scale;
     sinYaw2 = sin(yaw2);
     cosPitch2 = cos(pitch2);
     cosYaw2 = cos(yaw2);
@@ -1306,25 +1307,25 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
 
     p = ptr;
     e = entry;
-    radiusBase = *(f32*)(p + 0x20);
-    heightBase = *(f32*)(p + 0x18);
-    radiusRange = *(f32*)(p + 0x24);
-    heightRange = *(f32*)(p + 0x1C);
-    source = GSresGetResource(*(u16*)(p + 0x46), *(u16*)(p + 0x48));
+    radiusBase = ((LeafWork*)p)->radiusBase;
+    heightBase = ((LeafWork*)p)->heightBase;
+    radiusRange = ((LeafWork*)p)->radiusRange;
+    heightRange = ((LeafWork*)p)->heightRange;
+    source = GSresGetResource(((LeafWork*)p)->sourceGroup, ((LeafWork*)p)->sourceRes);
     part = NULL;
     if (source == NULL) {
         return 0;
     }
 
-    *(void**)(e + 0x58) = GSmodelClone(*(void**)(p + 0x08));
-    if (*(void**)(e + 0x58) == NULL) {
+    ((LeafEntry*)e)->model = GSmodelClone(((LeafWork*)p)->model);
+    if (((LeafEntry*)e)->model == NULL) {
         GSlogWrite((const char*)lbl_80272CC4);
         return 0;
     }
 
-    GSmodelSetVisibility(*(void**)(e + 0x58), 1);
-    if (*(s16*)(p + 0x4A) >= 0) {
-        part = GSmodelGetPart(source, *(s16*)(p + 0x4A));
+    GSmodelSetVisibility(((LeafEntry*)e)->model, 1);
+    if (((LeafWork*)p)->sourcePart >= 0) {
+        part = GSmodelGetPart(source, ((LeafWork*)p)->sourcePart);
     }
 
     if (part != NULL) {
@@ -1334,9 +1335,9 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
         GSmodelGetPosition(source, position);
     }
 
-    *(f32*)(e + 0x50) = *(f32*)(p + 0x14) * fn_800E0BA0() + *(f32*)(p + 0x10);
-    *(f32*)(e + 0x50) *= *(f32*)(p + 0x0C);
-    *(f32*)(e + 0x54) = lbl_8047D168;
+    ((LeafEntry*)e)->scale = ((LeafWork*)p)->sizeRange * fn_800E0BA0() + ((LeafWork*)p)->sizeBase;
+    ((LeafEntry*)e)->scale *= ((LeafWork*)p)->sizeScale;
+    ((LeafEntry*)e)->t = lbl_8047D168;
 
     yaw0 = *(f32*)&lbl_8047D180 * GSrandf();
     pitch0 = *(f32*)&lbl_8047D184 * GSrandf();
@@ -1363,7 +1364,7 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
 
     vec = (f32*)(e + 0x18);
     radius2 = radiusRange * fn_800E0BA0() + radiusBase;
-    radius2 *= *(f32*)(e + 0x50);
+    radius2 *= ((LeafEntry*)e)->scale;
     yaw2 = *(f32*)&lbl_8047D180 * GSrandf();
     pitch2 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch2 = sin(pitch2);
@@ -1379,8 +1380,8 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
     pitch3 = *(f32*)&lbl_8047D188 * GSrandf();
     sinPitch3 = sin(pitch3);
     radius3 = heightRange * fn_800E0BA0() + heightBase;
-    radius3 *= *(f32*)(p + 0x34) * fn_800E0BA0() + *(f32*)(p + 0x30);
-    radius3 *= *(f32*)(e + 0x50);
+    radius3 *= ((LeafWork*)p)->spreadRange * fn_800E0BA0() + ((LeafWork*)p)->spreadBase;
+    radius3 *= ((LeafEntry*)e)->scale;
     sinYaw3 = sin(yaw3);
     cosPitch3 = cos(pitch3);
     cosYaw3 = cos(yaw3);
@@ -1393,7 +1394,7 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
     pitch4 = *(f32*)&lbl_8047D184 * GSrandf();
     sinPitch4 = sin(pitch4);
     radius4 = radiusRange * fn_800E0BA0() + radiusBase;
-    radius4 *= *(f32*)(e + 0x50);
+    radius4 *= ((LeafEntry*)e)->scale;
     sinYaw4 = sin(yaw4);
     cosPitch4 = cos(pitch4);
     cosYaw4 = cos(yaw4);
@@ -1402,9 +1403,9 @@ u8 _leaffxGenerateLeafData(void* ptr, void* entry) {
     GSvecAdd(vec, vec, e + 0x0C);
 
     GSmtxFromQuat(matrix, (u8*)e + 0x30);
-    fn_800E02C4(matrix, *(f32*)(e + 0x50), *(f32*)(e + 0x50), *(f32*)(e + 0x50));
+    fn_800E02C4(matrix, ((LeafEntry*)e)->scale, ((LeafEntry*)e)->scale, ((LeafEntry*)e)->scale);
     fn_800E03B4(matrix, position);
-    GSmodelSetMatrix(*(void**)(e + 0x58), matrix);
+    GSmodelSetMatrix(((LeafEntry*)e)->model, matrix);
     return 1;
 }
 #endif
@@ -1442,8 +1443,8 @@ u32 _boltDestroy(void* ptr) {
     if (ptr) {
         GXDrawDone();
         GXInvalidateVtxCache();
-        if (*(void**)((u8*)ptr + 0x58) != NULL) {
-            GStextureFree(*(void**)((u8*)ptr + 0x58));
+        if (((BoltWork*)ptr)->texture != NULL) {
+            GStextureFree(((BoltWork*)ptr)->texture);
         }
     }
     return 1;
@@ -1457,7 +1458,7 @@ asm void fn_801398E0(void* ptr) {
 u32 _boltStop(void* ptr) {
     u32 val;
     if (ptr) {
-        val = *(u16*)((u8*)ptr + 0x4);
+        val = ((BoltWork*)ptr)->entriesHandle;
         if (val) {
             GXDrawDone();
             GXInvalidateVtxCache();
@@ -1485,16 +1486,16 @@ u32 _boltRender(void* ptr) {
     if (ptr != NULL) {
         p = ptr;
         camera = GScameraGetActiveCamera();
-        count = *(u16*)(p + 0x44);
+        count = ((BoltWork*)p)->count;
         entry = *(void**)p;
-        model = GSresGetResource(*(u16*)(p + 0x4c), *(u16*)(p + 0x4e));
-        if (*(void**)(p + 0x58) == NULL) {
+        model = GSresGetResource(((BoltWork*)p)->resGroup, ((BoltWork*)p)->resId);
+        if (((BoltWork*)p)->texture == NULL) {
             return 0;
         }
         _cameraLoadCameraMatrix__FP9_GScamera12GSgfxLayerID();
         if (model != NULL) {
             GSmodelGetPosition(model, pos);
-            if (*(s32*)(p + 0x50) > 0) {
+            if (((BoltWork*)p)->part > 0) {
                 part = GSmodelGetPart(model, *(u32*)(p + 0x50));
                 if (part != NULL) {
                     if ((u8)fn_800EE7E0(part) != 0) {
@@ -1513,12 +1514,12 @@ u32 _boltRender(void* ptr) {
         gfxSetCullMode(0);
         gfxSetFlags(3);
         gfxClearFlags(4);
-        gfxSetVtxDesc(*(void**)(p + 0x54));
-        gfxLoadTexture(0, *(void**)(p + 0x58));
+        gfxSetVtxDesc(((BoltWork*)p)->vtxDesc);
+        gfxLoadTexture(0, ((BoltWork*)p)->texture);
         gfxSetPrimitive(6);
         i = 0;
         while (i < count) {
-            if (*(u16*)(entry + 0x12e0) != 0) {
+            if (((BoltEntry*)entry)->visible != 0) {
                 _boltDrawStrip(entry, p, cameraPos, pos);
             }
             i++;
@@ -1548,18 +1549,18 @@ BOOL _boltUpdate(void* ptr, u32 tick) {
 
     if (ptr != NULL) {
         p = ptr;
-    frame = *(u16*)(p + 0x48);
-    if (*(void**)(p + 0x58) == NULL) {
+    frame = ((BoltWork*)p)->frame;
+    if (((BoltWork*)p)->texture == NULL) {
         return 0;
     }
 
-    endFrame = *(u16*)(p + 0x4A);
+    endFrame = ((BoltWork*)p)->endFrame;
     if (frame < endFrame) {
-    count = *(u16*)(p + 0x44);
+    count = ((BoltWork*)p)->count;
     entry = *(u8**)p;
     for (i = 0; i < count; i++, entry += 0x12E4) {
-        if (frame >= *(u16*)(entry + 0x12DC) &&
-            frame < *(u16*)(entry + 0x12DE)) {
+        if (frame >= ((BoltEntry*)entry)->startFrame &&
+            frame < ((BoltEntry*)entry)->endFrame) {
                 f32 random_offset[3];
                 f32 offset[3];
                 f32 fade;
@@ -1568,7 +1569,7 @@ BOOL _boltUpdate(void* ptr, u32 tick) {
                 u8* point;
 
                 GSvecCopy(offset, p + 8);
-                segment_count = *(u16*)(entry + 0x12E2);
+                segment_count = ((BoltEntry*)entry)->pointCount;
                 point = entry;
                 for (segment = 0; segment < segment_count; segment++, point += 0x18) {
                     set__5GSvecFfff(random_offset,
@@ -1578,25 +1579,25 @@ BOOL _boltUpdate(void* ptr, u32 tick) {
                     GSvecAdd(point, point, random_offset);
                 }
 
-                if (*(u16*)(p + 0x48) >
-                    ((*(u16*)(entry + 0x12DE) +
-                      *(u16*)(entry + 0x12DC)) >> 1)) {
-                    fade = (f32)(*(u16*)(entry + 0x12DE) -
-                                 *(u16*)(p + 0x48)) /
-                           (f32)((*(u16*)(entry + 0x12DE) -
-                                  *(u16*)(entry + 0x12DC)) >> 1);
-                    *(u8*)(entry + 0x12D8) = (u8)(p[0x5C] * fade);
-                    *(u8*)(entry + 0x12D9) = (u8)(p[0x5D] * fade);
-                    *(u8*)(entry + 0x12DA) = (u8)(p[0x5E] * fade);
-                    *(u8*)(entry + 0x12DB) = (u8)(p[0x5F] * fade);
+                if (((BoltWork*)p)->frame >
+                    ((((BoltEntry*)entry)->endFrame +
+                      ((BoltEntry*)entry)->startFrame) >> 1)) {
+                    fade = (f32)(((BoltEntry*)entry)->endFrame -
+                                 ((BoltWork*)p)->frame) /
+                           (f32)((((BoltEntry*)entry)->endFrame -
+                                  ((BoltEntry*)entry)->startFrame) >> 1);
+                    ((BoltEntry*)entry)->color[0] = (u8)(p[0x5C] * fade);
+                    ((BoltEntry*)entry)->color[1] = (u8)(p[0x5D] * fade);
+                    ((BoltEntry*)entry)->color[2] = (u8)(p[0x5E] * fade);
+                    ((BoltEntry*)entry)->color[3] = (u8)(p[0x5F] * fade);
                 }
-                *(u16*)(entry + 0x12E0) = 1;
+                ((BoltEntry*)entry)->visible = 1;
         } else {
-            *(u16*)(entry + 0x12E0) = 0;
+            ((BoltEntry*)entry)->visible = 0;
         }
     }
 
-    *(u16*)(p + 0x48) = *(u16*)(p + 0x48) + tick;
+    ((BoltWork*)p)->frame = ((BoltWork*)p)->frame + tick;
         return 1;
     }
     }
@@ -1622,17 +1623,17 @@ u32 boltStartEffect(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        count = *(u16*)(p + 0x44);
-        if (*(void**)(p + 0x58) == NULL) {
+        count = ((BoltWork*)p)->count;
+        if (((BoltWork*)p)->texture == NULL) {
             return 0;
         }
 
         if (count > 1) {
-            span = *(u16*)(p + 0x4A) / (count - 1);
-            step = (*(u16*)(p + 0x4A) - span) / count;
+            span = ((BoltWork*)p)->endFrame / (count - 1);
+            step = (((BoltWork*)p)->endFrame - span) / count;
         } else {
             step = 0;
-            span = *(u16*)(p + 0x4A);
+            span = ((BoltWork*)p)->endFrame;
         }
 
         size = count * 0x12E4;
@@ -1642,21 +1643,21 @@ u32 boltStartEffect(void* ptr) {
             return 0;
         }
 
-        *(u16*)(p + 0x4) = handle;
+        ((BoltWork*)p)->entriesHandle = handle;
         entry = *(u8**)p = GSmemLock(handle);
         memset(entry, 0, size);
         for (i = 0; i < count; i++, entry += 0x12E4) {
-            *(u16*)(entry + 0x12E2) = 0;
-            set__5GSvecFfff(entry + 0x12C0, 0.0f, *(f32*)(p + 0x38), 0.0f);
-            _boltSubdivide(entry, p, (struct ElectronPoint*)(entry + 0x12C0), 0, *(f32*)(p + 0x3C));
+            ((BoltEntry*)entry)->pointCount = 0;
+            set__5GSvecFfff(entry + 0x12C0, 0.0f, ((BoltWork*)p)->height, 0.0f);
+            _boltSubdivide(entry, p, (struct ElectronPoint*)(entry + 0x12C0), 0, ((BoltWork*)p)->field_3C);
             entry[0x12D8] = p[0x5C];
             entry[0x12D9] = p[0x5D];
             entry[0x12DA] = p[0x5E];
             entry[0x12DB] = p[0x5F];
-            *(u16*)(entry + 0x12DC) = i * step;
-            *(u16*)(entry + 0x12DE) = *(u16*)(entry + 0x12DC) + span;
+            ((BoltEntry*)entry)->startFrame = i * step;
+            ((BoltEntry*)entry)->endFrame = ((BoltEntry*)entry)->startFrame + span;
         }
-        *(u16*)(p + 0x48) = 0;
+        ((BoltWork*)p)->frame = 0;
         return 1;
     }
 
@@ -1715,13 +1716,13 @@ void _boltDrawStrip(u8* e, u8* p, void* cameraPos, void* modelPos) {
                 start);
     GSvecSub(interpolated, modelPos, interpolated);
     if (current < halfSpan) {
-        threshold = *(f32*)(p + 0x38);
+        threshold = ((BoltWork*)p)->height;
         threshold *= 1.0f - (f32)current / (f32)halfSpan;
     } else {
         threshold = 0.0f;
     }
 
-    count = *(u16*)(e + 0x12E2);
+    count = ((BoltEntry*)e)->pointCount;
     visible = 0;
     pointEntry = e;
     for (i = 0; i < count; i++, pointEntry += 0x18) {
@@ -1736,7 +1737,7 @@ void _boltDrawStrip(u8* e, u8* p, void* cameraPos, void* modelPos) {
     gfxPushMultMatrix(matrix);
     gfxBegin((visible * 4) & 0xFFFC);
 
-    count = *(u16*)(e + 0x12E2);
+    count = ((BoltEntry*)e)->pointCount;
     pointEntry = e;
     for (i = 0; i < count; i++, pointEntry += 0x18) {
         if (*(f32*)(*(u8**)(pointEntry + 0xC) + 4) > threshold) {
@@ -1815,7 +1816,7 @@ void _boltSubdivide(u8* entry, u8* parent, ElectronPoint* origin, u32 depth, f32
 
     previous = origin;
     GSvecCopy(spread, parent + 0x14);
-    startCount = *(u16*)(entry + 0x12E2);
+    startCount = ((BoltEntry*)entry)->pointCount;
     if (depth != 0) {
         stopHeight = 0.25f * origin->y;
     } else {
@@ -1832,12 +1833,12 @@ void _boltSubdivide(u8* entry, u8* parent, ElectronPoint* origin, u32 depth, f32
 
         set__5GSvecFfff(
             current,
-            spread[0] * fn_800E0BA0() + *(f32*)(parent + 0x2C),
-            spread[1] * fn_800E0BA0() + *(f32*)(parent + 0x30),
-            spread[2] * fn_800E0BA0() + *(f32*)(parent + 0x34));
+            spread[0] * fn_800E0BA0() + ((BoltWork*)parent)->spread[0],
+            spread[1] * fn_800E0BA0() + ((BoltWork*)parent)->spread[1],
+            spread[2] * fn_800E0BA0() + ((BoltWork*)parent)->spread[2]);
         GSvecAdd(current, current, point);
 
-        (*(u16*)(entry + 0x12E2))++;
+        (((BoltEntry*)entry)->pointCount)++;
         if (current->y < stopHeight || spawnChance < GSrandf()) {
             if (depth == 0) {
                 GSvecCopy(entry + 0x12CC, current);
@@ -1846,14 +1847,14 @@ void _boltSubdivide(u8* entry, u8* parent, ElectronPoint* origin, u32 depth, f32
         }
     }
 
-    if (depth >= *(u16*)(parent + 0x46)) {
+    if (depth >= ((BoltWork*)parent)->depth) {
         return;
     }
 
-    branchChance = *(f32*)(parent + 0x40) *
-                  (f32)(*(u16*)(parent + 0x46) - depth) /
-                  (f32)*(u16*)(parent + 0x46);
-    count = *(u16*)(entry + 0x12E2);
+    branchChance = ((BoltWork*)parent)->branchChance *
+                  (f32)(((BoltWork*)parent)->depth - depth) /
+                  (f32)((BoltWork*)parent)->depth;
+    count = ((BoltEntry*)entry)->pointCount;
     if (depth != 0) {
         branchDecay = weight / (f32)(count - startCount);
     } else {
@@ -1906,12 +1907,12 @@ asm u32 fn_8013A49C(void* ptr) {
 u32 electronStartEffect(void* ptr) {
     void* res;
     if (ptr) {
-        res = GSresGetResource(*(u16*)((u8*)ptr + 0xc), *(u16*)((u8*)ptr + 0xe));
+        res = GSresGetResource(((ElectronWork*)ptr)->resGroup, ((ElectronWork*)ptr)->resId);
         if (res == NULL) {
-            GSlogWrite((const char*)lbl_80272D90, *(u16*)((u8*)ptr + 0xc), *(u16*)((u8*)ptr + 0xe));
+            GSlogWrite((const char*)lbl_80272D90, ((ElectronWork*)ptr)->resGroup, ((ElectronWork*)ptr)->resId);
             return 0;
         }
-        *(u16*)((u8*)ptr + 0x8) = 0;
+        ((ElectronWork*)ptr)->frame = 0;
         return 1;
     }
     GSlogWrite((const char*)lbl_80272DF4);
@@ -1994,8 +1995,8 @@ u32 _electronRender(void* ptr) {
     f32 cosPitchB3;
 
     if (ptr != NULL) {
-    chance = *(f32*)(p + 0x20);
-    resource = GSresGetResource(*(u16*)(p + 0xC), *(u16*)(p + 0xE));
+    chance = ((ElectronWork*)p)->chance;
+    resource = GSresGetResource(((ElectronWork*)p)->resGroup, ((ElectronWork*)p)->resId);
     if (resource == NULL) {
         return 0;
     }
@@ -2011,7 +2012,7 @@ u32 _electronRender(void* ptr) {
     gfxSetUpdates(1, 1, 0);
     gfxSetZMode(1, 1, 1);
     gfxSetCullMode(0);
-    scale = (64.0f * *(f32*)(p + 0x10)) /
+    scale = (64.0f * ((ElectronWork*)p)->scale) /
             (distance * perspective);
     if (scale > 1.0f) {
         scale = 1.0f;
@@ -2019,7 +2020,7 @@ u32 _electronRender(void* ptr) {
     GXSetLineWidth((s32)(255.0f * scale), 5);
     gfxSetFlags(1);
     gfxClearFlags(6);
-    gfxSetVtxDesc(*(void**)(p + 4));
+    gfxSetVtxDesc(((ElectronWork*)p)->vtxDesc);
     gfxSetPrimitive(2);
 
     for (firstIndex = 1; firstIndex < count; firstIndex++) {
@@ -2072,9 +2073,9 @@ u32 _electronRender(void* ptr) {
                             }
                             GSvecAdd(ctrl[3], secondPos, offset);
 
-                            segments = *(f32*)(p + 0x10) *
-                                       (*(f32*)(p + 0x1C) * fn_800E0BA0() +
-                                        *(f32*)(p + 0x18));
+                            segments = ((ElectronWork*)p)->scale *
+                                       (((ElectronWork*)p)->segmentRange * fn_800E0BA0() +
+                                        ((ElectronWork*)p)->segmentBase);
                             step = 1.0f / (f32)segments;
                             gfxBegin((u16)(segments + 1));
                             gfxVtxPos(ctrl[0][0], ctrl[0][1], ctrl[0][2]);
@@ -2086,7 +2087,7 @@ u32 _electronRender(void* ptr) {
                                     yawB3 = 6.2831855f * GSrandf();
                                     pitchB3 = 3.1415927f * GSrandf();
                                     sinPitchB3 = sin(pitchB3);
-                                    lengthB3 = *(f32*)(p + 0x14) * *(f32*)(p + 0x10) *
+                                    lengthB3 = ((ElectronWork*)p)->field_14 * ((ElectronWork*)p)->scale *
                                              fn_800E0BA0();
                                     sinYawB3 = sin(yawB3);
                                     cosPitchB3 = cos(pitchB3);
@@ -2129,10 +2130,10 @@ u32 _electronUpdate(void* ptr, u16 delta) {
     u16 cur;
     u16 max;
     if (ptr) {
-        cur = *(u16*)((u8*)ptr + 0x8);
-        max = *(u16*)((u8*)ptr + 0xa);
+        cur = ((ElectronWork*)ptr)->frame;
+        max = ((ElectronWork*)ptr)->duration;
         if (cur < max) {
-            *(u16*)((u8*)ptr + 0x8) = cur + delta;
+            ((ElectronWork*)ptr)->frame = cur + delta;
             return 1;
         }
     }
@@ -2168,9 +2169,9 @@ asm u32 fn_8013AB34(void* ptr) {
 u32 filterIsHolding(void* ptr) {
     void* inner;
     u32 val;
-    inner = *(void**)((u8*)ptr + 0x54);
+    inner = ((FilterWork*)ptr)->current;
     if (inner) {
-        val = *(u32*)((u8*)inner + 0x8);
+        val = ((FilterKey*)inner)->frames;
         if (val == 0xFFFFFFFF) {
             return 1;
         }
@@ -2201,7 +2202,7 @@ u32 filterAddKey(void* ptr, u8* src, u8* dst, u32 alpha) {
     handle = _toolentryAlloc__FUl(0x14);
     if (handle != 0) {
         node = GSmemLock(handle);
-        *(u16*)(node + 0xC) = handle;
+        ((FilterKey*)node)->handle = handle;
         if (alpha == 0xFFFFFFFF) {
             start = src[0];
             end = dst[0];
@@ -2229,17 +2230,17 @@ u32 filterAddKey(void* ptr, u8* src, u8* dst, u32 alpha) {
             node[6] = dst[2];
             node[7] = dst[3];
         }
-        *(u32*)(node + 0x8) = alpha;
-        tail = *(u8**)(p + 0x50);
+        ((FilterKey*)node)->frames = alpha;
+        tail = ((FilterWork*)p)->keys;
         if (tail != NULL) {
-            while (*(void**)(tail + 0x10) != NULL) {
-                tail = *(u8**)(tail + 0x10);
+            while (((FilterKey*)tail)->next != NULL) {
+                tail = ((FilterKey*)tail)->next;
             }
-            *(void**)(tail + 0x10) = node;
+            ((FilterKey*)tail)->next = node;
         } else {
-            *(void**)(p + 0x50) = node;
+            ((FilterWork*)p)->keys = node;
         }
-        *(void**)(node + 0x10) = NULL;
+        ((FilterKey*)node)->next = NULL;
     }
     return 0;
 }
@@ -2256,10 +2257,10 @@ asm u32 fn_8013AD68(void* ptr) {
 u32 _filterNextKey(void* ptr) {
     void* ptr2;
     if (ptr) {
-        ptr2 = *(void**)((u8*)ptr + 0x54);
+        ptr2 = ((FilterWork*)ptr)->current;
         if (ptr2) {
-            *(void**)((u8*)ptr + 0x54) = *(void**)((u8*)ptr2 + 0x10);
-            *(u32*)((u8*)ptr + 0x58) = 0;
+            ((FilterWork*)ptr)->current = ((FilterKey*)ptr2)->next;
+            ((FilterWork*)ptr)->elapsed = 0;
             return 1;
         }
     }
@@ -2289,21 +2290,21 @@ u32 _filterUpdate(void* ptr, u32 delta) {
     }
 
     p = ptr;
-    node = *(u8**)(p + 0x54);
+    node = ((FilterWork*)p)->current;
     if (node == NULL) {
         goto done;
     }
 
-    if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-        *(u32*)(p + 0x58) = 0;
+    if (((FilterKey*)node)->frames == 0xFFFFFFFF) {
+        ((FilterWork*)p)->elapsed = 0;
     }
-    while (*(u32*)(p + 0x58) >= *(u32*)(node + 0x8)) {
-        *(u32*)(p + 0x58) -= *(u32*)(node + 0x8);
+    while (((FilterWork*)p)->elapsed >= ((FilterKey*)node)->frames) {
+        ((FilterWork*)p)->elapsed -= ((FilterKey*)node)->frames;
         previous = node;
-        node = *(u8**)(node + 0x10);
-        *(void**)(p + 0x54) = node;
+        node = ((FilterKey*)node)->next;
+        ((FilterWork*)p)->current = node;
         if (node == NULL) {
-            if (*(u8*)(p + 0x4C) != 0) {
+            if (((FilterWork*)p)->perMaterial != 0) {
                 _filterApplyColor(p, previous + 4);
             } else {
                 filter = *(void**)p;
@@ -2313,13 +2314,13 @@ u32 _filterUpdate(void* ptr, u32 delta) {
             }
             return 0;
         }
-        if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-            *(u32*)(p + 0x58) = 0;
+        if (((FilterKey*)node)->frames == 0xFFFFFFFF) {
+            ((FilterWork*)p)->elapsed = 0;
             break;
         }
     }
 
-    ratio = (f32)*(u32*)(p + 0x58) / (f32)*(u32*)(node + 0x8);
+    ratio = (f32)((FilterWork*)p)->elapsed / (f32)((FilterKey*)node)->frames;
     if (ratio < 0.0f) {
         ratio = 0.0f;
     }
@@ -2340,7 +2341,7 @@ u32 _filterUpdate(void* ptr, u32 delta) {
     end = node[7];
     color[3] = start + ratio * (end - start);
 
-    if (*(u8*)(p + 0x4C) != 0) {
+    if (((FilterWork*)p)->perMaterial != 0) {
         _filterApplyColor(p, color);
     } else {
         filter = *(void**)p;
@@ -2350,7 +2351,7 @@ u32 _filterUpdate(void* ptr, u32 delta) {
             return 0;
         }
     }
-    *(u32*)(p + 0x58) += delta;
+    ((FilterWork*)p)->elapsed += delta;
     return 1;
 
 done:
@@ -2370,10 +2371,10 @@ u32 _filterDestroy(void* ptr) {
     u32 val;
     u32 ret;
     if (ptr) {
-        ptr = *(void**)((u8*)ptr + 0x50);
+        ptr = ((FilterWork*)ptr)->keys;
         while (ptr != NULL) {
-            val = *(u16*)((u8*)ptr + 0xc);
-            next = *(void**)((u8*)ptr + 0x10);
+            val = ((FilterKey*)ptr)->handle;
+            next = ((FilterKey*)ptr)->next;
             fn_800E24B0(val);
             GSmemFree(val);
             ptr = next;
@@ -2403,11 +2404,11 @@ u32 _filterStop(void* ptr) {
         goto fail;
     }
 
-    if (*(u8*)((u8*)ptr + 0x4c) != 0) {
+    if (((FilterWork*)ptr)->perMaterial != 0) {
         p = (u8*)ptr + 4;
-        count = *(u32*)((u8*)ptr + 0x48) & 0xffff;
-        flag1 = *(u8*)((u8*)ptr + 0x4e);
-        flag2 = *(u8*)((u8*)ptr + 0x4f);
+        count = ((FilterWork*)ptr)->materialCount & 0xffff;
+        flag1 = ((FilterWork*)ptr)->resetPE;
+        flag2 = ((FilterWork*)ptr)->keepModulation;
         GXDrawDone();
         GXInvalidateVtxCache();
         for (i = 0; i < count; i++, p += 4) {
@@ -2454,23 +2455,23 @@ u16 filterStart(void* arg) {
         goto report_null;
     }
 
-    arg = *(void**)((u8*)ptr + 0x50);
+    arg = ((FilterWork*)ptr)->keys;
     if (arg == NULL) {
         return 0;
     }
 
-    if (*(u8*)((u8*)ptr + 0x4c) != 0) {
+    if (((FilterWork*)ptr)->perMaterial != 0) {
         p = (u8*)ptr + 4;
-        count = *(u32*)((u8*)ptr + 0x48) & 0xffff;
-        flag1 = *(u8*)((u8*)ptr + 0x4e);
-        flag2 = *(u8*)((u8*)ptr + 0x4f);
+        count = ((FilterWork*)ptr)->materialCount & 0xffff;
+        flag1 = ((FilterWork*)ptr)->resetPE;
+        flag2 = ((FilterWork*)ptr)->keepModulation;
         for (i = 0; i < count; i++, p += 4) {
             if (*(void**)p != NULL) {
                 if (flag1 != 0) {
                     GSmodelSetPEdescr(*(void**)p, lbl_80363CA8);
                 }
                 if (flag2 == 0) {
-                    GSmodelEnableModulation(*(void**)p, *(void**)((u8*)ptr + 0x50));
+                    GSmodelEnableModulation(*(void**)p, ((FilterWork*)ptr)->keys);
                 }
             }
         }
@@ -2482,8 +2483,8 @@ u16 filterStart(void* arg) {
         }
     }
 
-    *(void**)((u8*)ptr + 0x54) = *(void**)((u8*)ptr + 0x50);
-    *(u32*)((u8*)ptr + 0x58) = 0;
+    ((FilterWork*)ptr)->current = ((FilterWork*)ptr)->keys;
+    ((FilterWork*)ptr)->elapsed = 0;
     return 1;
 
 report_null:
@@ -2531,9 +2532,9 @@ void _filterApplyColor(void* ptr, u8* color) {
     u8 adjusted[4];
 
     p = ptr;
-    count = (u16)*(u32*)(p + 0x48);
+    count = (u16)((FilterWork*)p)->materialCount;
     textures = (void**)(p + 0x4);
-    useBaseColor = *(u8*)(p + 0x4F);
+    useBaseColor = ((FilterWork*)p)->keepModulation;
     if (useBaseColor != 0) {
         baseColor = p + 0x44;
     }
@@ -2585,8 +2586,8 @@ asm u32 fn_8013B504(void* ptr) {
 u32 _surfDestroy(void* ptr) {
     if (ptr) {
         if (*(s32*)((u8*)ptr + 0x58) != 0) {
-            fn_800F9210(*(u32*)((u8*)ptr + 0x50), *(u32*)((u8*)ptr + 0x54));
-            fn_800F9210(*(u32*)((u8*)ptr + 0x50), *(u32*)((u8*)ptr + 0x58));
+            fn_800F9210(((SurfWork*)ptr)->resGroup, ((SurfWork*)ptr)->modelRes);
+            fn_800F9210(((SurfWork*)ptr)->resGroup, ((SurfWork*)ptr)->res58);
         }
     }
     return 1;
@@ -2605,12 +2606,12 @@ u32 _surfStop(void* ptr) {
         }
         GXDrawDone();
         GXInvalidateVtxCache();
-        val = *(u16*)((u8*)ptr + 0x20);
+        val = ((SurfWork*)ptr)->meshHandle;
         if (val) {
             fn_800E24B0(val);
             GSmemFree(val);
         }
-        val = *(u16*)((u8*)ptr + 0xc0);
+        val = ((SurfWork*)ptr)->waveHandle;
         if (val) {
             fn_800E24B0(val);
             GSmemFree(val);
@@ -2657,32 +2658,32 @@ static inline u8 surfAllocMesh(u8* p, void* model) {
     u32 texcoordSize;
     u32 colorSize;
 
-    columns = *(u16*)(p + 0x4E);
-    rows = *(u16*)(p + 0x4C);
+    columns = ((SurfWork*)p)->columns;
+    rows = ((SurfWork*)p)->rows;
     *(void**)p = model;
-    *(u16*)(p + 0x1C) = rows + 1;
-    *(u16*)(p + 0x1E) = columns + 1;
-    pointCount = *(u16*)(p + 0x1C) * *(u16*)(p + 0x1E);
+    ((SurfWork*)p)->pointRows = rows + 1;
+    ((SurfWork*)p)->pointColumns = columns + 1;
+    pointCount = ((SurfWork*)p)->pointRows * ((SurfWork*)p)->pointColumns;
     vectorSize = (pointCount * 0xC + 0x1F) & ~0x1F;
     colorSize = (pointCount * 4 + 0x1F) & ~0x1F;
     texcoordSize = (pointCount * 8 + 0x1F) & ~0x1F;
-    *(u32*)(p + 0x18) = (columns * (*(u16*)(p + 0x1C) * 0x10 + 3) + 0x1F) & ~0x1F;
-    totalSize = vectorSize + vectorSize + colorSize + texcoordSize + *(u32*)(p + 0x18);
+    ((SurfWork*)p)->displayListSize = (columns * (((SurfWork*)p)->pointRows * 0x10 + 3) + 0x1F) & ~0x1F;
+    totalSize = vectorSize + vectorSize + colorSize + texcoordSize + ((SurfWork*)p)->displayListSize;
 
     handle = GSmemAlloc(totalSize, 0x20);
     if (handle != 0) {
         data = GSmemLock(handle);
-        *(u16*)(p + 0x20) = handle;
+        ((SurfWork*)p)->meshHandle = handle;
         memset(data, 0, totalSize);
-        *(u8**)(p + 0x14) = data;
-        cursor = data + *(u32*)(p + 0x18);
-        *(u8**)(p + 0x4) = cursor;
+        ((SurfWork*)p)->displayList = data;
+        cursor = data + ((SurfWork*)p)->displayListSize;
+        ((SurfWork*)p)->positions = cursor;
         cursor += vectorSize;
-        *(u8**)(p + 0x8) = cursor;
+        ((SurfWork*)p)->normals = cursor;
         cursor += vectorSize;
-        *(u8**)(p + 0x10) = cursor;
+        ((SurfWork*)p)->colors = cursor;
         cursor += colorSize;
-        *(u8**)(p + 0xC) = cursor;
+        ((SurfWork*)p)->texcoords = cursor;
         GSmemDumpMap(0, 0);
         return TRUE;
     }
@@ -2693,10 +2694,10 @@ static inline u8 surfAllocMesh(u8* p, void* model) {
 static inline u8 surfAllocColumn(u8* p) {
     u16 handle;
 
-    handle = _toolentryAlloc__FUl((*(u16*)(p + 0x4E) + 1) * 0xC);
+    handle = _toolentryAlloc__FUl((((SurfWork*)p)->columns + 1) * 0xC);
     if (handle != 0) {
-        *(u16*)(p + 0xC0) = handle;
-        *(void**)(p + 0xBC) = GSmemLock(handle);
+        ((SurfWork*)p)->waveHandle = handle;
+        ((SurfWork*)p)->wave = GSmemLock(handle);
         return TRUE;
     }
     return FALSE;
@@ -2712,13 +2713,13 @@ u16 surfEffectStart(void* ptr) {
     }
 
     p = ptr;
-    *(u16*)(p + 0xCC) = 0;
+    ((SurfWork*)p)->frame = 0;
     memset(p, 0, 0x24);
     if (*(s32*)(p + 0x54) == 0) {
         goto fail;
     }
 
-    model = GSresGetResource(*(u32*)(p + 0x50), *(u32*)(p + 0x54));
+    model = GSresGetResource(((SurfWork*)p)->resGroup, ((SurfWork*)p)->modelRes);
     if (model == NULL) {
         goto fail;
     }
@@ -2728,8 +2729,8 @@ u16 surfEffectStart(void* ptr) {
         goto fail;
     }
 
-    _surfBuildMesh(p, p + 0x24, p + 0x3C, *(f32*)(p + 0x40), *(f32*)(p + 0x44),
-                *(f32*)(p + 0x48));
+    _surfBuildMesh(p, p + 0x24, p + 0x3C, ((SurfWork*)p)->sizeX, ((SurfWork*)p)->sizeZ,
+                ((SurfWork*)p)->meshScale);
     if (!(u8)_surfSetupMaterial(model, p)) {
         goto cleanup;
     }
@@ -2749,12 +2750,12 @@ u16 surfEffectStart(void* ptr) {
     return 1;
 
 cleanup:
-    handle = *(u16*)(p + 0x20);
-    *(u16*)(p + 0x20) = 0;
+    handle = ((SurfWork*)p)->meshHandle;
+    ((SurfWork*)p)->meshHandle = 0;
     fn_800E24B0(handle);
     GSmemFree(handle);
-    handle = *(u16*)(p + 0xC0);
-    *(u16*)(p + 0xC0) = 0;
+    handle = ((SurfWork*)p)->waveHandle;
+    ((SurfWork*)p)->waveHandle = 0;
     if (handle != 0) {
         fn_800E24B0(handle);
         GSmemFree(handle);
@@ -2785,27 +2786,27 @@ u32 _surfUpdate(void* ptr, u32 delta) {
 
     if (ptr != NULL) {
         p = ptr;
-        t = (f32)*(u16*)(p + 0xCC) / (f32)*(u16*)(p + 0xCE);
+        t = (f32)((SurfWork*)p)->frame / (f32)((SurfWork*)p)->duration;
         GSmodelSetVisibility(*(void**)p, 1);
         _surfCalcWaveProfile(p, t);
 
-        count = *(u16*)(p + 0x1E);
+        count = ((SurfWork*)p)->pointColumns;
         if (count % 2 != 0) {
             half = count >> 1;
             firstCount = half + 1;
-            fn_800E09E8(*(void**)(p + 0xBC), p + 0x5C, firstCount);
-            fn_800E09E8(*(u8**)(p + 0xBC) + firstCount * 0xC, p + 0x8C, half);
+            fn_800E09E8(((SurfWork*)p)->wave, p + 0x5C, firstCount);
+            fn_800E09E8(((SurfWork*)p)->wave + firstCount * 0xC, p + 0x8C, half);
         } else {
             evenHalf = count >> 1;
-            fn_800E09E8(*(void**)(p + 0xBC), p + 0x5C, evenHalf);
-            fn_800E09E8(*(u8**)(p + 0xBC) + evenHalf * 0xC, p + 0x8C, evenHalf);
+            fn_800E09E8(((SurfWork*)p)->wave, p + 0x5C, evenHalf);
+            fn_800E09E8(((SurfWork*)p)->wave + evenHalf * 0xC, p + 0x8C, evenHalf);
         }
 
-        count = *(u16*)(p + 0x1C);
-        columns = *(u16*)(p + 0x1E);
-        points = *(u8**)(p + 0x4);
+        count = ((SurfWork*)p)->pointRows;
+        columns = ((SurfWork*)p)->pointColumns;
+        points = ((SurfWork*)p)->positions;
         for (row = 0; row < count; row++) {
-            source = *(u8**)(p + 0xBC);
+            source = ((SurfWork*)p)->wave;
             for (column = 0; column < columns; column++, source += 0xC, points += 0xC) {
                 *(f32*)(points + 0x4) = *(f32*)(source + 0x4);
                 *(f32*)(points + 0x8) = *(f32*)(source + 0x8);
@@ -2813,8 +2814,8 @@ u32 _surfUpdate(void* ptr, u32 delta) {
         }
 
         _surfCalcNormals(p);
-        *(u16*)(p + 0xCC) = *(u16*)(p + 0xCC) + delta;
-        return (*(u16*)(p + 0xCC) < *(u16*)(p + 0xCE));
+        ((SurfWork*)p)->frame = ((SurfWork*)p)->frame + delta;
+        return (((SurfWork*)p)->frame < ((SurfWork*)p)->duration);
     }
     return 0;
 }
@@ -2845,10 +2846,10 @@ void _surfCalcNormals(void* ptr) {
     f32 nextDelta[3];
 
     p = ptr;
-    points = *(u8**)(p + 0x4);
-    vectors = *(u8**)(p + 0x8);
-    width = *(u16*)(p + 0x1E);
-    depth = *(u16*)(p + 0x1C);
+    points = ((SurfWork*)p)->positions;
+    vectors = ((SurfWork*)p)->normals;
+    width = ((SurfWork*)p)->pointColumns;
+    depth = ((SurfWork*)p)->pointRows;
     point = points + 0xC;
 
     GSvecCopy(vectors, lbl_8031554C);
@@ -2893,7 +2894,7 @@ void _surfCalcWaveProfile(void* ptr, f32 t) {
     f32 halfWidth;
 
     p = ptr;
-    halfWidth = 0.5f * *(f32*)(p + 0x44);
+    halfWidth = 0.5f * ((SurfWork*)p)->sizeZ;
     clear__5GSvecFv(upperLeft);
     clear__5GSvecFv(upperRight);
     clear__5GSvecFv(lowerRight);
@@ -2901,29 +2902,29 @@ void _surfCalcWaveProfile(void* ptr, f32 t) {
     clear__5GSvecFv(lowerLeft);
     clear__5GSvecFv(lowerFar);
 
-    lowerLeft[2] = *(f32*)(p + 0xC4);
-    lowerFar[2] = *(f32*)(p + 0xC4);
+    lowerLeft[2] = ((SurfWork*)p)->waveDepth;
+    lowerFar[2] = ((SurfWork*)p)->waveDepth;
     upperLeft[2] = -halfWidth;
     lowerRight[2] = halfWidth;
-    upperRight[1] = *(f32*)(p + 0xC8);
+    upperRight[1] = ((SurfWork*)p)->waveHeight;
 
     if (t < 0.33333334f) {
         t *= 3.0f;
         lowerRight[2] = halfWidth * t;
         upperRight[2] = 0.5f * (upperLeft[2] + lowerRight[2]);
-        upperRight[1] = *(f32*)(p + 0xC8) * t;
+        upperRight[1] = ((SurfWork*)p)->waveHeight * t;
     } else if (t < 0.6666667f) {
         t -= 0.33333334f;
         t *= 3.0f;
         upperRight[2] = halfWidth * t;
-        lowerFar[2] = *(f32*)(p + 0xC4) * (1.0f - t);
+        lowerFar[2] = ((SurfWork*)p)->waveDepth * (1.0f - t);
         offset[2] = upperRight[2];
     } else {
         t -= 0.6666667f;
         t *= 3.0f;
         upperRight[2] = halfWidth;
-        upperRight[1] = *(f32*)(p + 0xC8) * (1.0f - t);
-        lowerFar[2] = *(f32*)(p + 0xC4) * -t;
+        upperRight[1] = ((SurfWork*)p)->waveHeight * (1.0f - t);
+        lowerFar[2] = ((SurfWork*)p)->waveDepth * -t;
         offset[2] = halfWidth * (1.0f + t);
     }
 
@@ -2953,13 +2954,13 @@ asm void fn_8013BE04(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
 void _surfBuildMesh(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
     u8* p = ptr;
     u16 row;
-    u16 rows = *(u16*)(p + 0x1C);
+    u16 rows = ((SurfWork*)p)->pointRows;
     u16 column;
-    u16 cols = *(u16*)(p + 0x1E);
-    u8* positions = *(u8**)(p + 4);
-    u8* normals = *(u8**)(p + 8);
-    u8* texcoords = *(u8**)(p + 0xC);
-    u8* colors = *(u8**)(p + 0x10);
+    u16 cols = ((SurfWork*)p)->pointColumns;
+    u8* positions = ((SurfWork*)p)->positions;
+    u8* normals = ((SurfWork*)p)->normals;
+    u8* texcoords = ((SurfWork*)p)->texcoords;
+    u8* colors = ((SurfWork*)p)->colors;
     f32 base[3];
     f32 current[3];
     f32 rowStep[3];
@@ -3242,8 +3243,8 @@ u32 _seaDestroy(void* ptr) {
         GXDrawDone();
         GXInvalidateVtxCache();
         if (*(s32*)((u8*)ptr + 0x7c) != 0) {
-            fn_800F9210(*(u32*)((u8*)ptr + 0x74), *(u32*)((u8*)ptr + 0x78));
-            fn_800F9210(*(u32*)((u8*)ptr + 0x74), *(u32*)((u8*)ptr + 0x7c));
+            fn_800F9210(((SeaWork*)ptr)->resGroup, ((SeaWork*)ptr)->modelRes);
+            fn_800F9210(((SeaWork*)ptr)->resGroup, ((SeaWork*)ptr)->res7C);
         }
     }
     return 1;
@@ -3274,14 +3275,14 @@ u32 _seaStop(void* arg) {
 
         {
             u16 val;
-            val = *(u16*)((u8*)ptr + 0x1c);
+            val = ((SeaWork*)ptr)->meshHandle;
             if (val != 0) {
                 fn_800E24B0(val);
                 GSmemFree(val);
             }
         }
 
-        ptr = (void*)(u32)*(u16*)((u8*)ptr + 0x8c);
+        ptr = (void*)(u32)((SeaWork*)ptr)->randomHandle;
         if (ptr != 0) {
             fn_800E24B0((u32)ptr);
             GSmemFree((u32)ptr);
@@ -3330,33 +3331,33 @@ static inline u8 seaAllocMesh(u8* p, void* model) {
     u32 texcoordSize;
     u32 colorSize;
 
-    columns = *(u16*)(p + 0x72);
-    rows = *(u16*)(p + 0x70);
+    columns = ((SeaWork*)p)->columns;
+    rows = ((SeaWork*)p)->rows;
     *(void**)p = model;
-    *(u16*)(p + 0x18) = rows + 1;
-    *(u16*)(p + 0x1A) = columns + 1;
-    pointCount = *(u16*)(p + 0x18) * *(u16*)(p + 0x1A);
-    *(u32*)(p + 0x14) = (columns * (*(u16*)(p + 0x18) * 0x10 + 3) + 0x1F) & ~0x1F;
+    ((SeaWork*)p)->pointRows = rows + 1;
+    ((SeaWork*)p)->pointColumns = columns + 1;
+    pointCount = ((SeaWork*)p)->pointRows * ((SeaWork*)p)->pointColumns;
+    ((SeaWork*)p)->displayListSize = (columns * (((SeaWork*)p)->pointRows * 0x10 + 3) + 0x1F) & ~0x1F;
     vectorSize = (pointCount * 0xC + 0x1F) & ~0x1F;
     colorSize = (pointCount * 4 + 0x1F) & ~0x1F;
     texcoordSize = (pointCount * 8 + 0x1F) & ~0x1F;
     /* RULE-EXCEPTION(user-approved): pointCount reused for the total size,
        which gives retail's callee-saved register — see
        docs/RULE_EXCEPTIONS.md */
-    pointCount = vectorSize + colorSize + texcoordSize + *(u32*)(p + 0x14);
+    pointCount = vectorSize + colorSize + texcoordSize + ((SeaWork*)p)->displayListSize;
 
     handle = GSmemAlloc(pointCount, 0x20);
     if (handle != 0) {
         data = GSmemLock(handle);
-        *(u16*)(p + 0x1C) = handle;
+        ((SeaWork*)p)->meshHandle = handle;
         memset(data, 0, pointCount);
-        *(u8**)(p + 0x10) = data;
-        cursor = data + *(u32*)(p + 0x14);
-        *(u8**)(p + 0x4) = cursor;
+        ((SeaWork*)p)->displayList = data;
+        cursor = data + ((SeaWork*)p)->displayListSize;
+        ((SeaWork*)p)->positions = cursor;
         cursor += vectorSize;
-        *(u8**)(p + 0xC) = cursor;
+        ((SeaWork*)p)->colors = cursor;
         cursor += colorSize;
-        *(u8**)(p + 0x8) = cursor;
+        ((SeaWork*)p)->texcoords = cursor;
         return TRUE;
     }
     return FALSE;
@@ -3372,20 +3373,20 @@ static inline u8 seaAllocRandomTable(u8* p) {
     u16 handle;
     f32 low;
 
-    rowCount = *(u16*)(p + 0x70) + 1;
+    rowCount = ((SeaWork*)p)->rows + 1;
     handle = _toolentryAlloc__FUl(rowCount * 3 * sizeof(f32));
     if (handle != 0) {
-        *(u16*)(p + 0x8C) = handle;
-        randomX = *(f32**)(p + 0x80) = GSmemLock(handle);
+        ((SeaWork*)p)->randomHandle = handle;
+        randomX = ((SeaWork*)p)->randomX = GSmemLock(handle);
         randomZ = randomX + rowCount;
         randomAngle = randomZ + rowCount;
-        *(f32**)(p + 0x84) = randomZ;
-        *(f32**)(p + 0x88) = randomAngle;
+        ((SeaWork*)p)->randomZ = randomZ;
+        ((SeaWork*)p)->randomAngle = randomAngle;
         for (i = 0; i < rowCount; randomX++, i++, randomZ++, randomAngle++) {
-            low = *(f32*)(p + 0x90);
-            *randomX = low + (*(f32*)(p + 0x94) - low) * GSrandf();
-            low = *(f32*)(p + 0x98);
-            *randomZ = low + (*(f32*)(p + 0x9C) - low) * GSrandf();
+            low = ((SeaWork*)p)->xLow;
+            *randomX = low + (((SeaWork*)p)->xHigh - low) * GSrandf();
+            low = ((SeaWork*)p)->zLow;
+            *randomZ = low + (((SeaWork*)p)->zHigh - low) * GSrandf();
             *randomAngle = *(f32*)&lbl_8047D230 * GSrandf();
         }
         return TRUE;
@@ -3403,13 +3404,13 @@ u16 seaEffectStart(void* ptr) {
     }
 
     p = ptr;
-    *(u16*)(p + 0xA4) = 0;
+    ((SeaWork*)p)->frame = 0;
     memset(p, 0, 0x48);
     if (*(s32*)(p + 0x78) == 0) {
         goto fail;
     }
 
-    model = GSresGetResource(*(u32*)(p + 0x74), *(u32*)(p + 0x78));
+    model = GSresGetResource(((SeaWork*)p)->resGroup, ((SeaWork*)p)->modelRes);
     if (model == NULL) {
         goto fail;
     }
@@ -3420,8 +3421,8 @@ u16 seaEffectStart(void* ptr) {
         goto fail;
     }
 
-    _seaBuildMesh(p, p + 0x48, p + 0x60, *(f32*)(p + 0x64), *(f32*)(p + 0x68),
-                *(f32*)(p + 0x6C));
+    _seaBuildMesh(p, p + 0x48, p + 0x60, ((SeaWork*)p)->sizeX, ((SeaWork*)p)->sizeZ,
+                ((SeaWork*)p)->meshScale);
     if (!(u8)_seaSetupMaterial(model, p)) {
         goto cleanup;
     }
@@ -3430,7 +3431,7 @@ u16 seaEffectStart(void* ptr) {
     }
 
     GSmodelSetVisibility(model, 1);
-    *(f32*)(p + 0x58) += *(f32*)&lbl_8047D234;
+    ((SeaWork*)p)->field_58 += *(f32*)&lbl_8047D234;
     GSmodelSetRotation(model, p + 0x54);
     GSmodelLinkTexAnimToAnim(model, 0);
     if (GSmodelCanTexAnimate(model)) {
@@ -3444,14 +3445,14 @@ u16 seaEffectStart(void* ptr) {
 
 cleanup:
     GSmodelSetVisibility(model, 0);
-    handle = *(u16*)(p + 0x1C);
-    *(u16*)(p + 0x1C) = 0;
+    handle = ((SeaWork*)p)->meshHandle;
+    ((SeaWork*)p)->meshHandle = 0;
     if (handle != 0) {
         fn_800E24B0(handle);
         GSmemFree(handle);
     }
-    handle = *(u16*)(p + 0x8C);
-    *(u16*)(p + 0x8C) = 0;
+    handle = ((SeaWork*)p)->randomHandle;
+    ((SeaWork*)p)->randomHandle = 0;
     if (handle != 0) {
         fn_800E24B0(handle);
         GSmemFree(handle);
@@ -3516,37 +3517,37 @@ u32 _seaUpdate(void* ptr, u32 delta) {
 
     p = ptr;
     if (p != NULL) {
-        if (*(u16*)(p + 0xA4) >= *(u16*)(p + 0xA6)) {
+        if (((SeaWork*)p)->frame >= ((SeaWork*)p)->duration) {
             return 0;
         }
 
-        amplitude = (f32)*(u16*)(p + 0xA4) / (f32)*(u16*)(p + 0xA6);
-        randomX = *(f32**)(p + 0x80);
-        randomZ = *(f32**)(p + 0x84);
-        randomAngle = *(f32**)(p + 0x88);
-        rows = *(u16*)(p + 0x18);
-        columns = *(u16*)(p + 0x1A);
+        amplitude = (f32)((SeaWork*)p)->frame / (f32)((SeaWork*)p)->duration;
+        randomX = ((SeaWork*)p)->randomX;
+        randomZ = ((SeaWork*)p)->randomZ;
+        randomAngle = ((SeaWork*)p)->randomAngle;
+        rows = ((SeaWork*)p)->pointRows;
+        columns = ((SeaWork*)p)->pointColumns;
 
         GXDrawDone();
         GXInvalidateVtxCache();
         set__5GSvecFfff(lbl_80363CB8, lbl_8047D23C, 1.0f,
                         lbl_8047D23C);
 
-        span = 360.0f * *(f32*)(p + 0x68);
-        amplitude = amplitude * (span * *(f32*)(p + 0xA0));
+        span = 360.0f * ((SeaWork*)p)->sizeZ;
+        amplitude = amplitude * (span * ((SeaWork*)p)->speed);
         angleStep = span / (f32)(columns - 1);
-        grid = *(f32**)(p + 0x4);
+        grid = ((SeaWork*)p)->positions;
         for (row = 0; row < rows; row++, randomX++, randomZ++, randomAngle++) {
             rowAngleStep = angleStep / *randomZ;
             angle = *randomAngle + amplitude / *randomZ;
             for (column = 0; column < columns; column++) {
-                grid[1] = *(f32*)(p + 0x4C) + *randomX * fn_800E0CA0(angle);
+                grid[1] = ((SeaWork*)p)->height + *randomX * fn_800E0CA0(angle);
                 angle += rowAngleStep;
                 grid += 3;
             }
         }
 
-        *(u16*)(p + 0xA4) = *(u16*)(p + 0xA4) + delta;
+        ((SeaWork*)p)->frame = ((SeaWork*)p)->frame + delta;
         return 1;
     }
     return 0;
@@ -3561,11 +3562,11 @@ asm void fn_8013CBF0(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
 #else
 void _seaBuildMesh(void* ptr, void* mtx, u8* color, f32 x, f32 z, f32 scale) {
     u8* p = ptr;
-    u32 rows = *(u16*)(p + 0x18);
-    u32 columns = *(u16*)(p + 0x1A);
-    f32* positions = *(f32**)(p + 0x4);
-    f32* texcoords = *(f32**)(p + 0x8);
-    u8* colors = *(u8**)(p + 0xC);
+    u32 rows = ((SeaWork*)p)->pointRows;
+    u32 columns = ((SeaWork*)p)->pointColumns;
+    f32* positions = ((SeaWork*)p)->positions;
+    f32* texcoords = ((SeaWork*)p)->texcoords;
+    u8* colors = ((SeaWork*)p)->colors;
     f32 offset[3];
     f32 current[3];
     f32 rowStep[3];
@@ -3718,8 +3719,8 @@ u32 _seaResetMaterial(void* inner, void* ptr) {
         stageIndex++;
         stages += 0x18;
     }
-    *(u32*)(material + 0x10) = *(u32*)(p + 0x40);
-    *(u16*)(material + 0xE) = *(u16*)(p + 0x44);
+    *(u32*)(material + 0x10) = ((SeaWork*)p)->materialField10;
+    *(u16*)(material + 0xE) = ((SeaWork*)p)->materialField0E;
     return 1;
 }
 #endif
@@ -3961,20 +3962,20 @@ u32 envMapAddKey(void* ptr, u32 val, f32 f1, f32 f2) {
     handle = _toolentryAlloc__FUl(0x14);
     if (handle) {
         node = GSmemLock(handle);
-        *(u16*)((u8*)node + 0xc) = handle;
-        *(f32*)((u8*)node + 0x0) = f1;
-        *(f32*)((u8*)node + 0x4) = f2;
-        *(u32*)((u8*)node + 0x8) = val;
-        cur = *(void**)((u8*)ptr + 0xc);
+        ((EffectValueKey*)node)->handle = handle;
+        ((EffectValueKey*)node)->start = f1;
+        ((EffectValueKey*)node)->end = f2;
+        ((EffectValueKey*)node)->frames = val;
+        cur = ((EnvMapWork*)ptr)->keys;
         if (cur != NULL) {
-            while (*(void**)((u8*)cur + 0x10) != NULL) {
-                cur = *(void**)((u8*)cur + 0x10);
+            while (((EffectValueKey*)cur)->next != NULL) {
+                cur = ((EffectValueKey*)cur)->next;
             }
-            *(void**)((u8*)cur + 0x10) = node;
+            ((EffectValueKey*)cur)->next = node;
         } else {
-            *(void**)((u8*)ptr + 0xc) = node;
+            ((EnvMapWork*)ptr)->keys = node;
         }
-        *(void**)((u8*)node + 0x10) = NULL;
+        ((EffectValueKey*)node)->next = NULL;
     }
     return 0;
 }
@@ -4012,7 +4013,7 @@ u32 _envMapDestroy(void* ptr) {
     u32 val;
     u32 ret;
     if (ptr) {
-        next = *(void**)((u8*)ptr + 0xc);
+        next = ((EnvMapWork*)ptr)->keys;
         if (lbl_8047AEE0 != 0) {
             lbl_8047AEE4 -= 1;
             if (lbl_8047AEE4 == 0) {
@@ -4022,8 +4023,8 @@ u32 _envMapDestroy(void* ptr) {
             }
         }
         while (next != NULL) {
-            val = *(u16*)((u8*)next + 0xc);
-            next = *(void**)((u8*)next + 0x10);
+            val = ((EffectValueKey*)next)->handle;
+            next = ((EffectValueKey*)next)->next;
             fn_800E24B0(val);
             GSmemFree(val);
         }
@@ -4069,7 +4070,7 @@ u32 envMapEffectInit(void* ptr) {
             lbl_8047AEE0 = (u32)GStextureCreate(*(u16*)(lbl_80466BC0 + 4), *(u16*)(lbl_80466BC0 + 6), 0x44, 0, 0);
             if (lbl_8047AEE0 == 0) {
                 if (ptr) {
-                    ptr = *(void**)((u8*)ptr + 0xc);
+                    ptr = ((EnvMapWork*)ptr)->keys;
                     if (lbl_8047AEE0 != 0) {
                         lbl_8047AEE4 -= 1;
                         if (lbl_8047AEE4 == 0) {
@@ -4079,8 +4080,8 @@ u32 envMapEffectInit(void* ptr) {
                         }
                     }
                     while (ptr != NULL) {
-                        val = *(u16*)((u8*)ptr + 0xc);
-                        ptr = *(void**)((u8*)ptr + 0x10);
+                        val = ((EffectValueKey*)ptr)->handle;
+                        ptr = ((EffectValueKey*)ptr)->next;
                         fn_800E24B0(val);
                         GSmemFree(val);
                     }
@@ -4105,13 +4106,13 @@ asm u32 envMapEffectStart(void* ptr) {
 u32 envMapEffectStart(void* ptr) {
     void* inner;
     if (ptr) {
-        *(void**)((u8*)ptr + 0x10) = *(void**)((u8*)ptr + 0xc);
-        *(u32*)((u8*)ptr + 0x14) = 0;
+        ((EnvMapWork*)ptr)->current = ((EnvMapWork*)ptr)->keys;
+        ((EnvMapWork*)ptr)->elapsed = 0;
         inner = *(void**)ptr;
         if (inner == NULL) { goto log; }
         if (lbl_8047AEE0 == 0) { goto log; }
-        GSmodelEnableEnvMap(inner, *(void**)((u8*)ptr + 0x4), *(void**)((u8*)ptr + 0x8),
-                    (void*)lbl_8047AEE0, *(f32*)*(void**)((u8*)ptr + 0x10));
+        GSmodelEnableEnvMap(inner, ((EnvMapWork*)ptr)->texture, ((EnvMapWork*)ptr)->matrix,
+                    (void*)lbl_8047AEE0, *(f32*)((EnvMapWork*)ptr)->current);
         return 1;
     }
 log:
@@ -4144,27 +4145,27 @@ u32 _envMapUpdate(void* ptr, u32 delta) {
 
     if (ptr != NULL) {
         p = ptr;
-        node = *(u8**)(p + 0x10);
+        node = ((EnvMapWork*)p)->current;
         if (node != NULL) {
-            if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-                *(u32*)(p + 0x14) = 0;
+            if (((EffectValueKey*)node)->frames == 0xFFFFFFFF) {
+                ((EnvMapWork*)p)->elapsed = 0;
             }
-            while (*(u32*)(p + 0x14) >= *(u32*)(node + 0x8)) {
-                *(u32*)(p + 0x14) -= *(u32*)(node + 0x8);
-                node = *(u8**)(node + 0x10);
-                *(void**)(p + 0x10) = node;
+            while (((EnvMapWork*)p)->elapsed >= ((EffectValueKey*)node)->frames) {
+                ((EnvMapWork*)p)->elapsed -= ((EffectValueKey*)node)->frames;
+                node = ((EffectValueKey*)node)->next;
+                ((EnvMapWork*)p)->current = node;
                 if (node == NULL) {
                     return 0;
                 }
-                if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-                    *(u32*)(p + 0x14) = 0;
+                if (((EffectValueKey*)node)->frames == 0xFFFFFFFF) {
+                    ((EnvMapWork*)p)->elapsed = 0;
                     break;
                 }
             }
 
             blend = *(f32*)node +
-                    ((f32)*(u32*)(p + 0x14) / (f32)*(u32*)(node + 0x8)) *
-                        (*(f32*)(node + 0x4) - *(f32*)node);
+                    ((f32)((EnvMapWork*)p)->elapsed / (f32)((EffectValueKey*)node)->frames) *
+                        (((EffectValueKey*)node)->end - *(f32*)node);
             model = *(void**)p;
             if (lbl_8047AEE0 != 0 && model != NULL) {
                 modelCount = fn_800E3B3C();
@@ -4186,12 +4187,12 @@ u32 _envMapUpdate(void* ptr, u32 delta) {
             }
 
             if (!GSmodelIsEnvMapEnabled(*(void**)p)) {
-                GSmodelEnableEnvMap(*(void**)p, *(void**)(p + 0x4), *(void**)(p + 0x8),
+                GSmodelEnableEnvMap(*(void**)p, ((EnvMapWork*)p)->texture, ((EnvMapWork*)p)->matrix,
                                     (void*)lbl_8047AEE0, blend);
             } else {
                 GSmodelSetEnvMapBlendValue(*(void**)p, blend);
             }
-            *(u32*)(p + 0x14) += delta;
+            ((EnvMapWork*)p)->elapsed += delta;
             return 1;
         }
     }
@@ -4214,20 +4215,20 @@ u32 blurAddKey(void* ptr, u32 val, f32 f1, f32 f2) {
     handle = _toolentryAlloc__FUl(0x14);
     if (handle) {
         node = GSmemLock(handle);
-        *(u16*)((u8*)node + 0xc) = handle;
-        *(f32*)((u8*)node + 0x0) = f1;
-        *(f32*)((u8*)node + 0x4) = f2;
-        *(u32*)((u8*)node + 0x8) = val;
-        cur = *(void**)((u8*)ptr + 0x14);
+        ((EffectValueKey*)node)->handle = handle;
+        ((EffectValueKey*)node)->start = f1;
+        ((EffectValueKey*)node)->end = f2;
+        ((EffectValueKey*)node)->frames = val;
+        cur = ((BlurWork*)ptr)->keys;
         if (cur != NULL) {
-            while (*(void**)((u8*)cur + 0x10) != NULL) {
-                cur = *(void**)((u8*)cur + 0x10);
+            while (((EffectValueKey*)cur)->next != NULL) {
+                cur = ((EffectValueKey*)cur)->next;
             }
-            *(void**)((u8*)cur + 0x10) = node;
+            ((EffectValueKey*)cur)->next = node;
         } else {
-            *(void**)((u8*)ptr + 0x14) = node;
+            ((BlurWork*)ptr)->keys = node;
         }
-        *(void**)((u8*)node + 0x10) = NULL;
+        ((EffectValueKey*)node)->next = NULL;
     }
     return 0;
 }
@@ -4262,15 +4263,15 @@ u32 _blurDestroy(void* ptr) {
     void* node;
     u16 val;
     if (ptr) {
-        node = *(void**)((u8*)ptr + 0x14);
-        if (*(void**)((u8*)ptr + 0xc) != NULL) {
+        node = ((BlurWork*)ptr)->keys;
+        if (((BlurWork*)ptr)->texture != NULL) {
             GXDrawDone();
             GXInvalidateVtxCache();
-            GStextureFree(*(void**)((u8*)ptr + 0xc));
+            GStextureFree(((BlurWork*)ptr)->texture);
         }
         while (node) {
-            val = *(u16*)((u8*)node + 0xc);
-            node = *(void**)((u8*)node + 0x10);
+            val = ((EffectValueKey*)node)->handle;
+            node = ((EffectValueKey*)node)->next;
             fn_800E24B0(val);
             GSmemFree(val);
         }
@@ -4285,9 +4286,9 @@ asm u32 fn_8013DD10(void* ptr) {
 #else
 u32 _blurInit(void* ptr) {
     if (ptr) {
-        if (*(s32*)((u8*)ptr + 0x10) != 0) {
-            *(void**)((u8*)ptr + 0xc) = GStextureCreate(0, 0, 0x44, 0, 0);
-            if (*(void**)((u8*)ptr + 0xc) == NULL) {
+        if (((BlurWork*)ptr)->capture != 0) {
+            ((BlurWork*)ptr)->texture = GStextureCreate(0, 0, 0x44, 0, 0);
+            if (((BlurWork*)ptr)->texture == NULL) {
                 return 0;
             }
         }
@@ -4305,8 +4306,8 @@ asm u32 fn_8013DD7C(void* ptr) {
 u32 _blurStop(void* ptr) {
     void* inner;
     if (ptr) {
-        if (*(s32*)((u8*)ptr + 0x10) != 0) {
-            GSgfxEndBackFBCapture(*(void**)((u8*)ptr + 0xc));
+        if (((BlurWork*)ptr)->capture != 0) {
+            GSgfxEndBackFBCapture(((BlurWork*)ptr)->texture);
         } else {
             inner = *(void**)ptr;
             if (inner) {
@@ -4328,15 +4329,15 @@ asm u16 blurEffectStart(void) {
 u32 blurEffectStart(void* ptr) {
     if (ptr) {
         *(u32*)((u8*)ptr + 0x18) = *(u32*)((u8*)ptr + 0x14);
-        *(u32*)((u8*)ptr + 0x1c) = 0;
-        if (*(s32*)((u8*)ptr + 0x10) != 0) {
-            if (*(void**)((u8*)ptr + 0xc) != NULL) {
-                GSgfxBeginBackFBCapture(*(void**)((u8*)ptr + 0xc), (void*)_blurDrawCapture, ptr);
+        ((BlurWork*)ptr)->elapsed = 0;
+        if (((BlurWork*)ptr)->capture != 0) {
+            if (((BlurWork*)ptr)->texture != NULL) {
+                GSgfxBeginBackFBCapture(((BlurWork*)ptr)->texture, (void*)_blurDrawCapture, ptr);
                 return 1;
             }
         } else {
             if (*(void**)ptr != NULL) {
-                *(void**)((u8*)ptr + 0x4) = GSmodelBlurCreateWork(*(void**)ptr, (u8*)ptr + 0x8);
+                ((BlurWork*)ptr)->materials = GSmodelBlurCreateWork(*(void**)ptr, (u8*)ptr + 0x8);
                 return 1;
             }
         }
@@ -4397,18 +4398,18 @@ u32 _blurRender(void* ptr) {
 
     if (ptr != NULL) {
         model = *(void**)p;
-        timing = *(u8**)(p + 0x18);
-        materialCount = *(s32*)(p + 8);
-        if (*(s32*)(p + 0x10) != 0 || model == NULL) {
+        timing = ((BlurWork*)p)->current;
+        materialCount = ((BlurWork*)p)->materialCount;
+        if (((BlurWork*)p)->capture != 0 || model == NULL) {
             return 1;
         }
         if (GSmodelIsAnimating(model) == 0) {
             return 1;
         }
 
-        frame = *(u32*)(p + 0x1C);
-        blend = (f32)frame / (f32)*(u32*)(timing + 8);
-        blend = blend * (*(f32*)(timing + 4) - *(f32*)timing) + *(f32*)timing;
+        frame = ((BlurWork*)p)->elapsed;
+        blend = (f32)frame / (f32)((EffectValueKey*)timing)->frames;
+        blend = blend * (((EffectValueKey*)timing)->end - *(f32*)timing) + *(f32*)timing;
         switch (fn_800D3068()) {
         case 1:
             copies = 60.0f * blend + 0.5f;
@@ -4463,7 +4464,7 @@ u32 _blurRender(void* ptr) {
             fn_800EC134(model);
             startFrame += animRate;
             alpha = 0.5f * (alpha * alpha);
-            materials = *(void***)(p + 4);
+            materials = ((BlurWork*)p)->materials;
             for (i = 0; i < materialCount; i++, materials++) {
                 if (*materials != NULL) {
                     GSmaterialSetAlpha(*materials, alpha);
@@ -4472,7 +4473,7 @@ u32 _blurRender(void* ptr) {
             GSmodelDrawModel(model, 0x3010);
         }
 
-        materials = *(void***)(p + 4);
+        materials = ((BlurWork*)p)->materials;
         for (i = 0; i < materialCount; i++, materials++) {
             if (*materials != NULL) {
                 GSmaterialResetAlpha(*materials);
@@ -4574,19 +4575,19 @@ u32 _blurUpdate(void* ptr, u32 delta) {
     if (ptr == NULL) {
         goto ret0;
     }
-    node = *(void**)((u8*)ptr + 0x18);
+    node = ((BlurWork*)ptr)->current;
     if (node == NULL) {
         goto ret0;
     }
-    while (*(u32*)((u8*)ptr + 0x1c) >= *(u32*)((u8*)node + 0x8)) {
-        *(u32*)((u8*)ptr + 0x1c) -= *(u32*)((u8*)node + 0x8);
-        node = *(void**)((u8*)node + 0x10);
-        *(void**)((u8*)ptr + 0x18) = node;
+    while (((BlurWork*)ptr)->elapsed >= ((EffectValueKey*)node)->frames) {
+        ((BlurWork*)ptr)->elapsed -= ((EffectValueKey*)node)->frames;
+        node = ((EffectValueKey*)node)->next;
+        ((BlurWork*)ptr)->current = node;
         if (node == NULL) {
             return 0;
         }
     }
-    *(u32*)((u8*)ptr + 0x1c) += delta;
+    ((BlurWork*)ptr)->elapsed += delta;
     return 1;
 ret0:
     return 0;
@@ -4625,10 +4626,10 @@ u32 _auraDestroy(void* arg) {
     void* ptr;
     if (arg != 0) {
         ptr = arg;
-        if (*(void**)((u8*)ptr + 4) != 0) {
+        if (((AuraWork*)ptr)->texture != 0) {
             GXDrawDone();
             GXInvalidateVtxCache();
-            GStextureFree(*(void**)((u8*)ptr + 4));
+            GStextureFree(((AuraWork*)ptr)->texture);
         }
         memset(ptr, 0, 0x34);
     }
@@ -4675,10 +4676,10 @@ asm u32 auraEffectStart(void* ptr) {
 #else
 u32 auraEffectStart(void* ptr) {
     if (ptr == NULL) { goto log; }
-    *(u16*)((u8*)ptr + 0x30) = 0;
+    ((AuraWork*)ptr)->frame = 0;
     if (*(void**)ptr == NULL) { goto log; }
-    if (*(u8*)((u8*)ptr + 0x18) == 0) { goto log; }
-    if (*(void**)((u8*)ptr + 0x4) == NULL) { goto log; }
+    if (((AuraWork*)ptr)->enabled == 0) { goto log; }
+    if (((AuraWork*)ptr)->texture == NULL) { goto log; }
     return 1;
 log:
     GSlogWrite((const char*)lbl_80272FA0);
@@ -4695,7 +4696,7 @@ u32 _auraRender(u8* ptr)
     void* model;
 
     if (ptr != NULL) {
-        model = *(void**)(ptr + 4);
+        model = ((AuraWork*)ptr)->texture;
         if (model == NULL) {
             return 0;
         }
@@ -4774,38 +4775,38 @@ u32 _auraUpdate(void* ptr, u32 delta) {
     if (ptr != NULL) {
         p = ptr;
         flags = p[0x19];
-        period = 60.0f / *(f32*)(p + 0x24);
-        base = *(f32*)(p + 0x1C);
-        range = *(f32*)(p + 0x20);
+        period = 60.0f / ((AuraWork*)p)->rate;
+        base = ((AuraWork*)p)->base;
+        range = ((AuraWork*)p)->range;
 
         if (flags & 1) {
-            *(f32*)(p + 0x2C) = lbl_8047D2A8;
+            ((AuraWork*)p)->wave = lbl_8047D2A8;
             /* RULE-EXCEPTION(user-approved): phase reused as the 1 + base
                temporary for retail's operand order — see
                docs/RULE_EXCEPTIONS.md */
             phase = lbl_8047D2A8 + base;
-            *(f32*)(p + 0x28) = phase + range;
+            ((AuraWork*)p)->alpha = phase + range;
         } else {
             if (flags & 2) {
-                frame = *(u16*)(p + 0x30);
+                frame = ((AuraWork*)p)->frame;
                 phase = fmod(frame, 2.0f * period);
                 phase = fmod(3.1415927f * phase / period, 3.1415927410125732);
             } else {
-                frame = *(u16*)(p + 0x30);
+                frame = ((AuraWork*)p)->frame;
                 phase = fmod(frame, period);
                 phase = 6.2831855f * phase / period;
             }
             wave = cos(phase);
             if (flags & 8) {
-                *(f32*)(p + 0x2C) = lbl_8047D2A8;
+                ((AuraWork*)p)->wave = lbl_8047D2A8;
             } else {
-                *(f32*)(p + 0x2C) = 0.5f * (lbl_8047D2A8 + wave);
+                ((AuraWork*)p)->wave = 0.5f * (lbl_8047D2A8 + wave);
             }
-            *(f32*)(p + 0x28) = lbl_8047D2A8 + (base - range * wave);
+            ((AuraWork*)p)->alpha = lbl_8047D2A8 + (base - range * wave);
         }
 
-        *(u16*)(p + 0x30) += delta;
-        return *(u16*)(p + 0x32) == -1 || *(u16*)(p + 0x30) < *(u16*)(p + 0x32);
+        ((AuraWork*)p)->frame += delta;
+        return ((AuraWork*)p)->duration == -1 || ((AuraWork*)p)->frame < ((AuraWork*)p)->duration;
     }
     return 0;
 }
@@ -4910,7 +4911,7 @@ void _auraDrawModel(void* ptr) {
     s32 count;
 
     p = ptr;
-    texture = *(void**)(p + 4);
+    texture = ((AuraWork*)p)->texture;
     model = *(void**)p;
     count = p[0x18];
     if (texture == NULL || model == NULL) {
@@ -4953,7 +4954,7 @@ void _auraDrawModel(void* ptr) {
     _cameraLoadCameraMatrix__FP9_GScamera12GSgfxLayerID();
     GSgfxRenderLayer(texture, 0);
 
-    alpha = *(f32*)(p + 0x28);
+    alpha = ((AuraWork*)p)->alpha;
     layerAlphaStep = lbl_8047D2A8 / (f32)count;
     alphaStep = (alpha - lbl_8047D2A8) / (f32)count;
     layerAlpha = lbl_8047D2A8 - (f32)count * layerAlphaStep;
@@ -5507,11 +5508,11 @@ asm void fn_8013FC58(void) {
 u32 _billboardDestroy(void* ptr) {
     if (ptr) {
         if (*(u32*)((u8*)ptr + 0x10) != 0) {
-            fn_800F9210(*(u32*)ptr, *(u32*)((u8*)ptr + 0x8));
-            fn_800F9210(*(u32*)ptr, *(u32*)((u8*)ptr + 0x4));
+            fn_800F9210(*(u32*)ptr, ((BillboardWork*)ptr)->modelRes);
+            fn_800F9210(*(u32*)ptr, ((BillboardWork*)ptr)->res04);
         }
         if (*(u32*)((u8*)ptr + 0x14) != 0) {
-            fn_800F9210(*(u32*)ptr, *(u32*)((u8*)ptr + 0xc));
+            fn_800F9210(*(u32*)ptr, ((BillboardWork*)ptr)->particleRes);
         }
     }
     return 1;
@@ -5526,20 +5527,20 @@ asm void fn_8013FCC4(void) {
 u32 _billboardInit(void* ptr) {
     void* res;
     if (ptr) {
-        if (*(u32*)((u8*)ptr + 0x4) != 0 && *(u32*)((u8*)ptr + 0x8) != 0) {
-            *(void**)((u8*)ptr + 0x10) = GSresGetResource(*(u32*)ptr, *(u32*)((u8*)ptr + 0x8));
+        if (((BillboardWork*)ptr)->res04 != 0 && ((BillboardWork*)ptr)->modelRes != 0) {
+            ((BillboardWork*)ptr)->model = GSresGetResource(*(u32*)ptr, ((BillboardWork*)ptr)->modelRes);
         } else {
-            *(void**)((u8*)ptr + 0x10) = NULL;
+            ((BillboardWork*)ptr)->model = NULL;
         }
-        if (*(u32*)((u8*)ptr + 0xc) != 0) {
-            res = GSresGetResource(*(u32*)ptr, *(u32*)((u8*)ptr + 0xc));
+        if (((BillboardWork*)ptr)->particleRes != 0) {
+            res = GSresGetResource(*(u32*)ptr, ((BillboardWork*)ptr)->particleRes);
             if (res != NULL) {
-                *(void**)((u8*)ptr + 0x14) = gsParticleBankLoad(res);
+                ((BillboardWork*)ptr)->particleBank = gsParticleBankLoad(res);
             } else {
-                *(void**)((u8*)ptr + 0x14) = NULL;
+                ((BillboardWork*)ptr)->particleBank = NULL;
             }
         } else {
-            *(void**)((u8*)ptr + 0x14) = NULL;
+            ((BillboardWork*)ptr)->particleBank = NULL;
         }
         return 1;
     }
@@ -5556,14 +5557,14 @@ asm u32 fn_8013FD68(void* ptr) {
 u32 _billboardStop(void* ptr) {
     void* inner;
     if (ptr) {
-        inner = *(void**)((u8*)ptr + 0x14);
+        inner = ((BillboardWork*)ptr)->particleBank;
         if (inner) {
             gsParticleKill(inner, 0);
         }
-        if (*(void**)((u8*)ptr + 0x10)) {
-            GSmodelStopAnimation(*(void**)((u8*)ptr + 0x10));
-            GSmodelStopTexAnimation(*(void**)((u8*)ptr + 0x10));
-            GSmodelSetVisibility(*(void**)((u8*)ptr + 0x10), 0);
+        if (((BillboardWork*)ptr)->model) {
+            GSmodelStopAnimation(((BillboardWork*)ptr)->model);
+            GSmodelStopTexAnimation(((BillboardWork*)ptr)->model);
+            GSmodelSetVisibility(((BillboardWork*)ptr)->model, 0);
         }
     }
     return 1;
@@ -5590,28 +5591,28 @@ u16 billboardEffectStart(void* ptr) {
         goto report_null;
     }
 
-    model = *(void**)((u8*)ptr + 0x10);
-    if (model == NULL && *(void**)((u8*)ptr + 0x14) == NULL) {
+    model = ((BillboardWork*)ptr)->model;
+    if (model == NULL && ((BillboardWork*)ptr)->particleBank == NULL) {
         return 0;
     }
 
-    if (*(void**)((u8*)ptr + 0x14) != NULL) {
-        *(void**)((u8*)ptr + 0x20) = gsParticleCreate(*(void**)((u8*)ptr + 0x14), *(u16*)((u8*)ptr + 0x1e), 1);
+    if (((BillboardWork*)ptr)->particleBank != NULL) {
+        ((BillboardWork*)ptr)->particle = gsParticleCreate(((BillboardWork*)ptr)->particleBank, ((BillboardWork*)ptr)->particleArg, 1);
     }
 
     if (model != NULL) {
         GSmodelSetVisibility(model, 1);
         fn_800E3CC8(model, 1);
         if (GSmodelCanAnimate(model)) {
-            GSmodelSetAnimIndex(model, *(u16*)((u8*)ptr + 0x1c));
-            GSmodelSetAnimType(model, *(u32*)((u8*)ptr + 0x18));
+            GSmodelSetAnimIndex(model, ((BillboardWork*)ptr)->animIndex);
+            GSmodelSetAnimType(model, ((BillboardWork*)ptr)->animType);
             GSmodelSetAnimRate(model, *(f32*)&lbl_8047D328);
             GSmodelSetAnimFrame(model, *(f32*)&lbl_8047D32C);
             GSmodelStartAnimation(model);
         }
         if (GSmodelCanTexAnimate(model)) {
-            GSmodelSetTexAnimIndex(model, *(u16*)((u8*)ptr + 0x1c));
-            GSmodelSetTexAnimType(model, *(u32*)((u8*)ptr + 0x18));
+            GSmodelSetTexAnimIndex(model, ((BillboardWork*)ptr)->animIndex);
+            GSmodelSetTexAnimType(model, ((BillboardWork*)ptr)->animType);
             GSmodelSetTexAnimRate(model, *(f32*)&lbl_8047D328);
             GSmodelSetTexAnimFrame(model, *(f32*)&lbl_8047D32C);
             GSmodelStartTexAnimation(model);
@@ -5668,7 +5669,7 @@ u32 _billboardUpdate(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        model = *(void**)(p + 0x10);
+        model = ((BillboardWork*)p)->model;
         camera = cameraGetActive();
         position = *(BillboardVec*)lbl_80273060;
         billboardScale = *(BillboardVec*)lbl_8027306C;
@@ -5690,13 +5691,13 @@ u32 _billboardUpdate(void* ptr) {
             GSvecAdd(&position, &position, up);
         }
 
-        if (*(void**)(p + 0x20) != NULL &&
-            fn_80118DA8(*(void**)(p + 0x20)) != 0) {
-            gsParticleSetVecB(*(void**)(p + 0x20), &position);
+        if (((BillboardWork*)p)->particle != NULL &&
+            fn_80118DA8(((BillboardWork*)p)->particle) != 0) {
+            gsParticleSetVecB(((BillboardWork*)p)->particle, &position);
             updated = 1;
         }
 
-        if (*(void**)(p + 0x10) != NULL &&
+        if (((BillboardWork*)p)->model != NULL &&
             ((GSmodelCanAnimate(model) && !GSmodelHasAnimationEnded(model)) ||
              (GSmodelCanTexAnimate(model) && !GSmodelHasTexAnimationEnded(model)))) {
             material = GSmodelGetBound(model);

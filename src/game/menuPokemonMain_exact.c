@@ -2,6 +2,7 @@
  * @file menuPokemonMain_exact.c
  * @brief Run and close the synchronous party menu.
  */
+#include "game/records/lbl_803A1D40.h"
 #include "dolphin/types.h"
 
 extern u8 lbl_803A1D40[];
@@ -18,7 +19,7 @@ s32 menuPokemonMain(void)
     u32 context;
 
     mode = lbl_803A1D40[0];
-    selection = *(u16*)(lbl_803A1D40 + 0x12);
+    selection = ((Work803A1D40*)lbl_803A1D40)->field_12;
     context = *(u32*)(lbl_803A1D40 + 0xC);
     menuPokemonSub((u32)mode, (u32)selection, context);
     menuCloseCustom(0x63, 0, 1);

@@ -1,4 +1,6 @@
 /* GSgfx: draw a vertex list with its vertex format, 0x800D76A8 - 0x800D7820. */
+#include "game/records/lbl_804001F0.h"
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 
 extern u32 lbl_8047AA80; /* GSgfx state pointer */
@@ -55,11 +57,11 @@ static inline void GSgfxLoadVtxDesc(u32 obj) {
 void gfxSetVtxDescRaw(u32 obj, u16 vertCount) {
     u32 oldObj;
 
-    if (*(u8*)(lbl_8047AA80 + 0x47e) == 1) {
-        oldObj = *(u32*)(lbl_8047AA80 + 0x24);
-        *(u32*)(lbl_8047AA80 + 0x24) = obj;
+    if (((GSgfxState*)lbl_8047AA80)->gammaMode == 1) {
+        oldObj = ((GSgfxState*)lbl_8047AA80)->field_24;
+        ((GSgfxState*)lbl_8047AA80)->field_24 = obj;
         fn_800D7940((u8*)obj, vertCount);
-        *(u32*)(lbl_8047AA80 + 0x24) = oldObj;
+        ((GSgfxState*)lbl_8047AA80)->field_24 = oldObj;
         return;
     }
 

@@ -8,6 +8,7 @@
  * rlwimi itself; the unit is built with -opt nopeephole (see configure.py),
  * so a mask-and-or written by hand would not be folded into one.
  */
+#include "game/bios_records.h"
 #include "dolphin/types.h"
 
 typedef struct FloorCharacterFlags {
@@ -41,17 +42,17 @@ void floorCharacterBiosSetPos(u8* dst, f32* src)
 
 u32 floorCharacterBiosGetTalkSctID(void* ptr)
 {
-    return ptr != NULL ? *(u32*)((u8*)ptr + 0x14) : 0;
+    return ptr != NULL ? ((FloorCharacterBiosFields*)ptr)->talkSctID : 0;
 }
 
 u32 floorCharacterBiosGetMoveSctID(void* ptr)
 {
-    return ptr != NULL ? *(u32*)((u8*)ptr + 0x10) : 0;
+    return ptr != NULL ? ((FloorCharacterBiosFields*)ptr)->moveSctID : 0;
 }
 
 u32 floorCharacterBiosGetNameID(void* ptr)
 {
-    return ptr != NULL ? *(u16*)((u8*)ptr + 0x8) : 0;
+    return ptr != NULL ? ((FloorCharacterBiosFields*)ptr)->nameID : 0;
 }
 
 u32 floorCharacterBiosGetTalkWallThrough(u8* ptr)

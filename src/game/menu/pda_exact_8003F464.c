@@ -7,6 +7,7 @@
  * redirected by the temporary constant_import build step to the shared
  * lbl_8047BCxx pool.
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -1134,7 +1135,7 @@ void fn_8003F464(PdaSprite* alphaSprite, PdaSprite* sprite)
                                    (2.0f *
                                     (2.0f * lbl_803A6818.angle)) +
                                3.1415927f) +
-                  (f32)*(s16*)(lbl_802EF0A8 + 0x17b1c));
+                  (f32)((Work802EF0A8*)lbl_802EF0A8)->field_17B1C);
         break;
     case 0xd8b:
         pdaPlaceSprite(alphaSprite, sprite);
@@ -1154,7 +1155,7 @@ void fn_8003F464(PdaSprite* alphaSprite, PdaSprite* sprite)
                       (f32)sin(3.1415927f *
                                (2.0f *
                                 (2.0f * lbl_803A6818.angle))) +
-                  (f32)*(s16*)(lbl_802EF0A8 + 0x17b38));
+                  (f32)((Work802EF0A8*)lbl_802EF0A8)->field_17B38);
         break;
     case 0xd66:
     case 0xd67:

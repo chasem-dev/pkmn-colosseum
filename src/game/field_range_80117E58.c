@@ -10,6 +10,7 @@
  * units). See gs_field_world.c split history for the address-range
  * evidence (anchor-name monotonicity checks) used to place this boundary.
  */
+#include "game/records/lbl_8047AD88.h"
 #include "dolphin/types.h"
 #include "game/ps.h"
 #include "game/world/gs_field.h"

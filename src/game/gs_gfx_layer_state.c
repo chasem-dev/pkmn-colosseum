@@ -12,6 +12,9 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/records/lbl_804001F0.h"
+#include "game/records/lbl_80314610.h"
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 
 /* ===== External SDK / engine functions ===== */
@@ -938,7 +941,7 @@ asm void fn_800D7820(void) {
 #else
 void gfxSetVtxDesc(u32 val) {
     if (*(s32*)lbl_8047AA80 == 1) { gfxRecordCommand(0x46, 1, val); }
-    else { *(s32*)(lbl_8047AA80 + 0x24) = val; }
+    else { ((GSgfxState*)lbl_8047AA80)->field_24 = val; }
 }
 #endif
 
@@ -1107,7 +1110,7 @@ void gfxLoadVtxDesc(u32 obj) {
         }
     }
 
-    *(u32*)(lbl_804001F0 + 0x14) += 1;
+    ((Work804001F0*)lbl_804001F0)->field_14 += 1;
 }
 #endif
 
@@ -1169,7 +1172,7 @@ void gfxFlushMatrix(void) {
     if (*(s32*)state == 1) {
         gfxRecordCommand(0x45, 0);
     } else if (lbl_8047AAC8) {
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1233,7 +1236,7 @@ void gfxPopMatrix(void) {
         GSlogWrite(lbl_80270460);
     } else {
         lbl_8047AAC0 = lbl_8047AAC0 + 0x30;
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1261,7 +1264,7 @@ void gfxPushMultMatrix(void* src) {
     } else {
         lbl_8047AAC0 = lbl_8047AAC0 - 0x30;
         GSmtxConcat((void*)lbl_8047AAC0, (void*)(lbl_8047AAC0 + 0x30), src);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1285,7 +1288,7 @@ void gfxMultMatrix(void* param) {
         gfxRecordCommand(0x40, 0x10, param);
     } else {
         GSmtxConcat((void*)lbl_8047AAC0, (void*)lbl_8047AAC0, param);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1313,7 +1316,7 @@ void gfxPushLoadMatrix(void* src) {
     } else {
         lbl_8047AAC0 = lbl_8047AAC0 - 0x30;
         fn_800E0628((void*)lbl_8047AAC0, src);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1337,7 +1340,7 @@ void gfxScaleMatrix(f32 a, f32 b, f32 c) {
         gfxRecordCommand(0x3e, 0xd, a, b, c);
     } else {
         fn_800E02C4((void*)lbl_8047AAC0);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1361,7 +1364,7 @@ void gfxTranslateMatrix(f32 a, f32 b, f32 c) {
         gfxRecordCommand(0x3d, 0xd, a, b, c);
     } else {
         fn_800E03E8((void*)lbl_8047AAC0, a, b, c);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1390,7 +1393,7 @@ void gfxRotateXYZ(f32 a, f32 b, f32 c) {
         GSmtxRotateX((void*)lbl_8047AAC0, a);
         GSmtxRotateY((void*)lbl_8047AAC0, y);
         GSmtxRotateZ((void*)lbl_8047AAC0, z);
-        matrixIndex = *(u32*)(lbl_80314610 + 0x24);
+        matrixIndex = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, matrixIndex);
         GXLoadNrmMtxImm(lbl_8047AAC0, matrixIndex);
         GXSetCurrentMtx(matrixIndex);
@@ -1414,7 +1417,7 @@ void gfxLoadIdentity(void) {
         gfxRecordCommand(0x3b, 0);
     } else {
         fn_800E064C((void*)lbl_8047AAC0);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1449,7 +1452,7 @@ void gfxMatrixStackInit(u32 count) {
         lbl_8047AAC4 = ptr;
         lbl_8047AAC0 = ptr;
         fn_800E064C((void*)ptr);
-        mtx = *(u32*)(lbl_80314610 + 0x24);
+        mtx = ((Work80314610*)lbl_80314610)->field_24;
         GXLoadPosMtxImm(lbl_8047AAC0, mtx);
         GXLoadNrmMtxImm(lbl_8047AAC0, mtx);
         GXSetCurrentMtx(mtx);
@@ -1542,7 +1545,7 @@ void gfxLoadTexture(s32 slot, void* model) {
         GXLoadTlut(obj + 0x74, ((u32*)lbl_80314510)[slot]);
     }
     GXLoadTexObj(obj + 0x54, ((u32*)lbl_803144F0)[slot]);
-    *(u32*)(lbl_804001F0 + 0x24) += 1;
+    ((Work804001F0*)lbl_804001F0)->field_24 += 1;
 }
 #endif
 #endif
@@ -1557,7 +1560,7 @@ void _gfxSetFlagsImm(u32 mask) {
     s32 i;
     u8* textureSlot;
 
-    *(u32*)(lbl_8047AA80 + 0x414) |= mask;
+    ((GSgfxState*)lbl_8047AA80)->field_414 |= mask;
     if (mask & 2) {
         for (i = 0; i < 8; i++) {
             ((u32*)lbl_8047AA80)[i + 10] = 0;
@@ -1572,7 +1575,7 @@ void _gfxSetFlagsImm(u32 mask) {
                 GXSetTevDirect(i);
             }
         }
-        *(u8*)(lbl_8047AA80 + 0x3ac) = 0;
+        ((GSgfxState*)lbl_8047AA80)->field_3AC = 0;
         GXSetNumIndStages(0);
     }
 }
@@ -1585,7 +1588,7 @@ asm void fn_800D888C(void) {
 #else
 void gfxClearFlags(u32 mask) {
     if (*(s32*)lbl_8047AA80 == 1) { gfxRecordCommand(0x29, 1, mask); }
-    else { *(s32*)(lbl_8047AA80 + 0x10) &= ~mask; }
+    else { ((GSgfxState*)lbl_8047AA80)->field_10 &= ~mask; }
 }
 #endif
 
@@ -1596,7 +1599,7 @@ asm void fn_800D88DC(void) {
 #else
 void gfxSetFlags(u32 mask) {
     if (*(s32*)lbl_8047AA80 == 1) { gfxRecordCommand(0x28, 1, mask); }
-    else { *(s32*)(lbl_8047AA80 + 0x10) |= mask; }
+    else { ((GSgfxState*)lbl_8047AA80)->field_10 |= mask; }
 }
 #endif
 #endif

@@ -14,6 +14,7 @@
  * two in step.
  */
 #define GBA_COMMUNICATION_DECLS_ONLY
+#include "game/records/lbl_803FB380.h"
 #include "src/game/gbaCommunication.c"
 
 extern u32 pokemonGetStatus(u8* obj, u32 id, u32 selector, u32 d);
@@ -133,7 +134,7 @@ void fn_80096D54(u8* menu)
                 pokemonWazaReplace(pokemon, work->previousSelection,
                                    work->selection);
             }
-            *(s8*)(lbl_803FB380 + 3) = -1;
+            ((Work803FB380*)lbl_803FB380)->field_3 = -1;
             work->state = 3;
             break;
         case 5:
@@ -148,7 +149,7 @@ void fn_80096D54(u8* menu)
                     }
                 }
                 work->state = 6;
-                *(s8*)(lbl_803FB380 + 0x1A) = ribbon;
+                ((Work803FB380*)lbl_803FB380)->field_1A = ribbon;
             }
             break;
         case 7:
@@ -178,7 +179,7 @@ void fn_80096D54(u8* menu)
             lbl_803FB380[1] = 3;
             break;
         case 6:
-            *(s8*)(lbl_803FB380 + 0x1A) = -1;
+            ((Work803FB380*)lbl_803FB380)->field_1A = -1;
             lbl_803FB380[1] = 5;
             break;
         }

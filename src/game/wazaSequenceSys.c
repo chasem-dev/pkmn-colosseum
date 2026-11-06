@@ -16,7 +16,7 @@
  */
 u8 wazaSequenceOwnerGetFlag77(void* obj) {
     if (obj != NULL) {
-        return *(u8*)((u8*)obj + 0x77);
+        return ((WazaEffect*)obj)->motionComplete;
     }
     return 0;
 }
@@ -158,7 +158,7 @@ void fn_801DA070(void* effect) {
     if ((u8)GSmodelCenterNull(fx->model) != 0) {
         n = GSmodelWalkJObjs(fx->model) - 1;
     } else {
-        n = *(s32*)((u8*)entry + 0x54);
+        n = ((WazaEffectTblEntry*)entry)->field_4C[2];
     }
 
     if (n > 0) {
@@ -220,7 +220,7 @@ void fn_801DA224(void* effect, s32 flags) {
             fn_801DCEA8(effect);
         }
 
-        *(u8*)((u8*)effect + 0x18) = flags;
+        ((WazaEffect*)effect)->flags = flags;
     }
 }
 
@@ -256,7 +256,7 @@ void fn_801DA2C4(void* effect, f32 radius, f32 t) {
  */
 u8 wazaSequenceOwnerGetFlags(void* effect) {
     if (effect != NULL) {
-        return *(u8*)((u8*)effect + 0x18);
+        return ((WazaEffect*)effect)->flags;
     }
     return 0;
 }
@@ -307,7 +307,7 @@ void fn_801DA3CC(void* effect, s32 trajType) {
  */
 u32 wazaSequenceOwnerIsVisible(void* effect) {
     if (effect != NULL) {
-        return *(u8*)((u8*)effect + 0x18) & 1;
+        return ((WazaEffect*)effect)->flags & 1;
     }
     return 0;
 }
@@ -322,7 +322,7 @@ void fn_801DA448(void* effect, u32 visible) {
     u8* model;
 
     if (effect != NULL) {
-        sequence = *(u8**)((u8*)effect + 0x68);
+        sequence = (u8*)((WazaEffect*)effect)->sequenceList;
         while (sequence != NULL) {
             if (*(u8*)(sequence + 0x14) != 0) {
                 model = *(u8**)(sequence + 0x24);
@@ -380,8 +380,8 @@ void wazaSequenceOwnerSetVisibility(void* effect, u32 visible) {
  */
 void wazaSequenceSetDownFlag(void* effect, u8 val) {
     if (effect == NULL) return;
-    *(u8*)((u8*)effect + 0x16) = 0;
-    *(u8*)((u8*)effect + 0x17) = val;
+    ((WazaEffect*)effect)->motionBusy = 0;
+    ((WazaEffect*)effect)->sequenceEnabled = val;
 }
 
 /**
@@ -399,21 +399,21 @@ u8 wazaSequenceSysIsAllEnd(s32 timeType) {
     count = *(u16*)(pool + 4);
     for (; i < count; i++, effect++) {
         if (effect->active != 0) {
-            waza = *(void**)((u8*)effect + 0x6C);
+            waza = effect->currentSequence;
             if (waza != NULL) {
                 if (waza == NULL) {
                     return TRUE;
                 }
 
                 if ((u8)timeType == 6) {
-                    if (*(u8*)((u8*)waza + 0x14) != 0 && *(s8*)((u8*)waza + 0x15) != -1) {
+                    if (((WazaSequence*)waza)->active != 0 && (s8)((WazaSequence*)waza)->stopping != -1) {
                         return FALSE;
                     }
                     return TRUE;
                 }
 
                 return *(s32*)waza >=
-                       wazaSequenceSysGetWazaTime(*(void**)((u8*)waza + 0x3C), waza, timeType);
+                       wazaSequenceSysGetWazaTime(((WazaSequence*)waza)->owner, waza, timeType);
             }
         }
     }
@@ -437,13 +437,13 @@ u8 wazaSequenceSysIsWazaEnd(void* sequence, s32 moveID, s32 variant, s32 timeTyp
     }
 
     if ((u8)timeType == 6) {
-        if (*(u8*)((u8*)waza + 0x14) != 0 && *(s8*)((u8*)waza + 0x15) != -1) {
+        if (((WazaSequence*)waza)->active != 0 && (s8)((WazaSequence*)waza)->stopping != -1) {
             return FALSE;
         }
         return TRUE;
     }
 
-    return *(s32*)waza >= wazaSequenceSysGetWazaTime(*(void**)((u8*)waza + 0x3C), waza, timeType);
+    return *(s32*)waza >= wazaSequenceSysGetWazaTime(((WazaSequence*)waza)->owner, waza, timeType);
 }
 
 /**
@@ -483,16 +483,16 @@ void wazaSequenceSysFreeAll(void) {
     count = *(u16*)(pool + 4);
     for (i = 0; i < count; i++, effect++) {
         if (effect->active != 0) {
-            child = *(void**)((u8*)effect + 0x68);
+            child = effect->sequenceList;
             while (child != NULL) {
-                next = *(void**)((u8*)child + 0x34);
-                if (*(u8*)((u8*)child + 0x14) != 0) {
+                next = ((WazaSequence*)child)->next;
+                if (((WazaSequence*)child)->active != 0) {
                     wazaSequenceApplyStop(child);
                 }
                 wazaSequenceFree(child);
                 child = next;
             }
-            *(void**)((u8*)effect + 0x68) = NULL;
+            effect->sequenceList = NULL;
         }
     }
 }
@@ -509,19 +509,19 @@ void fn_801DA83C(void* effect) {
     void* next;
 
     if (effect != NULL) {
-        cur = *(void**)((u8*)effect + 0x68);
-        if (*(u8*)((u8*)effect + 0x74) == 0) {
+        cur = ((WazaEffect*)effect)->sequenceList;
+        if (((WazaEffect*)effect)->active == 0) {
             return;
         }
         while (cur != NULL) {
-            next = *(void**)((u8*)cur + 0x34);
-            if (*(u8*)((u8*)cur + 0x14) != 0) {
+            next = ((WazaSequence*)cur)->next;
+            if (((WazaSequence*)cur)->active != 0) {
                 wazaSequenceApplyStop(cur);
             }
             wazaSequenceFree(cur);
             cur = next;
         }
-        *(void**)((u8*)effect + 0x68) = NULL;
+        ((WazaEffect*)effect)->sequenceList = NULL;
     }
 }
 
@@ -534,7 +534,7 @@ void wazaSequenceSysStopWaza(void* obj, s32 search_key1, s32 search_key2) {
     if (obj != NULL) {
         resolved = GetWaza__12NullSequenceCFUsUs(obj, search_key1, search_key2);
         if (resolved != NULL) {
-            if (*(u8*)((u8*)resolved + 0x14) != 0) {
+            if (((WazaSequence*)resolved)->active != 0) {
                 wazaSequenceApplyStop(resolved);
             }
             wazaSequenceFree(resolved);
@@ -551,7 +551,7 @@ void wazaSequenceClearFlag16(void* obj, s32 search_key1, s32 search_key2) {
     if (obj != NULL) {
         resolved = GetWaza__12NullSequenceCFUsUs(obj, search_key1, search_key2);
         if (resolved != NULL) {
-            *(u8*)((u8*)resolved + 0x16) = 0;
+            ((WazaSequence*)resolved)->cameraActive = 0;
         }
     }
 }
@@ -569,8 +569,8 @@ s32 wazaSequenceSysIsPlayingWaza(void* obj, s32 search_key1, s32 search_key2) {
     resolved = GetWaza__12NullSequenceCFUsUs(obj, search_key1, search_key2);
     if (resolved != NULL) {
         result = 0;
-        if (*(u8*)((u8*)resolved + 0x14) != 0) {
-            if (*(s8*)((u8*)resolved + 0x15) != -1) {
+        if (((WazaSequence*)resolved)->active != 0) {
+            if ((s8)((WazaSequence*)resolved)->stopping != -1) {
                 result = 1;
             }
         }
@@ -609,7 +609,7 @@ void wazaSequenceSysStartWaza(void* sequence, s32 moveID, s32 variant) {
     for (; i < count; i++, entry++) {
         if (entry->active != 0) {
             waza = GetWaza__12NullSequenceCFUsUs(entry, moveID, variant);
-            if (waza != NULL && *(u8*)((u8*)waza + 0x14) != 0) {
+            if (waza != NULL && ((WazaSequence*)waza)->active != 0) {
                 wazaSequenceApplyStop(waza);
             }
         }
@@ -618,8 +618,8 @@ void wazaSequenceSysStartWaza(void* sequence, s32 moveID, s32 variant) {
     if (sequence != NULL) {
         waza = GetWaza__12NullSequenceCFUsUs(sequence, moveID, variant);
         if (sequence != NULL) {
-            *(u8*)((u8*)sequence + 0x16) = 0;
-            *(u8*)((u8*)sequence + 0x17) = 0;
+            ((WazaEffect*)sequence)->motionBusy = 0;
+            ((WazaEffect*)sequence)->sequenceEnabled = 0;
         }
         if (waza != NULL) {
             wazaSequenceStart(waza);
@@ -688,7 +688,7 @@ f32 fn_801DABAC(void* obj) {
     s32 selector;
 
     if (obj != NULL) {
-        selector = *(s32*)((u8*)obj + 0x10);
+        selector = ((WazaEffect*)obj)->scale_selector;
     } else {
         selector = 0;
     }
@@ -715,7 +715,7 @@ f32 fn_801DABAC(void* obj) {
  */
 u32 wazaSequenceOwnerGetSizeClass(void* obj) {
     if (obj != NULL) {
-        return *(u32*)((u8*)obj + 0x10);
+        return ((WazaEffect*)obj)->scale_selector;
     }
     return 0;
 }
@@ -726,7 +726,7 @@ u32 wazaSequenceOwnerGetSizeClass(void* obj) {
  */
 u32 wazaSequenceOwnerGetModel(void* obj) {
     if (obj != NULL) {
-        return *(u32*)((u8*)obj + 0x24);
+        return (u32)((WazaEffect*)obj)->model;
     }
     return 0;
 }
@@ -748,7 +748,7 @@ u32 wazaSequenceOwnerIsPlaying(void* obj) {
  */
 u16 wazaSequenceOwnerGetId(void* obj) {
     if (obj != NULL) {
-        return *(u16*)((u8*)obj + 0x70);
+        return ((WazaEffect*)obj)->id;
     }
     return 0;
 }

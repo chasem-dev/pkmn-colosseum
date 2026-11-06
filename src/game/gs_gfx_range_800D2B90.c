@@ -22,6 +22,7 @@
  * reconstructions: GSgfxState (game/gs_gfx.h) for the frame functions and
  * GSRenderState (game/gs_render_util.h, via RS) for the fog and accessors.
  */
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 #include "dolphin/gx/GX.h"
 #include "game/gs_gfx.h"
@@ -419,22 +420,22 @@ void GSgfxRenderLayer(void* arg0, u8 arg1) {
 
         if (arg1 != 0) {
             startTick = OSGetTick();
-            fn_800D13C4((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+            fn_800D13C4((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
             tick = OSGetTick();
             ((u32*)&lbl_804001F0)[0x2C / 4] = tick - startTick;
 
             startTick = OSGetTick();
-            fn_800DC874((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+            fn_800DC874((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
             tick = OSGetTick();
             ((u32*)&lbl_804001F0)[0x30 / 4] = tick - startTick;
 
             startTick = OSGetTick();
-            GSmodelApplyAll((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+            GSmodelApplyAll((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
             tick = OSGetTick();
             ((u32*)&lbl_804001F0)[0x34 / 4] = tick - startTick;
 
             startTick = OSGetTick();
-            gsParticleUpdate((void*)*(u32*)((u8*)lbl_8047AA80 + 0x54));
+            gsParticleUpdate((void*)((GSgfxState*)lbl_8047AA80)->frameDelta);
             tick = OSGetTick();
             ((u32*)&lbl_804001F0)[0x38 / 4] = tick - startTick;
         }

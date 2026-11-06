@@ -15,6 +15,7 @@
  * reconstruction verified against the original file.
  */
 #include "game/trainer.h"
+#include "game/bios_records.h"
 #include "game/pokemon.h"
 
 /* =========================================================================
@@ -82,19 +83,19 @@ void fightTrainerGetStatus(void);
 /* Address: 0x801FBD10 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerKindDataBiosGetBgmSndId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x8]);
+    return ((FightTrainerKindDataBiosFields*)ptr)->bgmSndId;
 }
 
 /* Address: 0x801FBD28 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerKindDataBiosGetPrefixName(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x4]);
+    return ((FightTrainerKindDataBiosFields*)ptr)->prefixName;
 }
 
 /* Address: 0x801FBD40 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightTrainerKindDataBiosGetSyoukinBairitu(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x0]);
+    return ((FightTrainerKindDataBiosFields*)ptr)->syoukinBairitu;
 }
 
 /* 0x801FBD58 | size: 0x2C */
@@ -107,43 +108,43 @@ u8* fightTrainerKindDataBiosGetPtr(u16 idx) {
 /* Address: 0x801FBD84 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetParam1bantakaiFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x12]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->param1bantakaiFlag = val;
 }
 
 /* Address: 0x801FBD94 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetBadwazaHaveFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x11]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->badwazaHaveFlag = val;
 }
 
 /* Address: 0x801FBDA4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetDefense1banhikuiFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x10]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->defense1banhikuiFlag = val;
 }
 
 /* Address: 0x801FBDB4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetLv1banhikuiFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xF]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->lv1banhikuiFlag = val;
 }
 
 /* Address: 0x801FBDC4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetNowhp1banhikuiFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xE]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->nowhp1banhikuiFlag = val;
 }
 
 /* Address: 0x801FBDD4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetStoreTokuseiData(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0xC]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->storeTokuseiData = val;
 }
 
 /* Address: 0x801FBDE4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetTokuseiFlag(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0xA]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->tokuseiFlag = val;
 }
 
 /* 0x801FBDF4 | size: 0x24 */
@@ -157,49 +158,49 @@ void fn_801FBDF4(u8* ptr, u8 idx, u16 val) {
 /* Address: 0x801FBE18 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerEnemyPokemonBiosSetFightEntryeId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x0]) = val;
+    ((FightTrainerEnemyPokemonBiosFields*)ptr)->fightEntryeId = val;
 }
 
 /* Address: 0x801FBE28 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerEnemyPokemonBiosGetParam1bantakaiFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x12]);
+    return ((FightTrainerEnemyPokemonBiosFields*)ptr)->param1bantakaiFlag;
 }
 
 /* Address: 0x801FBE40 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerEnemyPokemonBiosGetBadwazaHaveFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x11]);
+    return ((FightTrainerEnemyPokemonBiosFields*)ptr)->badwazaHaveFlag;
 }
 
 /* Address: 0x801FBE58 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerEnemyPokemonBiosGetDefense1banhikuiFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x10]);
+    return ((FightTrainerEnemyPokemonBiosFields*)ptr)->defense1banhikuiFlag;
 }
 
 /* Address: 0x801FBE70 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerEnemyPokemonBiosGetLv1banhikuiFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xF]);
+    return ((FightTrainerEnemyPokemonBiosFields*)ptr)->lv1banhikuiFlag;
 }
 
 /* Address: 0x801FBE88 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerEnemyPokemonBiosGetNowhp1banhikuiFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xE]);
+    return ((FightTrainerEnemyPokemonBiosFields*)ptr)->nowhp1banhikuiFlag;
 }
 
 /* Address: 0x801FBEA0 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightTrainerEnemyPokemonBiosGetStoreTokuseiData(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0xC]);
+    return ((FightTrainerEnemyPokemonBiosFields*)ptr)->storeTokuseiData;
 }
 
 /* Address: 0x801FBEB8 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightTrainerEnemyPokemonBiosGetTokuseiFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0xA]);
+    return ((FightTrainerEnemyPokemonBiosFields*)ptr)->tokuseiFlag;
 }
 
 /* 0x801FBED0 | size: 0x34 */
@@ -219,49 +220,49 @@ s16 fightTrainerEnemyPokemonBiosGetFightEntryeId(u8* ptr) {
 /* Address: 0x801FBF1C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiValueAddsubDataBiosSetPrefixName(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x8]) = val;
+    ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->prefixName = val;
 }
 
 /* Address: 0x801FBF2C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiValueAddsubDataBiosSetKoudouName(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x4]) = val;
+    ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->koudouName = val;
 }
 
 /* Address: 0x801FBF3C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiValueAddsubDataBiosSetName(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0xC]) = val;
+    ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->name = val;
 }
 
 /* Address: 0x801FBF4C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiValueAddsubDataBiosSetValue(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x0]) = val;
+    ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->value = val;
 }
 
 /* Address: 0x801FBF5C | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerAiValueAddsubDataBiosGetPrefixName(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x8]);
+    return ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->prefixName;
 }
 
 /* Address: 0x801FBF74 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerAiValueAddsubDataBiosGetKoudouName(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x4]);
+    return ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->koudouName;
 }
 
 /* Address: 0x801FBF8C | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerAiValueAddsubDataBiosGetName(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0xC]);
+    return ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->name;
 }
 
 /* Address: 0x801FBFA4 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerAiValueAddsubDataBiosGetValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x0]);
+    return ((FightTrainerAiValueAddsubDataBiosFields*)ptr)->value;
 }
 
 /* Address: 0x801FBFBC | Size: 0x2C | Pattern: dispatch_resolver (misc attributes) */
@@ -274,31 +275,31 @@ void* fightTrainerAiValueAddsubDataBiosGetPtr(u16 slot) {
 /* Address: 0x801FBFE8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetLastValueRevise(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x19]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->lastValueRevise = val;
 }
 
 /* Address: 0x801FBFF8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetWazaNokoriPpValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x18]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->wazaNokoriPpValue = val;
 }
 
 /* Address: 0x801FC008 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetWazaRiskFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x17]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->wazaRiskFlag = val;
 }
 
 /* Address: 0x801FC018 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetWazaAvgValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x16]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->wazaAvgValue = val;
 }
 
 /* Address: 0x801FC028 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetWazaHitFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x15]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->wazaHitFlag = val;
 }
 
 /* 0x801FC038 | size: 0x44 */
@@ -334,55 +335,55 @@ void fightTrainerAiDataBiosSetWazaTypeReviseTypeDataId(u8* ptr, u16 idx, u8 val)
 /* Address: 0x801FC0C0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetPartFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x14]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->partFlag = val;
 }
 
 /* Address: 0x801FC0D0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetWazaInitValueFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x13]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->wazaInitValueFlag = val;
 }
 
 /* Address: 0x801FC0E0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetWazaRndSelectFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x12]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->wazaRndSelectFlag = val;
 }
 
 /* Address: 0x801FC0F0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetDefensePokemonRndSelectFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x11]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->defensePokemonRndSelectFlag = val;
 }
 
 /* Address: 0x801FC100 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetAbicntMinValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x10]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->abicntMinValue = val;
 }
 
 /* Address: 0x801FC110 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetAbicntMaxValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xF]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->abicntMaxValue = val;
 }
 
 /* Address: 0x801FC120 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetWazaDamageFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xE]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->wazaDamageFlag = val;
 }
 
 /* Address: 0x801FC130 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetNokoriHpValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xD]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->nokoriHpValue = val;
 }
 
 /* Address: 0x801FC140 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetTokuseiCheckFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xC]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->tokuseiCheckFlag = val;
 }
 
 /* 0x801FC150 | size: 0x44 */
@@ -418,103 +419,103 @@ void fightTrainerAiDataBiosSetZokuseiReviseZokuseiDataId(u8* ptr, u16 idx, u8 va
 /* Address: 0x801FC1D8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetZokuseiCheckFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xB]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->zokuseiCheckFlag = val;
 }
 
 /* Address: 0x801FC1E8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetParamStoreFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0xA]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->paramStoreFlag = val;
 }
 
 /* Address: 0x801FC1F8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetParamExpectFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x9]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->paramExpectFlag = val;
 }
 
 /* Address: 0x801FC208 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetItemValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x8]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->itemValue = val;
 }
 
 /* Address: 0x801FC218 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetIrekaeValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x7]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->irekaeValue = val;
 }
 
 /* Address: 0x801FC228 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetComboValue(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x6]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->comboValue = val;
 }
 
 /* Address: 0x801FC238 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetPokemonJoutaiFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x5]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->pokemonJoutaiFlag = val;
 }
 
 /* Address: 0x801FC248 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetKeyPlayerFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x4]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->keyPlayerFlag = val;
 }
 
 /* Address: 0x801FC258 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetPokemonDataOrderAceBossFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x3]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->pokemonDataOrderAceBossFlag = val;
 }
 
 /* Address: 0x801FC268 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetPokemonDataOrderOutFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x2]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->pokemonDataOrderOutFlag = val;
 }
 
 /* Address: 0x801FC278 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetPokemonSelectWeakPointFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x1]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->pokemonSelectWeakPointFlag = val;
 }
 
 /* Address: 0x801FC288 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerAiDataBiosSetPokemonSelectRandomFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x0]) = val;
+    ((FightTrainerAiDataBiosFields*)ptr)->pokemonSelectRandomFlag = val;
 }
 
 /* Address: 0x801FC298 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetLastValueRevise(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x19]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->lastValueRevise;
 }
 
 /* Address: 0x801FC2B0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetWazaNokoriPpValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x18]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->wazaNokoriPpValue;
 }
 
 /* Address: 0x801FC2C8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetWazaRiskFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x17]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->wazaRiskFlag;
 }
 
 /* Address: 0x801FC2E0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetWazaAvgValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x16]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->wazaAvgValue;
 }
 
 /* Address: 0x801FC2F8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetWazaHitFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x15]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->wazaHitFlag;
 }
 
 /* 0x801FC310 | size: 0x54 */
@@ -558,55 +559,55 @@ u32 fightTrainerAiDataBiosGetWazaTypeReviseTypeDataId(u8* ptr, u16 idx) {
 /* Address: 0x801FC3B8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetPartFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x14]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->partFlag;
 }
 
 /* Address: 0x801FC3D0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetWazaInitValueFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x13]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->wazaInitValueFlag;
 }
 
 /* Address: 0x801FC3E8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetWazaRndSelectFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x12]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->wazaRndSelectFlag;
 }
 
 /* Address: 0x801FC400 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetDefensePokemonRndSelectFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x11]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->defensePokemonRndSelectFlag;
 }
 
 /* Address: 0x801FC418 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetAbicntMinValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x10]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->abicntMinValue;
 }
 
 /* Address: 0x801FC430 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetAbicntMaxValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xF]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->abicntMaxValue;
 }
 
 /* Address: 0x801FC448 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetWazaDamageFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xE]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->wazaDamageFlag;
 }
 
 /* Address: 0x801FC460 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetNokoriHpValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xD]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->nokoriHpValue;
 }
 
 /* Address: 0x801FC478 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetTokuseiCheckFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xC]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->tokuseiCheckFlag;
 }
 
 /* 0x801FC490 | size: 0x54 */
@@ -650,73 +651,73 @@ u32 fightTrainerAiDataBiosGetZokuseiReviseZokuseiDataId(u8* ptr, u16 idx) {
 /* Address: 0x801FC538 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetZokuseiCheckFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xB]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->zokuseiCheckFlag;
 }
 
 /* Address: 0x801FC550 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetParamStoreFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0xA]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->paramStoreFlag;
 }
 
 /* Address: 0x801FC568 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetParamExpectFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x9]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->paramExpectFlag;
 }
 
 /* Address: 0x801FC580 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetItemValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x8]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->itemValue;
 }
 
 /* Address: 0x801FC598 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetIrekaeValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x7]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->irekaeValue;
 }
 
 /* Address: 0x801FC5B0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetComboValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x6]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->comboValue;
 }
 
 /* Address: 0x801FC5C8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetPokemonJoutaiFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x5]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->pokemonJoutaiFlag;
 }
 
 /* Address: 0x801FC5E0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetKeyPlayerFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x4]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->keyPlayerFlag;
 }
 
 /* Address: 0x801FC5F8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetPokemonDataOrderAceBossFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x3]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->pokemonDataOrderAceBossFlag;
 }
 
 /* Address: 0x801FC610 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetPokemonDataOrderOutFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x2]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->pokemonDataOrderOutFlag;
 }
 
 /* Address: 0x801FC628 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetPokemonSelectWeakPointFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x1]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->pokemonSelectWeakPointFlag;
 }
 
 /* Address: 0x801FC640 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerAiDataBiosGetPokemonSelectRandomFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x0]);
+    return ((FightTrainerAiDataBiosFields*)ptr)->pokemonSelectRandomFlag;
 }
 
 /* Address: 0x801FC658 | Size: 0x2C | Pattern: dispatch_resolver (story/event) */
@@ -729,43 +730,43 @@ void* fightTrainerAiDataBiosGetPtr(u16 slot) {
 /* Address: 0x801FC684 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetPartDataId(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x6]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->partDataId = val;
 }
 
 /* Address: 0x801FC694 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetKeyPlayerFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x5]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->keyPlayerFlag = val;
 }
 
 /* Address: 0x801FC6A4 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerPokemonDataBiosGetPartDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x6]);
+    return ((FightTrainerPokemonDataBiosFields*)ptr)->partDataId;
 }
 
 /* Address: 0x801FC6BC | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerPokemonDataBiosGetKeyPlayerFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x5]);
+    return ((FightTrainerPokemonDataBiosFields*)ptr)->keyPlayerFlag;
 }
 
 /* Address: 0x801FC6D4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetSeikakuDataId(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x2]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->seikakuDataId = val;
 }
 
 /* Address: 0x801FC6E4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetSexDataId(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x1]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->sexDataId = val;
 }
 
 /* Address: 0x801FC6F4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetFriend(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x8]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->friend = val;
 }
 
 /* 0x801FC704 | size: 0x40 */
@@ -799,37 +800,37 @@ void fightTrainerPokemonDataBiosSetWazaDataId(u8* ptr, u8 idx, u32 val) {
 /* Address: 0x801FC784 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetItemDataId(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x10]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->itemDataId = val;
 }
 
 /* Address: 0x801FC794 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetPokemonDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0xA]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->pokemonDataId = val;
 }
 
 /* Address: 0x801FC7A4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetTokuseiFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x0]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->tokuseiFlag = val;
 }
 
 /* Address: 0x801FC7B4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetDarkPokemonFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x3]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->darkPokemonFlag = val;
 }
 
 /* Address: 0x801FC7C4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetItemBallId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0xC]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->itemBallId = val;
 }
 
 /* Address: 0x801FC7D4 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetLevel(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x4]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->level = val;
 }
 
 /* 0x801FC7E4 | size: 0x24 */
@@ -851,7 +852,7 @@ void fightTrainerPokemonDataBiosSetStatusRnd(u8* ptr, u8 idx, u8 val) {
 /* Address: 0x801FC828 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonDataBiosSetNickname(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x14]) = val;
+    ((FightTrainerPokemonDataBiosFields*)ptr)->nickname = val;
 }
 
 /* 0x801FC838 | size: 0x1C */
@@ -913,7 +914,7 @@ s32 fightTrainerPokemonDataBiosGetItemDataId(u8* ptr) {
 /* Address: 0x801FC930 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightTrainerPokemonDataBiosGetPokemonDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0xA]);
+    return ((FightTrainerPokemonDataBiosFields*)ptr)->pokemonDataId;
 }
 
 /* 0x801FC948 | size: 0x1C */
@@ -925,19 +926,19 @@ s32 fightTrainerPokemonDataBiosGetTokuseiFlag(u8* ptr) {
 /* Address: 0x801FC964 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerPokemonDataBiosGetDarkPokemonFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x3]);
+    return ((FightTrainerPokemonDataBiosFields*)ptr)->darkPokemonFlag;
 }
 
 /* Address: 0x801FC97C | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightTrainerPokemonDataBiosGetItemBallId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0xC]);
+    return ((FightTrainerPokemonDataBiosFields*)ptr)->itemBallId;
 }
 
 /* Address: 0x801FC994 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTrainerPokemonDataBiosGetLevel(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x4]);
+    return ((FightTrainerPokemonDataBiosFields*)ptr)->level;
 }
 
 /* 0x801FC9AC | size: 0x34 */
@@ -959,7 +960,7 @@ s32 fightTrainerPokemonDataBiosGetStatusRnd(u8* ptr, u8 idx) {
 /* Address: 0x801FCA14 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerPokemonDataBiosGetNickname(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x14]);
+    return ((FightTrainerPokemonDataBiosFields*)ptr)->nickname;
 }
 
 /* Address: 0x801FCA2C | Size: 0x2C | Pattern: dispatch_resolver (team roster) */
@@ -980,7 +981,7 @@ void fightTrainerPokemonPartDataBiosSetWazaTypeRevise(u8* ptr, u8 idx, u8 val) {
 /* Address: 0x801FCA78 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerPokemonPartDataBiosSetName(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x0]) = val;
+    ((FightTrainerPokemonPartDataBiosFields*)ptr)->name = val;
 }
 
 /* 0x801FCA88 | size: 0x30 */
@@ -994,7 +995,7 @@ u32 fightTrainerPokemonPartDataBiosGetWazaTypeRevise(u8* ptr, u8 idx) {
 /* Address: 0x801FCAB8 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTrainerPokemonPartDataBiosGetName(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x0]);
+    return ((FightTrainerPokemonPartDataBiosFields*)ptr)->name;
 }
 
 /* Address: 0x801FCAD0 | Size: 0x2C | Pattern: dispatch_resolver (party config) */
@@ -1007,7 +1008,7 @@ void* fightTrainerPokemonPartDataBiosGetPtr(u16 slot) {
 /* Address: 0x801FCAFC | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerSet10(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x10]) = val;
+    ((FightTrainerFields*)ptr)->field10 = val;
 }
 
 /* 0x801FCB0C | size: 0x24 */
@@ -1021,7 +1022,7 @@ void fightTrainerSet24Arr(u8* ptr, u8 idx, u32 val) {
 /* Address: 0x801FCB30 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerSet0C(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0xC]) = val;
+    ((FightTrainerFields*)ptr)->field0C = val;
 }
 
 /* 0x801FCB40 | size: 0x24 */
@@ -1035,25 +1036,25 @@ void fightTrainerSetU16Arr14(u8* ptr, u8 idx, u16 val) {
 /* Address: 0x801FCB64 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerSet04(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x4]) = val;
+    ((FightTrainerFields*)ptr)->field04 = val;
 }
 
 /* Address: 0x801FCB74 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerSet08(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x8]) = val;
+    ((FightTrainerFields*)ptr)->field08 = val;
 }
 
 /* Address: 0x801FCB84 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerSet06(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x6]) = val;
+    ((FightTrainerFields*)ptr)->field06 = val;
 }
 
 /* Address: 0x801FCB94 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerSet00(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x0]) = val;
+    ((FightTrainerFields*)ptr)->field00 = val;
 }
 
 /* Address: 0x801FCBA4 | Size: 0x18 | Pattern: nullcheck_getter */
@@ -1093,13 +1094,13 @@ u16 fn_801FCC3C(u8* ptr) {
 /* Address: 0x801FCC54 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightTrainerDataBiosSetKindDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x2]) = val;
+    ((FightTrainerDataBiosFields*)ptr)->kindDataId = val;
 }
 
 /* Address: 0x801FCC64 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightTrainerDataBiosGetKindDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x2]);
+    return ((FightTrainerDataBiosFields*)ptr)->kindDataId;
 }
 
 /* Address: 0x801FCC7C | Size: 0x18 | Pattern: nullcheck_getter */
@@ -1275,55 +1276,55 @@ void fightOutPokemonBiosCopy(FightOutPokemon* dst, FightOutPokemon* src) {
 /* Address: 0x801FCEFC | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetOumuWazaDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x678]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->oumuWazaDataId = val;
 }
 
 /* Address: 0x801FCF0C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetGamanDamageTargetId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x676]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->gamanDamageTargetId = val;
 }
 
 /* Address: 0x801FCF1C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetGamanDamageValue(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x674]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->gamanDamageValue = val;
 }
 
 /* Address: 0x801FCF2C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetHitWazaZokuseiDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x672]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->hitWazaZokuseiDataId = val;
 }
 
 /* Address: 0x801FCF3C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetHitWazaDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x670]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->hitWazaDataId = val;
 }
 
 /* Address: 0x801FCF4C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetLastReceiveWazaTargetDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x66E]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->lastReceiveWazaTargetDataId = val;
 }
 
 /* Address: 0x801FCF5C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetLastUseWazaDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x66C]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->lastUseWazaDataId = val;
 }
 
 /* Address: 0x801FCF6C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetLastSelectWazaDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x66A]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->lastSelectWazaDataId = val;
 }
 
 /* Address: 0x801FCF7C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetSketchWazaDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x668]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->sketchWazaDataId = val;
 }
 
 /* 0x801FCF8C | size: 0x18 */
@@ -1335,13 +1336,13 @@ u8* fightOutPokemonBiosGetKeepFightWazaPtr(u8* ptr) {
 /* Address: 0x801FCFA4 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetOumuWazaDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x678]);
+    return ((FightOutPokemonBiosFields*)ptr)->oumuWazaDataId;
 }
 
 /* Address: 0x801FCFBC | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetGamanDamageTargetId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x676]);
+    return ((FightOutPokemonBiosFields*)ptr)->gamanDamageTargetId;
 }
 
 /* Address: 0x801FCFD4 | Size: 0x18 | Pattern: nullcheck_getter */
@@ -1353,85 +1354,85 @@ s16 fightOutPokemonBiosGetGamanDamageValue(u8* ptr) {
 /* 0x801FCFEC | size: 0x18 */
 u32 fightOutPokemonBiosGetHitWazaZokuseiDataId(u8* ptr) {
     if (ptr == NULL) { return 9; }
-    return *(u16*)(ptr + 0x672);
+    return ((FightOutPokemonBiosFields*)ptr)->hitWazaZokuseiDataId;
 }
 
 /* Address: 0x801FD004 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetHitWazaDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x670]);
+    return ((FightOutPokemonBiosFields*)ptr)->hitWazaDataId;
 }
 
 /* Address: 0x801FD01C | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetLastReceiveWazaTargetDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x66E]);
+    return ((FightOutPokemonBiosFields*)ptr)->lastReceiveWazaTargetDataId;
 }
 
 /* Address: 0x801FD034 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetLastUseWazaDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x66C]);
+    return ((FightOutPokemonBiosFields*)ptr)->lastUseWazaDataId;
 }
 
 /* Address: 0x801FD04C | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetLastSelectWazaDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x66A]);
+    return ((FightOutPokemonBiosFields*)ptr)->lastSelectWazaDataId;
 }
 
 /* Address: 0x801FD064 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetSketchWazaDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x668]);
+    return ((FightOutPokemonBiosFields*)ptr)->sketchWazaDataId;
 }
 
 /* Address: 0x801FD07C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonEnemyBiosSetDamage(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x8]) = val;
+    ((FightOutPokemonEnemyBiosFields*)ptr)->damage = val;
 }
 
 /* Address: 0x801FD08C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonEnemyBiosSetInitHp(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x6]) = val;
+    ((FightOutPokemonEnemyBiosFields*)ptr)->initHp = val;
 }
 
 /* Address: 0x801FD09C | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonEnemyBiosSetOumuWazaDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x4]) = val;
+    ((FightOutPokemonEnemyBiosFields*)ptr)->oumuWazaDataId = val;
 }
 
 /* Address: 0x801FD0AC | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonEnemyBiosSetTargetFightOutPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x0]) = val;
+    ((FightOutPokemonEnemyBiosFields*)ptr)->targetFightOutPokemonPtr = val;
 }
 
 /* Address: 0x801FD0BC | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonEnemyBiosGetDamage(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x8]);
+    return ((FightOutPokemonEnemyBiosFields*)ptr)->damage;
 }
 
 /* Address: 0x801FD0D4 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonEnemyBiosGetInitHp(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x6]);
+    return ((FightOutPokemonEnemyBiosFields*)ptr)->initHp;
 }
 
 /* Address: 0x801FD0EC | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonEnemyBiosGetOumuWazaDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x4]);
+    return ((FightOutPokemonEnemyBiosFields*)ptr)->oumuWazaDataId;
 }
 
 /* Address: 0x801FD104 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightOutPokemonEnemyBiosGetTargetFightOutPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x0]);
+    return ((FightOutPokemonEnemyBiosFields*)ptr)->targetFightOutPokemonPtr;
 }
 
 /* 0x801FD11C | size: 0x34 */
@@ -1444,7 +1445,7 @@ u8* fightOutPokemonBiosGetFightOutPokemonEnemyPtr(u8* ptr, u16 idx) {
 /* Address: 0x801FD150 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetIrekaeTargetEntryId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x6AE]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->irekaeTargetEntryId = val;
 }
 
 /* 0x801FD160 | size: 0x18 */
@@ -1456,175 +1457,175 @@ s32 fightOutPokemonBiosGetIrekaeTargetEntryId(u8* ptr) {
 /* Address: 0x801FD178 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetKizetuFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x6AC]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->kizetuFlag = val;
 }
 
 /* Address: 0x801FD188 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetKizetuFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x6AC]);
+    return ((FightOutPokemonBiosFields*)ptr)->kizetuFlag;
 }
 
 /* Address: 0x801FD1A0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetMyselfDamageSpeTargetId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x6AA]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->myselfDamageSpeTargetId = val;
 }
 
 /* Address: 0x801FD1B0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetMyselfDamageSpeValue(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x6A8]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->myselfDamageSpeValue = val;
 }
 
 /* Address: 0x801FD1C0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetMyselfDamageAtkTargetId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x6A6]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->myselfDamageAtkTargetId = val;
 }
 
 /* Address: 0x801FD1D0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetMyselfDamageAtkValue(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x6A4]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->myselfDamageAtkValue = val;
 }
 
 /* Address: 0x801FD1E0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetKaigaraDamageValue(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x6A0]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->kaigaraDamageValue = val;
 }
 
 /* Address: 0x801FD1F0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetItemKoraetaFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x69E]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->itemKoraetaFlag = val;
 }
 
 /* Address: 0x801FD200 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetIrekaetaFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x69D]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->irekaetaFlag = val;
 }
 
 /* Address: 0x801FD210 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetNoPressureFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x69C]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->noPressureFlag = val;
 }
 
 /* Address: 0x801FD220 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetDoTraceFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x69B]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->doTraceFlag = val;
 }
 
 /* Address: 0x801FD230 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetDoIkakuFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x69A]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->doIkakuFlag = val;
 }
 
 /* Address: 0x801FD240 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetVanishoffFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x699]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->vanishoffFlag = val;
 }
 
 /* Address: 0x801FD250 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetReceivesWazaHiraishinFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x698]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->receivesWazaHiraishinFlag = val;
 }
 
 /* Address: 0x801FD260 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetDoClearbodyFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x697]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->doClearbodyFlag = val;
 }
 
 /* Address: 0x801FD270 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetFightActionFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x696]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->fightActionFlag = val;
 }
 
 /* Address: 0x801FD280 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetPassPpdecFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x695]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->passPpdecFlag = val;
 }
 
 /* Address: 0x801FD290 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetHirumuNoAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x694]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->hirumuNoAttackFlag = val;
 }
 
 /* Address: 0x801FD2A0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetIchamonNoAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x693]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->ichamonNoAttackFlag = val;
 }
 
 /* Address: 0x801FD2B0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetChouhatsuNoAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x692]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->chouhatsuNoAttackFlag = val;
 }
 
 /* Address: 0x801FD2C0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetKanashibariNoAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x691]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->kanashibariNoAttackFlag = val;
 }
 
 /* Address: 0x801FD2D0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetMeroMeroNoAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x690]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->meroMeroNoAttackFlag = val;
 }
 
 /* Address: 0x801FD2E0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetHuuinNoAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x68F]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->huuinNoAttackFlag = val;
 }
 
 /* Address: 0x801FD2F0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetItemNigeruFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x68E]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->itemNigeruFlag = val;
 }
 
 /* Address: 0x801FD300 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetTameWazaFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x68D]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->tameWazaFlag = val;
 }
 
 /* Address: 0x801FD310 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetOutWazaKoukanaiFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x68C]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->outWazaKoukanaiFlag = val;
 }
 
 /* Address: 0x801FD320 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetKonranMyselfAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x68B]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->konranMyselfAttackFlag = val;
 }
 
 /* Address: 0x801FD330 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetMahiNoAttackFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x68A]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->mahiNoAttackFlag = val;
 }
 
 /* Address: 0x801FD340 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetMyselfDamageSpeTargetId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x6AA]);
+    return ((FightOutPokemonBiosFields*)ptr)->myselfDamageSpeTargetId;
 }
 
 /* Address: 0x801FD358 | Size: 0x18 | Pattern: nullcheck_getter */
@@ -1636,7 +1637,7 @@ s16 fightOutPokemonBiosGetMyselfDamageSpeValue(u8* ptr) {
 /* Address: 0x801FD370 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetMyselfDamageAtkTargetId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x6A6]);
+    return ((FightOutPokemonBiosFields*)ptr)->myselfDamageAtkTargetId;
 }
 
 /* Address: 0x801FD388 | Size: 0x18 | Pattern: nullcheck_getter */
@@ -1648,133 +1649,133 @@ s16 fightOutPokemonBiosGetMyselfDamageAtkValue(u8* ptr) {
 /* Address: 0x801FD3A0 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightOutPokemonBiosGetKaigaraDamageValue(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x6A0]);
+    return ((FightOutPokemonBiosFields*)ptr)->kaigaraDamageValue;
 }
 
 /* Address: 0x801FD3B8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetItemKoraetaFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x69E]);
+    return ((FightOutPokemonBiosFields*)ptr)->itemKoraetaFlag;
 }
 
 /* Address: 0x801FD3D0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetIrekaetaFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x69D]);
+    return ((FightOutPokemonBiosFields*)ptr)->irekaetaFlag;
 }
 
 /* Address: 0x801FD3E8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetNoPressureFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x69C]);
+    return ((FightOutPokemonBiosFields*)ptr)->noPressureFlag;
 }
 
 /* Address: 0x801FD400 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetDoTraceFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x69B]);
+    return ((FightOutPokemonBiosFields*)ptr)->doTraceFlag;
 }
 
 /* Address: 0x801FD418 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetDoIkakuFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x69A]);
+    return ((FightOutPokemonBiosFields*)ptr)->doIkakuFlag;
 }
 
 /* Address: 0x801FD430 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetVanishoffFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x699]);
+    return ((FightOutPokemonBiosFields*)ptr)->vanishoffFlag;
 }
 
 /* Address: 0x801FD448 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetReceivesWazaHiraishinFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x698]);
+    return ((FightOutPokemonBiosFields*)ptr)->receivesWazaHiraishinFlag;
 }
 
 /* Address: 0x801FD460 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetDoClearbodyFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x697]);
+    return ((FightOutPokemonBiosFields*)ptr)->doClearbodyFlag;
 }
 
 /* Address: 0x801FD478 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetFightActionFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x696]);
+    return ((FightOutPokemonBiosFields*)ptr)->fightActionFlag;
 }
 
 /* Address: 0x801FD490 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetPassPpdecFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x695]);
+    return ((FightOutPokemonBiosFields*)ptr)->passPpdecFlag;
 }
 
 /* Address: 0x801FD4A8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetHirumuNoAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x694]);
+    return ((FightOutPokemonBiosFields*)ptr)->hirumuNoAttackFlag;
 }
 
 /* Address: 0x801FD4C0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetIchamonNoAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x693]);
+    return ((FightOutPokemonBiosFields*)ptr)->ichamonNoAttackFlag;
 }
 
 /* Address: 0x801FD4D8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetChouhatsuNoAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x692]);
+    return ((FightOutPokemonBiosFields*)ptr)->chouhatsuNoAttackFlag;
 }
 
 /* Address: 0x801FD4F0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetKanashibariNoAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x691]);
+    return ((FightOutPokemonBiosFields*)ptr)->kanashibariNoAttackFlag;
 }
 
 /* Address: 0x801FD508 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetMeroMeroNoAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x690]);
+    return ((FightOutPokemonBiosFields*)ptr)->meroMeroNoAttackFlag;
 }
 
 /* Address: 0x801FD520 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetHuuinNoAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x68F]);
+    return ((FightOutPokemonBiosFields*)ptr)->huuinNoAttackFlag;
 }
 
 /* Address: 0x801FD538 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetItemNigeruFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x68E]);
+    return ((FightOutPokemonBiosFields*)ptr)->itemNigeruFlag;
 }
 
 /* Address: 0x801FD550 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetTameWazaFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x68D]);
+    return ((FightOutPokemonBiosFields*)ptr)->tameWazaFlag;
 }
 
 /* Address: 0x801FD568 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetOutWazaKoukanaiFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x68C]);
+    return ((FightOutPokemonBiosFields*)ptr)->outWazaKoukanaiFlag;
 }
 
 /* Address: 0x801FD580 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetKonranMyselfAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x68B]);
+    return ((FightOutPokemonBiosFields*)ptr)->konranMyselfAttackFlag;
 }
 
 /* Address: 0x801FD598 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetMahiNoAttackFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x68A]);
+    return ((FightOutPokemonBiosFields*)ptr)->mahiNoAttackFlag;
 }
 
 /* 0x801FD5B0 | size: 0x18 */
@@ -1786,13 +1787,13 @@ u8* fightOutPokemonBiosGetWazaMenuCurPtr(u8* ptr) {
 /* Address: 0x801FD5C8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetTokuseiDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x660]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->tokuseiDataId = val;
 }
 
 /* Address: 0x801FD5D8 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetTokuseiDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x660]);
+    return ((FightOutPokemonBiosFields*)ptr)->tokuseiDataId;
 }
 
 /* 0x801FD5F0 | size: 0x24 */
@@ -1836,55 +1837,55 @@ s32 fightOutPokemonBiosGetMeetEnemyFightPokemonEntryId(u8* ptr, u8 idx) {
 /* Address: 0x801FD6B8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetDamageSpeTargetId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x688]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->damageSpeTargetId = val;
 }
 
 /* Address: 0x801FD6C8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetDamageSpeValue(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x686]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->damageSpeValue = val;
 }
 
 /* Address: 0x801FD6D8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetDamageAtkTargetId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x684]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->damageAtkTargetId = val;
 }
 
 /* Address: 0x801FD6E8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetDamageAtkValue(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x682]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->damageAtkValue = val;
 }
 
 /* Address: 0x801FD6F8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetSuccessCnt(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x67E]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->successCnt = val;
 }
 
 /* Address: 0x801FD708 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetStockItemDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x680]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->stockItemDataId = val;
 }
 
 /* Address: 0x801FD718 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetUsedItemDataId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x67C]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->usedItemDataId = val;
 }
 
 /* Address: 0x801FD728 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetNamakeFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x67A]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->namakeFlag = val;
 }
 
 /* Address: 0x801FD738 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetDamageSpeTargetId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x688]);
+    return ((FightOutPokemonBiosFields*)ptr)->damageSpeTargetId;
 }
 
 /* Address: 0x801FD750 | Size: 0x18 | Pattern: nullcheck_getter */
@@ -1896,7 +1897,7 @@ s16 fightOutPokemonBiosGetDamageSpeValue(u8* ptr) {
 /* Address: 0x801FD768 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetDamageAtkTargetId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x684]);
+    return ((FightOutPokemonBiosFields*)ptr)->damageAtkTargetId;
 }
 
 /* Address: 0x801FD780 | Size: 0x18 | Pattern: nullcheck_getter */
@@ -1908,43 +1909,43 @@ s16 fightOutPokemonBiosGetDamageAtkValue(u8* ptr) {
 /* Address: 0x801FD798 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetSuccessCnt(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x67E]);
+    return ((FightOutPokemonBiosFields*)ptr)->successCnt;
 }
 
 /* Address: 0x801FD7B0 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetStockItemDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x680]);
+    return ((FightOutPokemonBiosFields*)ptr)->stockItemDataId;
 }
 
 /* Address: 0x801FD7C8 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetUsedItemDataId(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x67C]);
+    return ((FightOutPokemonBiosFields*)ptr)->usedItemDataId;
 }
 
 /* Address: 0x801FD7E0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetNamakeFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x67A]);
+    return ((FightOutPokemonBiosFields*)ptr)->namakeFlag;
 }
 
 /* Address: 0x801FD7F8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetSequencePtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x600]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->sequencePtr = val;
 }
 
 /* Address: 0x801FD808 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightOutPokemonBiosGetSequencePtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x600]);
+    return ((FightOutPokemonBiosFields*)ptr)->sequencePtr;
 }
 
 /* Address: 0x801FD820 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetFightoutTurnCount(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x610]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->fightoutTurnCount = val;
 }
 
 /* Address: 0x801FD830 | Size: 0x10 | Pattern: nullcheck_setter */
@@ -1956,145 +1957,145 @@ void fn_801FD830(u8* ptr, u16 val) {
 /* Address: 0x801FD840 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetAbicntAvoid(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x60A]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->abicntAvoid = val;
 }
 
 /* Address: 0x801FD850 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetAbicntAverage(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x609]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->abicntAverage = val;
 }
 
 /* Address: 0x801FD860 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetAbicntNimbleness(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x608]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->abicntNimbleness = val;
 }
 
 /* Address: 0x801FD870 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetAbicntSpeDef(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x607]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->abicntSpeDef = val;
 }
 
 /* Address: 0x801FD880 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetAbicntSpeAtk(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x606]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->abicntSpeAtk = val;
 }
 
 /* Address: 0x801FD890 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetAbicntPhyDef(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x605]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->abicntPhyDef = val;
 }
 
 /* Address: 0x801FD8A0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetAbicntPhyAtk(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x604]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->abicntPhyAtk = val;
 }
 
 /* Address: 0x801FD8B0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetFightPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x4]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->fightPokemonPtr = val;
 }
 
 /* Address: 0x801FD8C0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightOutPokemonBiosSetMotoFightPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x0]) = val;
+    ((FightOutPokemonBiosFields*)ptr)->motoFightPokemonPtr = val;
 }
 
 /* Address: 0x801FD8D0 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightPokemonBiosSetHokakuFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x151]) = val;
+    ((FightPokemonBiosFields*)ptr)->hokakuFlag = val;
 }
 
 /* Address: 0x801FD8E0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightPokemonBiosGetHokakuFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x151]);
+    return ((FightPokemonBiosFields*)ptr)->hokakuFlag;
 }
 
 /* Address: 0x801FD8F8 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightPokemonBiosSetDarkOutFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x150]) = val;
+    ((FightPokemonBiosFields*)ptr)->darkOutFlag = val;
 }
 
 /* Address: 0x801FD908 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightPokemonBiosSetLevelUpFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x14F]) = val;
+    ((FightPokemonBiosFields*)ptr)->levelUpFlag = val;
 }
 
 /* Address: 0x801FD918 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightPokemonBiosSetCatchEntryFlag(u8* ptr, u8 val) {
     if (ptr == NULL) { return; }
-    *(u8*)(&ptr[0x14E]) = val;
+    ((FightPokemonBiosFields*)ptr)->catchEntryFlag = val;
 }
 
 /* Address: 0x801FD928 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightPokemonBiosSetEntryId(u8* ptr, u16 val) {
     if (ptr == NULL) { return; }
-    *(u16*)(&ptr[0x14C]) = val;
+    ((FightPokemonBiosFields*)ptr)->entryId = val;
 }
 
 /* Address: 0x801FD938 | Size: 0x10 | Pattern: nullcheck_setter */
 void fightPokemonBiosSetMotoPokemonPtr(u8* ptr, u32 val) {
     if (ptr == NULL) { return; }
-    *(u32*)(&ptr[0x0]) = val;
+    ((FightPokemonBiosFields*)ptr)->motoPokemonPtr = val;
 }
 
 /* Address: 0x801FD948 | Size: 0x18 | Pattern: nullcheck_getter */
 u16 fightOutPokemonBiosGetFightoutTurnCount(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u16*)(&ptr[0x610]);
+    return ((FightOutPokemonBiosFields*)ptr)->fightoutTurnCount;
 }
 
 /* Address: 0x801FD960 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetAbicntAvoid(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x60A]);
+    return ((FightOutPokemonBiosFields*)ptr)->abicntAvoid;
 }
 
 /* Address: 0x801FD978 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetAbicntAverage(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x609]);
+    return ((FightOutPokemonBiosFields*)ptr)->abicntAverage;
 }
 
 /* Address: 0x801FD990 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetAbicntNimbleness(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x608]);
+    return ((FightOutPokemonBiosFields*)ptr)->abicntNimbleness;
 }
 
 /* Address: 0x801FD9A8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetAbicntSpeDef(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x607]);
+    return ((FightOutPokemonBiosFields*)ptr)->abicntSpeDef;
 }
 
 /* Address: 0x801FD9C0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetAbicntSpeAtk(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x606]);
+    return ((FightOutPokemonBiosFields*)ptr)->abicntSpeAtk;
 }
 
 /* Address: 0x801FD9D8 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetAbicntPhyDef(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x605]);
+    return ((FightOutPokemonBiosFields*)ptr)->abicntPhyDef;
 }
 
 /* Address: 0x801FD9F0 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightOutPokemonBiosGetAbicntPhyAtk(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x604]);
+    return ((FightOutPokemonBiosFields*)ptr)->abicntPhyAtk;
 }
 
 /* 0x801FDA08 | size: 0x18 */
@@ -2125,31 +2126,31 @@ u8* fightOutPokemonBiosGetFightPokemonHensinBuffPtr(u8* ptr) {
 /* Address: 0x801FDA84 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightOutPokemonBiosGetFightPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x4]);
+    return ((FightOutPokemonBiosFields*)ptr)->fightPokemonPtr;
 }
 
 /* Address: 0x801FDA9C | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightOutPokemonBiosGetMotoFightPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x0]);
+    return ((FightOutPokemonBiosFields*)ptr)->motoFightPokemonPtr;
 }
 
 /* Address: 0x801FDAB4 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightPokemonBiosGetDarkOutFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x150]);
+    return ((FightPokemonBiosFields*)ptr)->darkOutFlag;
 }
 
 /* Address: 0x801FDACC | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightPokemonBiosGetLevelUpFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x14F]);
+    return ((FightPokemonBiosFields*)ptr)->levelUpFlag;
 }
 
 /* Address: 0x801FDAE4 | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightPokemonBiosGetCatchEntryFlag(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x14E]);
+    return ((FightPokemonBiosFields*)ptr)->catchEntryFlag;
 }
 
 /* 0x801FDAFC | size: 0x18 */
@@ -2173,7 +2174,7 @@ u8* fightPokemonBiosGetPokemonBuffPtr(u8* ptr) {
 /* Address: 0x801FDB60 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightPokemonBiosGetMotoPokemonPtr(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x0]);
+    return ((FightPokemonBiosFields*)ptr)->motoPokemonPtr;
 }
 
 /* ===================================================================

@@ -3,6 +3,7 @@
  * @brief Candidate gbaCommunication suffix, 0x80092FC8 - 0x800980E0.
  *        0x80091DA4 - 0x80092FC8 is gbaCommunication_candidate_80091DA4.c.
  */
+#include "game/records/lbl_803FB380.h"
 #include "dolphin/types.h"
 #include "game/gs_material.h"
 
@@ -156,20 +157,20 @@ void fn_80093B4C(void* context, void* widget)
     color = *(u8*)((u8*)context + 0x8B) | ~0xFF;
     switch (*(s16*)((u8*)widget + 6)) {
     case 0x1F7:
-        msgctrlSetValue(0x34, *(u32*)(lbl_803FB380 + 0x1C));
+        msgctrlSetValue(0x34, (u32)((Work803FB380*)lbl_803FB380)->field_1C);
         GSmsgPrintRect(0, 0, *(s16*)((u8*)widget + 0x54),
                     *(s16*)((u8*)widget + 0x56), color, 0xDD);
         break;
 
     case 0x1F6:
         GSmsgPrintf(0x78, 0xC8, 0x80FFFF, lbl_8026F5E4,
-                    *(s8*)(lbl_803FB380 + 0x1A));
+                    ((Work803FB380*)lbl_803FB380)->field_1A);
         if (lbl_803FB380[1] != 6) {
             break;
         }
 
-        column = *(s8*)(lbl_803FB380 + 0x1A) % 9;
-        row = *(s8*)(lbl_803FB380 + 0x1A) / 9;
+        column = ((Work803FB380*)lbl_803FB380)->field_1A % 9;
+        row = ((Work803FB380*)lbl_803FB380)->field_1A / 9;
         ribbon = *(s8*)(lbl_803FB380 + column * 4 + 0x20 + row);
         if (ribbon < 0 && (u32)ribbon >= 0x20) {
             break;
@@ -208,7 +209,7 @@ void fn_80093B4C(void* context, void* widget)
                 ribbon = (s8)lbl_803FB380[0x20 + row + column * 4];
                 if (ribbon >= 0) {
                     item = menuItemBiosGetPtr(lbl_802EED44[ribbon].itemId);
-                    if (index != *(s8*)(lbl_803FB380 + 0x1A)) {
+                    if (index != ((Work803FB380*)lbl_803FB380)->field_1A) {
                         windowDrawSprite2(
                             (s16)(*(s16*)((u8*)widget + 0x54) * column / 9),
                             (s16)(*(s16*)((u8*)widget + 0x56) * row / 4),
@@ -219,11 +220,11 @@ void fn_80093B4C(void* context, void* widget)
             }
         }
 
-        if (*(s8*)(lbl_803FB380 + 0x1A) < 0) {
+        if (((Work803FB380*)lbl_803FB380)->field_1A < 0) {
             break;
         }
-        column = *(s8*)(lbl_803FB380 + 0x1A) % 9;
-        row = *(s8*)(lbl_803FB380 + 0x1A) / 9;
+        column = ((Work803FB380*)lbl_803FB380)->field_1A % 9;
+        row = ((Work803FB380*)lbl_803FB380)->field_1A / 9;
         ribbon = (lbl_803FB380 + column * 4)[0x20 + row];
         ribbon = (s8)ribbon;
         if (ribbon < 0) {
@@ -376,7 +377,7 @@ void menuStatusDrawMoveDetail(u8* context, u8* sprite)
     s16 x;
     s32 level;
 
-    pokemon = *(u32*)(lbl_803FB380 + 0x0C);
+    pokemon = ((Work803FB380*)lbl_803FB380)->field_C;
     if (pokemon == 0) {
         return;
     }
@@ -592,7 +593,7 @@ void menuStatusDrawMoveDetail(u8* context, u8* sprite)
         /* RULE-EXCEPTION(user-approved): carrier copy of slot (int, as the move helper's parameter) chosen for register allocation - see docs/RULE_EXCEPTIONS.md */
         moveSlot = slot;
         if ((u16)moveSlot == 4) {
-            move = *(u16*)(lbl_803FB380 + 0x18);
+            move = ((Work803FB380*)lbl_803FB380)->field_18;
         } else {
             move = pokemonGetStatus(pokemon, 0, 0x7F, moveSlot);
             if (pokemonWazaCheckValid(pokemon, moveSlot) == 0) {
@@ -822,7 +823,7 @@ void menuStatusDrawMoveDetail(u8* context, u8* sprite)
             slot = 8;
             break;
         }
-        move = menuStatusGetMove(pokemon, *(s8*)(lbl_803FB380 + 2));
+        move = menuStatusGetMove(pokemon, ((Work803FB380*)lbl_803FB380)->field_2);
         if (move != 0) {
             level = darkPokemonEntryGet1(darkPokemonGetTableEntry(wazaGetStatus(0, move, 0x23, 0)));
         } else {
@@ -2100,7 +2101,7 @@ void fn_800965C8(void* window, u8* sprite) {
             }
             break;
         case 5:
-            if (*(s32*)(lbl_803FB380 + 0x1C) > 0) {
+            if (((Work803FB380*)lbl_803FB380)->field_1C > 0) {
                 disp = 1;
             }
             break;
@@ -2120,7 +2121,7 @@ void fn_800965C8(void* window, u8* sprite) {
             msg = 0x2BCF;
             break;
         case 5:
-            if (*(s32*)(lbl_803FB380 + 0x1C) > 0) {
+            if (((Work803FB380*)lbl_803FB380)->field_1C > 0) {
                 msg = 0x2BD2;
             }
             break;
@@ -2236,7 +2237,7 @@ void fn_80096D54(u8* menu)
                 pokemonWazaReplace(pokemon, work->previousSelection,
                                    work->selection);
             }
-            *(s8*)(lbl_803FB380 + 3) = -1;
+            ((Work803FB380*)lbl_803FB380)->field_3 = -1;
             work->state = 3;
             break;
         case 5:
@@ -2251,7 +2252,7 @@ void fn_80096D54(u8* menu)
                     }
                 }
                 work->state = 6;
-                *(s8*)(lbl_803FB380 + 0x1A) = ribbon;
+                ((Work803FB380*)lbl_803FB380)->field_1A = ribbon;
             }
             break;
         case 7:
@@ -2281,7 +2282,7 @@ void fn_80096D54(u8* menu)
             lbl_803FB380[1] = 3;
             break;
         case 6:
-            *(s8*)(lbl_803FB380 + 0x1A) = -1;
+            ((Work803FB380*)lbl_803FB380)->field_1A = -1;
             lbl_803FB380[1] = 5;
             break;
         }
@@ -2568,8 +2569,8 @@ s32 fn_800973EC(u8* menu)
         *(s8*)(menu + 0x97) = -1;
         lbl_803FB380[1] = 0;
         lbl_803FB380[2] = menu[0x95];
-        *(s8*)(lbl_803FB380 + 3) = -1;
-        *(s8*)(lbl_803FB380 + 0x1A) = -1;
+        ((Work803FB380*)lbl_803FB380)->field_3 = -1;
+        ((Work803FB380*)lbl_803FB380)->field_1A = -1;
         if (lbl_803FB380[0] & 4) {
             menu[0x95] = 0;
             lbl_803FB380[1] = 1;
@@ -2614,19 +2615,19 @@ s32 fn_80097BBC(u8 chan) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x11;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = (u32)entity;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = 0;
-    *(u32*)(lbl_803FB380 + 0x14) = 0;
-    *(u32*)(lbl_803FB380 + 0x4) = -1;
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x11;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = (u32)entity;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_14 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
     std098_mapWarpToMenuRoom(0x39d);
     if (lbl_803FB380[0] & 8) {
         floorSetFadeScript(0, 0);
     }
     _threadSwitch();
-    return *(s32*)(lbl_803FB380 + 0x4);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x8009769C | size: 0x350 */
@@ -2751,13 +2752,13 @@ u32 menuPokemonStatusOpen(u8 flags, u32 arg1, s32 pokemon, u16 arg3, u32 arg4, u
 #pragma scheduling off
 #pragma scheduling off
 void menuPokemonStatus(void) {
-    *(u32*)(lbl_803FB380 + 4) = menuPokemonStatusOpen(
+    ((Work803FB380*)lbl_803FB380)->field_4 = menuPokemonStatusOpen(
         lbl_803FB380[0],
-        *(u32*)(lbl_803FB380 + 8),
-        *(u32*)(lbl_803FB380 + 0xC),
-        *(u16*)(lbl_803FB380 + 0x18),
-        *(u32*)(lbl_803FB380 + 0x10),
-        *(u32*)(lbl_803FB380 + 0x14));
+        ((Work803FB380*)lbl_803FB380)->field_8,
+        ((Work803FB380*)lbl_803FB380)->field_C,
+        ((Work803FB380*)lbl_803FB380)->field_18,
+        ((Work803FB380*)lbl_803FB380)->field_10,
+        ((Work803FB380*)lbl_803FB380)->field_14);
 }
 #pragma scheduling on
 #pragma scheduling on
@@ -2788,19 +2789,19 @@ s32 menuPokemonStatusOpenWazaForget(u32 arg0, u16 arg1) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x59;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = arg1;
-    *(u32*)(lbl_803FB380 + 0x10) = 0;
-    *(u32*)(lbl_803FB380 + 0x14) = 0;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x59;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_10 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_14 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
     std098_mapWarpToMenuRoom(0x39d);
     if (lbl_803FB380[0] & 8) {
         floorSetFadeScript(0, 0);
     }
     _threadSwitch();
-    return *(s32*)(lbl_803FB380 + 0x4);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097B04 | size: 0xB8 */
@@ -2811,16 +2812,16 @@ s32 fn_80097B04(u32 arg0, u16 arg1) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x58;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = arg1;
-    *(u32*)(lbl_803FB380 + 0x10) = 0;
-    *(u32*)(lbl_803FB380 + 0x14) = 0;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                arg1, *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x58;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_10 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_14 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                arg1, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097CD0 | size: 0xC4 */
@@ -2831,16 +2832,16 @@ s32 fn_80097CD0(u32 arg0, u32 arg1, u32 arg2) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0xc;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg1;
-    *(u32*)(lbl_803FB380 + 0x14) = arg2;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0xc;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097D94 | size: 0xC4 */
@@ -2851,16 +2852,16 @@ s32 fn_80097D94(u32 arg0, u32 arg1, u32 arg2) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0xe;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg1;
-    *(u32*)(lbl_803FB380 + 0x14) = arg2;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0xe;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097E58 | size: 0xB0 */
@@ -2871,16 +2872,16 @@ s32 fn_80097E58(u32 arg0, u32 arg1, u32 arg2, u32 arg3) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0xac;
-    *(u32*)(lbl_803FB380 + 0x8) = arg0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg1;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg2;
-    *(u32*)(lbl_803FB380 + 0x14) = arg3;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0xac;
+    ((Work803FB380*)lbl_803FB380)->field_8 = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg3;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097F08 | size: 0xC4 */
@@ -2891,16 +2892,16 @@ s32 fn_80097F08(u32 arg0, u32 arg1, u32 arg2) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x8e;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg1;
-    *(u32*)(lbl_803FB380 + 0x14) = arg2;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x8e;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* PPCMfmsr .. PPCMtwpar (0x80097FFC - 0x800980E0) are the SDK PPCArch.c

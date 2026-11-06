@@ -1,4 +1,5 @@
 /** Exact shop status callbacks, 0x8002AB40 - 0x8002AE9C. */
+#include "game/records/lbl_80266E80.h"
 #include "dolphin/types.h"
 
 extern u8 lbl_80266E80[];
@@ -22,10 +23,10 @@ s32 fn_8002AB40(void* r3, u8* r4)
     u32* limit;
 
     ctx = *(u8**)((u8*)r3 + 0x60);
-    table[0] = *(u32*)(lbl_80266E80 + 0x0);
-    table[1] = *(u32*)(lbl_80266E80 + 0x4);
-    table[2] = *(u32*)(lbl_80266E80 + 0x8);
-    table[3] = *(u32*)(lbl_80266E80 + 0xC);
+    table[0] = ((Work80266E80*)lbl_80266E80)->field_0;
+    table[1] = ((Work80266E80*)lbl_80266E80)->field_4;
+    table[2] = ((Work80266E80*)lbl_80266E80)->field_8;
+    table[3] = ((Work80266E80*)lbl_80266E80)->field_C;
 
     if ((ctx[0x1D] & 1) != 0) {
         r4[0x67] = 0;

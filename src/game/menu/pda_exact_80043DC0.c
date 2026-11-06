@@ -8,6 +8,7 @@
  * temporary constant_import build step to lbl_8047BCA4, lbl_8047BCA8 and
  * lbl_8047BCB0 in sdata2_8047BCA0.c.
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -72,5 +73,5 @@ void fn_80043DC0(PdaSprite* alphaSprite, PdaSprite* sprite)
     sprite->field_52 =
                 (s16)(lbl_8047BD0C *
                           (f32)sin(3.1415927f * (2.0f * (2.0f * lbl_803A6818.angle))) +
-                      (f32)*(s16*)(lbl_802EF0A8 + 0x57F4));
+                      (f32)((Work802EF0A8*)lbl_802EF0A8)->field_57F4);
 }

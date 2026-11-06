@@ -7,6 +7,7 @@
  * Pokemon it names and print message 0x2BD4 followed by its species name.
  */
 #include "dolphin/types.h"
+#include "game/bios_records.h"
 #include "game/win_sprite.h"
 
 extern s32 heroGetStatus(void* partyData, s32 slot, s32 p3);
@@ -31,7 +32,7 @@ extern u32 lbl_8047A424;
 /* Message flags for `npc`: its own flag bits with the colour byte of `owner`. */
 static inline u32 npcEventGetMsgFlags(u8* owner, u8* npc)
 {
-    return (*(u32*)(npc + 0x64) & ~0xFF) | *(u8*)(owner + 0x8B);
+    return (*(u32*)(npc + 0x64) & ~0xFF) | ((NpcEventFields*)owner)->msgFlags;
 }
 
 /* The party (kind 1) or storage (kind 2) Pokemon that the event id of

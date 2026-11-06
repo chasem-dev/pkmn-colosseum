@@ -12,6 +12,7 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/gs_work_records.h"
 #include "dolphin/types.h"
 
 /* ===== External SDK / engine functions ===== */
@@ -522,37 +523,37 @@ void GSlightUpdate(u32 delta) {
             continue;
         }
 
-        HSD_LObjReqAnimAll(*(void**)(obj + 0xc), *(f32*)(obj + 0x68));
+        HSD_LObjReqAnimAll(*(void**)(obj + 0xc), ((GSlightWork*)obj)->animFrame);
         HSD_LObjAnimAll(*(void**)(obj + 0xc));
 
-        step = *(f32*)(obj + 0x64) * (f32)delta;
-        limit = *(f32*)(obj + 0x6c) - lbl_8047CA70;
-        animType = *(s32*)(obj + 0x5c);
+        step = ((GSlightWork*)obj)->animRate * (f32)delta;
+        limit = ((GSlightWork*)obj)->field_6C - lbl_8047CA70;
+        animType = (s32)((GSlightWork*)obj)->animType;
         if ((s8)obj[0x71] == -1) {
-            *(f32*)(obj + 0x68) -= step;
+            ((GSlightWork*)obj)->animFrame -= step;
         } else if ((s8)obj[0x71] == 1) {
-            *(f32*)(obj + 0x68) += step;
+            ((GSlightWork*)obj)->animFrame += step;
         }
 
         switch (animType) {
             case 0:
                 end = limit - *(f32*)&lbl_8047CA74;
-                frame = *(f32*)(obj + 0x68);
+                frame = ((GSlightWork*)obj)->animFrame;
                 if (end <= frame) {
                     obj[0x70] = 1;
                     obj[0x71] = 0;
-                    *(f32*)(obj + 0x68) = end;
+                    ((GSlightWork*)obj)->animFrame = end;
                 }
                 break;
             case 1:
-                if (*(f32*)(obj + 0x68) >= limit) {
-                    *(f32*)(obj + 0x68) -= limit;
+                if (((GSlightWork*)obj)->animFrame >= limit) {
+                    ((GSlightWork*)obj)->animFrame -= limit;
                 }
                 break;
             case 2:
-                if (*(f32*)(obj + 0x68) >= limit) {
-                    *(s8*)(obj + 0x71) = -1;
-                } else if (*(f32*)(obj + 0x68) <= lbl_8047CA78) {
+                if (((GSlightWork*)obj)->animFrame >= limit) {
+                    ((GSlightWork*)obj)->field_71 = -1;
+                } else if (((GSlightWork*)obj)->animFrame <= lbl_8047CA78) {
                     obj[0x71] = 1;
                 }
                 break;
@@ -576,19 +577,19 @@ static inline void GSlightSetAnimIndexInline(u8* obj, u32 frame)
         return;
     }
     HSD_LObjRemoveAnimAll(*(void**)(obj + 0xc));
-    if (frame > *(u32*)(obj + 0x58)) {
+    if (frame > ((GSlightWork*)obj)->field_58) {
         return;
     }
-    *(u32*)(obj + 0x60) = frame;
-    data = *(u32*)(obj + 0x8);
+    ((GSlightWork*)obj)->field_60 = frame;
+    data = ((GSlightWork*)obj)->animData;
     frames = *(u32*)(data + 0x4);
     HSD_LObjAddAnimAll(*(void**)(obj + 0xc),
-                       *(void**)(frames + *(u32*)(obj + 0x60) * 4));
+                       *(void**)(frames + ((GSlightWork*)obj)->field_60 * 4));
     HSD_LObjReqAnimAll(*(void**)(obj + 0xc), lbl_8047CA78);
     lbl_8047AAF4 = lbl_8047CA78;
     HSD_ForeachAnim(*(void**)(obj + 0xc), 7, 0xffff,
                     (void*)lightGetFrameCount__FP9_HSD_AObj, 0);
-    *(f32*)(obj + 0x6c) = lbl_8047AAF4;
+    ((GSlightWork*)obj)->field_6C = lbl_8047AAF4;
 }
 
 #if 0
@@ -607,19 +608,19 @@ void GSlightPopState(u8* obj, u8* snapshot) {
     GSlightSetAnimIndexInline(obj, *(u32*)(snapshot + 0x1c));
     frame = *(f32*)(snapshot + 0x20);
     if (obj[2]) {
-        *(f32*)(obj + 0x68) = frame;
+        ((GSlightWork*)obj)->animFrame = frame;
     }
     speed = *(f32*)(snapshot + 0x24);
     if (obj[2]) {
         if (fn_800D37CC() == 0x32) {
             speed *= lbl_8047CA88;
         }
-        *(f32*)(obj + 0x64) = speed;
+        ((GSlightWork*)obj)->animRate = speed;
         HSD_ForeachAnim(*(void**)(obj + 0xc), 7, 0xffff, (void*)HSD_AObjSetRate,
-                        1, *(f32*)(obj + 0x64));
+                        1, ((GSlightWork*)obj)->animRate);
     }
 
-    *(u32*)(obj + 0x5c) = *(u32*)(snapshot + 0x28);
+    ((GSlightWork*)obj)->animType = *(u32*)(snapshot + 0x28);
     obj[0x70] = snapshot[2];
     obj[0x71] = snapshot[3];
     if (obj[3] != 0 && obj[2] != 0) {
@@ -645,10 +646,10 @@ void GSlightPushState(u8* src, u8* dst) {
     dst[1] = src[3];
     HSD_LObjGetPosition(*(void**)(src + 0xc), dst + 4);
     HSD_LObjGetInterest(*(void**)(src + 0xc), dst + 0x10);
-    *(u32*)(dst + 0x1c) = *(u32*)(src + 0x60);
-    *(f32*)(dst + 0x20) = *(f32*)(src + 0x68);
-    *(f32*)(dst + 0x24) = *(f32*)(src + 0x64);
-    *(u32*)(dst + 0x28) = *(u32*)(src + 0x5c);
+    *(u32*)(dst + 0x1c) = ((GSlightWork*)src)->field_60;
+    *(f32*)(dst + 0x20) = ((GSlightWork*)src)->animFrame;
+    *(f32*)(dst + 0x24) = ((GSlightWork*)src)->animRate;
+    *(u32*)(dst + 0x28) = ((GSlightWork*)src)->animType;
     dst[2] = src[0x70];
     dst[3] = src[0x71];
 }
@@ -705,8 +706,8 @@ void GSlightSetAnimRate(u8* obj, f32 speed) {
     if (fn_800D37CC() == 0x32) {
         speed *= lbl_8047CA88;
     }
-    *(f32*)(obj + 0x64) = speed;
-    HSD_ForeachAnim((void*)*(u32*)(obj + 0xc), 7, 0xFFFF, (void*)HSD_AObjSetRate, 1, *(f32*)(obj + 0x64));
+    ((GSlightWork*)obj)->animRate = speed;
+    HSD_ForeachAnim((void*)((GSlightWork*)obj)->lobj, 7, 0xFFFF, (void*)HSD_AObjSetRate, 1, ((GSlightWork*)obj)->animRate);
 }
 #endif
 
@@ -719,19 +720,19 @@ asm void GSlightSetAnimIndex(void) {
 #else
 void GSlightSetAnimIndex(u8* obj, u32 frame) {
     if (!obj[2]) return;
-    HSD_LObjRemoveAnimAll((void*)*(u32*)(obj + 0xc));
-    if (frame > *(u32*)(obj + 0x58)) return;
-    *(u32*)(obj + 0x60) = frame;
+    HSD_LObjRemoveAnimAll((void*)((GSlightWork*)obj)->lobj);
+    if (frame > ((GSlightWork*)obj)->field_58) return;
+    ((GSlightWork*)obj)->field_60 = frame;
     {
-        u32 data = *(u32*)(obj + 0x8);
-        u32 curFrame = *(u32*)(obj + 0x60);
+        u32 data = ((GSlightWork*)obj)->animData;
+        u32 curFrame = ((GSlightWork*)obj)->field_60;
         u32 frames = *(u32*)(data + 0x4);
-        HSD_LObjAddAnimAll((void*)*(u32*)(obj + 0xc), (void*)*(u32*)(frames + curFrame * 4));
+        HSD_LObjAddAnimAll((void*)((GSlightWork*)obj)->lobj, (void*)*(u32*)(frames + curFrame * 4));
     }
-    HSD_LObjReqAnimAll((void*)*(u32*)(obj + 0xc), lbl_8047CA78);
+    HSD_LObjReqAnimAll((void*)((GSlightWork*)obj)->lobj, lbl_8047CA78);
     lbl_8047AAF4 = lbl_8047CA78;
-    HSD_ForeachAnim((void*)*(u32*)(obj + 0xc), 7, 0xFFFF, (void*)lightGetFrameCount__FP9_HSD_AObj, 0);
-    *(f32*)(obj + 0x6c) = lbl_8047AAF4;
+    HSD_ForeachAnim((void*)((GSlightWork*)obj)->lobj, 7, 0xFFFF, (void*)lightGetFrameCount__FP9_HSD_AObj, 0);
+    ((GSlightWork*)obj)->field_6C = lbl_8047AAF4;
 }
 #endif
 
@@ -783,7 +784,7 @@ void GSlightSetColor(u8* obj, f32* rgb) {
     t[1] = (u8)(s32)rgb[1];
     t[2] = (u8)(s32)rgb[2];
     *(u32*)tmp = *(u32*)t;
-    HSD_LObjSetColor(*(u32*)(obj + 0xc), tmp);
+    HSD_LObjSetColor(((GSlightWork*)obj)->lobj, tmp);
 }
 #endif
 
@@ -796,19 +797,19 @@ void GSlightSetType(u8* obj, s32 mode) {
     HSD_LObjClearFlags(*(u32*)(obj + 0xc), 3);
     switch (mode) {
         case 0:
-            HSD_LObjSetFlags(*(u32*)(obj + 0xc), 0);
+            HSD_LObjSetFlags(((GSlightWork*)obj)->lobj, 0);
             break;
         case 1:
-            HSD_LObjSetFlags(*(u32*)(obj + 0xc), 1);
+            HSD_LObjSetFlags(((GSlightWork*)obj)->lobj, 1);
             break;
         case 2:
-            HSD_LObjSetFlags(*(u32*)(obj + 0xc), 2);
+            HSD_LObjSetFlags(((GSlightWork*)obj)->lobj, 2);
             break;
         case 3:
-            HSD_LObjSetFlags(*(u32*)(obj + 0xc), 3);
+            HSD_LObjSetFlags(((GSlightWork*)obj)->lobj, 3);
             break;
     }
-    *(s32*)(obj + 4) = mode;
+    ((GSlightWork*)obj)->type = mode;
 }
 #endif
 
@@ -881,21 +882,21 @@ u8* GSlightLoad(void* data) {
     }
 
     *(void**)(obj + 0x8) = data;
-    *(u32*)(obj + 0xc) = HSD_LObjLoadDesc(**(void***)(obj + 0x8));
+    ((GSlightWork*)obj)->lobj = HSD_LObjLoadDesc(**(void***)(obj + 0x8));
     obj[0] = 1;
     obj[1] = 0;
     obj[3] = 0;
 
     if (*(u32*)(*(u8**)(obj + 0x8) + 4) != 0) {
         obj[2] = 1;
-        *(f32*)(obj + 0x64) = lbl_8047CA70;
-        *(u32*)(obj + 0x5c) = 1;
+        ((GSlightWork*)obj)->animRate = lbl_8047CA70;
+        ((GSlightWork*)obj)->animType = 1;
         obj[0x70] = 0;
 
-        *(u32*)(obj + 0x58) = 0;
+        ((GSlightWork*)obj)->field_58 = 0;
         while (((u32**)(*(u8**)(obj + 0x8) + 4))[0]
-                   [*(u32*)(obj + 0x58)] != 0) {
-            (*(u32*)(obj + 0x58))++;
+                   [((GSlightWork*)obj)->field_58] != 0) {
+            (((GSlightWork*)obj)->field_58)++;
         }
         GSlightSetAnimIndex(obj, 0);
     } else {
@@ -939,29 +940,29 @@ u8* GSlightCreate(void) {
 
     zero = lbl_8047CA78;
     one = *(f32*)&lbl_8047CA8C;
-    *(u32*)(obj + 0x10) = 0;
-    *(f32*)(obj + 0x14) = zero;
-    *(f32*)(obj + 0x18) = zero;
-    *(f32*)(obj + 0x1c) = zero;
-    *(u32*)(obj + 0x20) = 0;
-    *(u32*)(obj + 0x24) = 0;
-    *(f32*)(obj + 0x28) = zero;
-    *(f32*)(obj + 0x2c) = zero;
-    *(f32*)(obj + 0x30) = zero;
-    *(u32*)(obj + 0x34) = 0;
-    *(u32*)(obj + 0x38) = 0;
-    *(u32*)(obj + 0x3c) = 0;
-    *(u16*)(obj + 0x40) = 4;
-    *(u16*)(obj + 0x42) = 0;
+    ((GSlightWork*)obj)->field_10 = 0;
+    ((GSlightWork*)obj)->field_14 = zero;
+    ((GSlightWork*)obj)->field_18 = zero;
+    ((GSlightWork*)obj)->field_1C = zero;
+    ((GSlightWork*)obj)->field_20 = 0;
+    ((GSlightWork*)obj)->field_24 = 0;
+    ((GSlightWork*)obj)->field_28 = zero;
+    ((GSlightWork*)obj)->field_2C = zero;
+    ((GSlightWork*)obj)->field_30 = zero;
+    ((GSlightWork*)obj)->field_34 = 0;
+    ((GSlightWork*)obj)->field_38 = 0;
+    ((GSlightWork*)obj)->field_3C = 0;
+    ((GSlightWork*)obj)->field_40 = 4;
+    ((GSlightWork*)obj)->field_42 = 0;
     obj[0x44] = 0x80;
     obj[0x45] = 0x80;
     obj[0x46] = 0x80;
     obj[0x47] = 0;
-    *(u32*)(obj + 0x48) = (u32)(obj + 0x10);
-    *(u32*)(obj + 0x4c) = (u32)(obj + 0x24);
-    *(u32*)(obj + 0x50) = (u32)(obj + 0x54);
-    *(f32*)(obj + 0x54) = one;
-    *(u32*)(obj + 0xc) = HSD_LObjLoadDesc(obj + 0x38);
+    ((GSlightWork*)obj)->field_48 = (u32)(obj + 0x10);
+    ((GSlightWork*)obj)->field_4C = (u32)(obj + 0x24);
+    ((GSlightWork*)obj)->field_50 = (u32)(obj + 0x54);
+    ((GSlightWork*)obj)->field_54 = one;
+    ((GSlightWork*)obj)->lobj = HSD_LObjLoadDesc(obj + 0x38);
     obj[0] = 1;
     obj[1] = 0;
     return obj;

@@ -11,6 +11,7 @@
  * head of the XD-era menuNameEntry.cpp translation unit.
  */
 
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 #include "game/menu/menu_name_entry.h"
 
@@ -1813,11 +1814,11 @@ void menuNameEntry(void) {
     /* First-frame latch: copy fixed display params out of the big data blob. */
     if (lbl_804788A0 != 0) {
         lbl_804788A0 = 0;
-        (*(s32*)&lbl_8047A3C0) = (s32)*(s16*)(lbl_802EF0A8 + 0x6fca);
-        (*(s32*)&lbl_8047A3BC) = (s32)*(s16*)(lbl_802EF0A8 + 0x6fcc);
-        (*(s32*)&lbl_8047A3B8) = (s32)*(s16*)(lbl_802EF0A8 + 0x20ec2);
-        (*(s32*)&lbl_8047A3B4) = (s32)*(s16*)(lbl_802EF0A8 + 0x73ba);
-        (*(s32*)&lbl_8047A3B0) = (s32)*(s16*)(lbl_802EF0A8 + 0x70fe);
+        (*(s32*)&lbl_8047A3C0) = (s32)((Work802EF0A8*)lbl_802EF0A8)->field_6FCA;
+        (*(s32*)&lbl_8047A3BC) = (s32)((Work802EF0A8*)lbl_802EF0A8)->field_6FCC;
+        (*(s32*)&lbl_8047A3B8) = (s32)((Work802EF0A8*)lbl_802EF0A8)->field_20EC2;
+        (*(s32*)&lbl_8047A3B4) = (s32)((Work802EF0A8*)lbl_802EF0A8)->field_73BA;
+        (*(s32*)&lbl_8047A3B0) = (s32)((Work802EF0A8*)lbl_802EF0A8)->field_70FE;
     }
 
     ctx = lbl_803A2068;

@@ -10,6 +10,7 @@
  */
 
 #include "game/pokemon_fight_types.h"
+#include "game/bios_records.h"
 
 #if !defined(FIGHT_TARGET_EXACT_801F0058_ONLY) && \
     !defined(FIGHT_TARGET_801F0134_ONLY) && \
@@ -97,13 +98,13 @@ u32 fightTargetGetTragetPtrToRelativeHostSideFightTargetId(u32 param1, u32 param
 /* Address: 0x801F0204 | Size: 0x18 | Pattern: nullcheck_getter */
 u32 fightTargetDataBiosGetBuff(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u32*)(&ptr[0x4]);
+    return ((FightTargetDataBiosFields*)ptr)->buff;
 }
 
 /* Address: 0x801F021C | Size: 0x18 | Pattern: nullcheck_getter */
 u8 fightTargetDataBiosGetStatusKid(u8* ptr) {
     if (ptr == NULL) { return 0; }
-    return *(u8*)(&ptr[0x0]);
+    return ((FightTargetDataBiosFields*)ptr)->statusKid;
 }
 
 /* 0x801F0234 | size: 0x28 | small */

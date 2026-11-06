@@ -127,6 +127,7 @@
  */
 
 #include "dolphin/types.h"
+#include "game/bios_records.h"
 #include "game/people/people.h"
 
 /* ===== External SDK / engine functions ===== */
@@ -2611,7 +2612,7 @@ asm void itemBiosSetNum(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemBiosSetNum(u8* p, u16 val) {
     if (p == NULL) return;
-    *(u16*)(p + 0x2) = val;
+    ((ItemBiosFields*)p)->num = val;
 }
 #endif
 #endif
@@ -2623,7 +2624,7 @@ asm void itemBiosSetItemDataId(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemBiosSetItemDataId(u8* p, u16 val) {
     if (p == NULL) return;
-    *(u16*)(p + 0x0) = val;
+    ((ItemBiosFields*)p)->itemDataId = val;
 }
 #endif
 #endif
@@ -2635,7 +2636,7 @@ asm void itemBallDataBiosSetFightKoukaDataId(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemBallDataBiosSetFightKoukaDataId(u8* p, u16 val) {
     if (p == NULL) return;
-    *(u16*)(p + 0x0) = val;
+    ((ItemBallDataBiosFields*)p)->fightKoukaDataId = val;
 }
 #endif
 #endif
@@ -2647,7 +2648,7 @@ asm void itemDataBiosSetBuff(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemDataBiosSetBuff(u8* p, u32 val) {
     if (p == NULL) return;
-    *(u32*)(p + 0x18) = val;
+    ((ItemDataBiosFields*)p)->buff = val;
 }
 #endif
 #endif
@@ -2674,7 +2675,7 @@ asm void itemDataBiosSetFightUseKoukaDataId(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemDataBiosSetFightUseKoukaDataId(u8* p, u16 val) {
     if (p == NULL) return;
-    *(u16*)(p + 0xc) = val;
+    ((ItemDataBiosFields*)p)->fightUseKoukaDataId = val;
 }
 #endif
 #endif
@@ -2686,7 +2687,7 @@ asm void itemDataBiosSetItemSoubiDataId(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemDataBiosSetItemSoubiDataId(u8* p, u16 val) {
     if (p == NULL) return;
-    *(u16*)(p + 0xa) = val;
+    ((ItemDataBiosFields*)p)->itemSoubiDataId = val;
 }
 #endif
 #endif
@@ -2698,7 +2699,7 @@ asm void itemDataBiosSetDoc(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemDataBiosSetDoc(u8* p, u32 val) {
     if (p == NULL) return;
-    *(u32*)(p + 0x14) = val;
+    ((ItemDataBiosFields*)p)->doc = val;
 }
 #endif
 #endif
@@ -2734,7 +2735,7 @@ asm void itemDataBiosSetPrice(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemDataBiosSetPrice(u8* p, u16 val) {
     if (p == NULL) return;
-    *(u16*)(p + 0x6) = val;
+    ((ItemDataBiosFields*)p)->price = val;
 }
 #endif
 #endif
@@ -2758,7 +2759,7 @@ asm void itemDataBiosSetName(void) {
 #if !defined(PEOPLE_DATA_80142EF8_ONLY)
 void itemDataBiosSetName(u8* p, u32 val) {
     if (p == NULL) return;
-    *(u32*)(p + 0x10) = val;
+    ((ItemDataBiosFields*)p)->name = val;
 }
 #endif
 #endif

@@ -1,3 +1,4 @@
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -81,7 +82,7 @@ void fn_8003C03C(PdaSprite* alphaSprite, PdaSprite* sprite)
     f1 = (f32)sin(f1);
     f3 = f1;
     sprite->field_52 = (s16)(lbl_8047BAF4 * f3 +
-                              (f32)(s32)*(s16*)(lbl_802EF0A8 + 0x504C));
+                              (f32)(s32)((Work802EF0A8*)lbl_802EF0A8)->field_504C);
 }
 
 void fn_8003C13C(PdaSprite* alphaSprite, PdaSprite* sprite)
@@ -107,7 +108,7 @@ void fn_8003C13C(PdaSprite* alphaSprite, PdaSprite* sprite)
     f1 = (f32)sin(f1);
     f3 = f1;
     sprite->field_52 = (s16)(lbl_8047BAF4 * f3 +
-                              (f32)(s32)*(s16*)(lbl_802EF0A8 + 0x5014));
+                              (f32)(s32)((Work802EF0A8*)lbl_802EF0A8)->field_5014);
 }
 
 void fn_8003C21C(PdaSprite* sprite, PdaEvent* event)

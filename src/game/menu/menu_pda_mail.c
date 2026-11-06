@@ -10,6 +10,7 @@
  * further naming needs byte-level comparison. All functions asm-only
  * until matched.
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 #include "game/cursor_bios.h"
 #include "game/win_sprite.h"
@@ -869,8 +870,8 @@ s32 fn_8004D34C(s32 index)
 
     if (lbl_804788E0 != 0) {
         lbl_804788E0 = 0;
-        lbl_8047A50C = *(s16*)(lbl_802EF0A8 + 0x7772);
-        lbl_8047A508 = *(s16*)(lbl_802EF0A8 + 0x7756);
+        lbl_8047A50C = ((Work802EF0A8*)lbl_802EF0A8)->field_7772;
+        lbl_8047A508 = ((Work802EF0A8*)lbl_802EF0A8)->field_7756;
     }
     page = index / 10;
     row = index % 10;
@@ -1331,8 +1332,8 @@ void fn_8004E9C0(s32 mailId)
 
     if (lbl_804788E8 != 0) {
         lbl_804788E8 = 0;
-        lbl_8047A534 = *(s16*)(lbl_802EF0A8 + 0x8CC6);
-        lbl_8047A530 = *(s16*)(lbl_802EF0A8 + 0x8CAA);
+        lbl_8047A534 = ((Work802EF0A8*)lbl_802EF0A8)->field_8CC6;
+        lbl_8047A530 = ((Work802EF0A8*)lbl_802EF0A8)->field_8CAA;
     }
 
     lbl_8047A538 = 0;

@@ -14,6 +14,7 @@
  *
  * Retail .rodata strings, .sdata2 constants and the .sbss state stay extern.
  */
+#include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 #include "dolphin/gx/GX.h"
 #include "game/gs_gfx.h"
@@ -260,32 +261,32 @@ void GSgfxInit__FP15_GSgfxInitParms(u32 heapSize, u32 matrixSize,
 
     lbl_8047AA80 = (GSgfxState*)state;
     *(u32*)(state + 0x000) = 2;
-    *(s32*)((u8*)lbl_8047AA80 + 0x004) = -1;
-    *(u32*)((u8*)lbl_8047AA80 + 0x008) = 0x10;
+    ((GSgfxState*)lbl_8047AA80)->frameCounter = -1;
+    ((GSgfxState*)lbl_8047AA80)->fifoSize = 0x10;
     *(u32*)((u8*)lbl_8047AA80 + 0x00C) = 0xFEFEFEFE;
-    *(u32*)((u8*)lbl_8047AA80 + 0x010) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x014) = 3;
-    *(u8*)((u8*)lbl_8047AA80 + 0x018) = 0;
-    *(u8*)((u8*)lbl_8047AA80 + 0x019) = 0;
-    *(u8*)((u8*)lbl_8047AA80 + 0x01A) = 0;
-    *(u8*)((u8*)lbl_8047AA80 + 0x01B) = 0;
-    *(u8*)((u8*)lbl_8047AA80 + 0x49C) = 0;
-    *(u8*)((u8*)lbl_8047AA80 + 0x49D) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x020) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x024) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x028) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x02C) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x030) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x034) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x038) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x03C) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x040) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x044) = 0;
-    *(u8*)((u8*)lbl_8047AA80 + 0x47E) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x480) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x484) = 0;
-    *(s32*)((u8*)lbl_8047AA80 + 0x488) = -1;
-    *(u8*)((u8*)lbl_8047AA80 + 0x49F) = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_10 = 0;
+    ((GSgfxState*)lbl_8047AA80)->drawFlags = 3;
+    ((GSgfxState*)lbl_8047AA80)->matrixDirty = 0;
+    ((GSgfxState*)lbl_8047AA80)->projDirty = 0;
+    ((GSgfxState*)lbl_8047AA80)->viewportDirty = 0;
+    ((GSgfxState*)lbl_8047AA80)->scissorDirty = 0;
+    ((GSgfxState*)lbl_8047AA80)->interlaceMode = 0;
+    ((GSgfxState*)lbl_8047AA80)->progressiveFlag = 0;
+    ((GSgfxState*)lbl_8047AA80)->lightMask = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_24 = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_28 = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_2C = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_30 = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_34 = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_38 = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_3C = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_40 = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_44 = 0;
+    ((GSgfxState*)lbl_8047AA80)->gammaMode = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_480 = 0;
+    ((GSgfxState*)lbl_8047AA80)->field_484 = 0;
+    ((GSgfxState*)lbl_8047AA80)->prevMode = -1;
+    ((GSgfxState*)lbl_8047AA80)->field_49F = 0;
 
     fifoState = (u32*)lbl_804001F0;
     fifoState[0] = 0;
@@ -339,12 +340,12 @@ void GSgfxInit__FP15_GSgfxInitParms(u32 heapSize, u32 matrixSize,
     HSD_VISetBlack(1);
     fn_8019C690(0, 0);
 
-    *(u32*)((u8*)lbl_8047AA80 + 0x048) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x04C) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x050) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x054) = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x058) = 1;
-    *(u8*)((u8*)lbl_8047AA80 + 0x05C) = 1;
+    ((GSgfxState*)lbl_8047AA80)->xfbIndex = 0;
+    ((GSgfxState*)lbl_8047AA80)->xfbCount = 0;
+    ((GSgfxState*)lbl_8047AA80)->xfbAddr0 = 0;
+    ((GSgfxState*)lbl_8047AA80)->frameDelta = 0;
+    ((GSgfxState*)lbl_8047AA80)->renderEnabled = 1;
+    ((GSgfxState*)lbl_8047AA80)->vsyncFlag = 1;
     HSD_VISetUserPostRetraceCallback(fn_800D3F5C);
     HSD_VISetUserGXDrawDoneCallback(fn_800D3F50);
     fn_80196C3C(GSgfxSetViewportJitter);
@@ -353,11 +354,11 @@ void GSgfxInit__FP15_GSgfxInitParms(u32 heapSize, u32 matrixSize,
     gfxMatrixStackInit(matrixSize);
     gfxVtxDescPoolInit(projectionCount);
     fn_800DB890(lightCount);
-    *(u32*)((u8*)lbl_8047AA80 + 0x20) = gfxVtxDescAlloc();
+    ((GSgfxState*)lbl_8047AA80)->lightMask = gfxVtxDescAlloc();
 
     display = &lbl_80466BC0;
-    previousMode = *(u32*)((u8*)lbl_8047AA80 + 0x00);
-    *(u32*)((u8*)lbl_8047AA80 + 0x00) = 2;
+    previousMode = (u32)((GSgfxState*)lbl_8047AA80)->mode;
+    ((GSgfxState*)lbl_8047AA80)->mode = 2;
     gfxSetScissor(0, 0, display->fbWidth - 1, display->efbHeight - 1);
     gfxSetViewport(0, 0, display->fbWidth - 1, display->efbHeight - 1);
     _gfxSetFlagsImm(-1);
@@ -376,7 +377,7 @@ void GSgfxInit__FP15_GSgfxInitParms(u32 heapSize, u32 matrixSize,
     state = (u8*)lbl_8047AA80;
     *(u32*)(state + 0x00) = previousMode;
     lbl_8047AA8C = 0;
-    *(u32*)((u8*)lbl_8047AA80 + 0x00) = 1;
+    ((GSgfxState*)lbl_8047AA80)->mode = 1;
     GSgfxBackFBInit__Fv();
     HSD_VISetBlack(0);
     lbl_8047AA84 = 1;

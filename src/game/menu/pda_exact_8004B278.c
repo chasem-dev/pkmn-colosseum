@@ -6,6 +6,7 @@
  *        background scroll.
  *        Copied from pda_range_80037158.c.
  */
+#include "game/records/lbl_803A6A60.h"
 #include "dolphin/types.h"
 
 /* Mail-screen state (PdaMailSceneState in menu_pda_mail.c): +0x08 frame time,
@@ -94,10 +95,10 @@ s32 fn_8004B278(u8* work)
     } else {
         menuItemBiosSetSelectFlag(0x438, 0);
     }
-    *(f32*)(lbl_803A6A60 + 0x40) =
-        0.5f * *(f32*)((u8*)&lbl_803A6A60 + 8) + *(f32*)(lbl_803A6A60 + 0x40);
-    if (*(f32*)(lbl_803A6A60 + 0x40) > 1.0f) {
-        *(f32*)(lbl_803A6A60 + 0x40) = 0.0f;
+    ((Work803A6A60*)lbl_803A6A60)->field_40 =
+        0.5f * *(f32*)((u8*)&lbl_803A6A60 + 8) + ((Work803A6A60*)lbl_803A6A60)->field_40;
+    if (((Work803A6A60*)lbl_803A6A60)->field_40 > 1.0f) {
+        ((Work803A6A60*)lbl_803A6A60)->field_40 = 0.0f;
     }
 
     pda_8004B278_EaseX((f32*)(lbl_803A6A60 + 0x30), (f32*)(lbl_803A6A60 + 0x38));

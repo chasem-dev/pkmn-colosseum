@@ -4,6 +4,7 @@
  *        fn_80041B5C (alpha update and event filter) and fn_80041BD0 (the
  *        highlighted Pokemon's type icons). Copied from pda_range_80037158.c.
  */
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -119,23 +120,23 @@ void fn_80041BD0(PdaSprite* alphaSprite, PdaSprite* sprite)
         type0 = pokemonGetStatus(
             0, (u16)pokemonGetStatus(pokemon, 0, 0x6e, 0), 0x16, 0);
         windowDrawSprite(
-            (s16)(*(s16*)(lbl_802EF0A8 + 0x5996) - sprite->field_50),
-            (s16)(*(s16*)(lbl_802EF0A8 + 0x5998) - sprite->field_52),
+            (s16)(((Work802EF0A8*)lbl_802EF0A8)->field_5996 - sprite->field_50),
+            (s16)(((Work802EF0A8*)lbl_802EF0A8)->field_5998 - sprite->field_52),
             alphaSprite, lbl_802E554C[type0], 0);
         type1 = pokemonGetStatus(
             0, (u16)pokemonGetStatus(pokemon, 0, 0x6e, 0), 0x16, 1);
         if (type0 != type1) {
             windowDrawSprite(
-                (s16)(*(s16*)(lbl_802EF0A8 + 0x59b2) - sprite->field_50),
-                (s16)(*(s16*)(lbl_802EF0A8 + 0x59b4) - sprite->field_52),
+                (s16)(((Work802EF0A8*)lbl_802EF0A8)->field_59B2 - sprite->field_50),
+                (s16)(((Work802EF0A8*)lbl_802EF0A8)->field_59B4 - sprite->field_52),
                 alphaSprite, lbl_802E554C[type1], 0);
         }
     } else {
-        windowDrawSprite((s16)(*(s16*)(lbl_802EF0A8 + 0x5996) - sprite->field_50),
-                         (s16)(*(s16*)(lbl_802EF0A8 + 0x5998) - sprite->field_52),
+        windowDrawSprite((s16)(((Work802EF0A8*)lbl_802EF0A8)->field_5996 - sprite->field_50),
+                         (s16)(((Work802EF0A8*)lbl_802EF0A8)->field_5998 - sprite->field_52),
                          alphaSprite, 0x5d, 0);
-        windowDrawSprite((s16)(*(s16*)(lbl_802EF0A8 + 0x59b2) - sprite->field_50),
-                         (s16)(*(s16*)(lbl_802EF0A8 + 0x59b4) - sprite->field_52),
+        windowDrawSprite((s16)(((Work802EF0A8*)lbl_802EF0A8)->field_59B2 - sprite->field_50),
+                         (s16)(((Work802EF0A8*)lbl_802EF0A8)->field_59B4 - sprite->field_52),
                          alphaSprite, 0x5d, 0);
     }
 }

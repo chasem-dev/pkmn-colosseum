@@ -5,6 +5,8 @@
  * Standalone copy of fn_8003C2B8 from pda_range_80037158.c. Unit flag
  * -opt nopeephole replaces the shared file's local "peephole off".
  */
+#include "game/records/lbl_803A6748.h"
+#include "game/records/lbl_802EF0A8.h"
 #include "dolphin/types.h"
 
 typedef struct PdaSprite {
@@ -151,21 +153,21 @@ void pdaSnagListDrawDetail(PdaSprite* alphaSprite, PdaEvent* event)
     f32 rowY;
 
     alphaSprite->alphaByte =
-        255.0f * *(f32*)(lbl_803A6748 + 0x44);
-    fn_800FE38C(*(s16*)(lbl_802EF0A8 + 0x4fa2) -
+        255.0f * ((Work803A6748*)lbl_803A6748)->field_44;
+    fn_800FE38C(((Work802EF0A8*)lbl_802EF0A8)->field_4FA2 -
                     *(s16*)(lbl_802EF0A8 + event->messageId * 0x1c + 2),
-                *(s16*)(lbl_802EF0A8 + 0x4fa4) -
+                ((Work802EF0A8*)lbl_802EF0A8)->field_4FA4 -
                     *(s16*)(lbl_802EF0A8 + event->messageId * 0x1c + 4),
-                *(s16*)(lbl_802EF0A8 + 0x4fa6),
-                *(s16*)(lbl_802EF0A8 + 0x4fa8));
+                ((Work802EF0A8*)lbl_802EF0A8)->field_4FA6,
+                ((Work802EF0A8*)lbl_802EF0A8)->field_4FA8);
     slot = lbl_803A6748 + 0x94;
-    firstX = *(f32*)(lbl_803A6748 + 0x14);
-    rowY = *(f32*)(lbl_803A6748 + 0x18);
+    firstX = ((Work803A6748*)lbl_803A6748)->field_14;
+    rowY = ((Work803A6748*)lbl_803A6748)->field_18;
     shifted = 1.0f + (firstX - 67.0f - 8.0f);
     stride = 24.0f;
     for (i = 0, off = 0; i < (s32)lbl_8047A4DC; i++) {
-        if (i >= *(s32*)(lbl_803A6748 + 0x8) - 1 &&
-            i <= *(s32*)(lbl_803A6748 + 0xc) + 1) {
+        if (i >= ((Work803A6748*)lbl_803A6748)->field_8 - 1 &&
+            i <= ((Work803A6748*)lbl_803A6748)->field_C + 1) {
             name = pdaBattleCaption(*(u16*)((u8*)lbl_8047A4D4 + off + 2));
             msg = name;
             if (name == 0) {
