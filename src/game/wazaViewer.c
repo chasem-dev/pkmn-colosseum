@@ -8,6 +8,7 @@
  * forward declarations live in include/game/battle/battle_waza_types.h.
  */
 
+#include "game/gs_work_records.h"
 #include "game/battle/battle_waza_types.h"
 
 struct GStextureHandle;
@@ -59,12 +60,12 @@ void _wazaViewerFinalize(u8 r, u8 g, u8 b, f32 duration) {
     extern void vtrDeactivate(void);
 
     GSthreadTerminateGroup(0x58);
-    *(u32*)(lbl_804673F8 + 0x66C) = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_66C = 0;
     fn_801024E8(0);
-    *(u32*)(lbl_804673F8 + 0x0C) = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_C = 0;
     GSfilterRelease(*(u32*)(lbl_804673F8 + 0x10));
-    if (*(void**)(lbl_804673F8 + 0x878) != NULL) {
-        GStextureFree(*(void**)(lbl_804673F8 + 0x878));
+    if (((WazaViewerState*)lbl_804673F8)->field_878 != NULL) {
+        GStextureFree(((WazaViewerState*)lbl_804673F8)->field_878);
     }
     memset(lbl_804673F8, 0, 0x884);
     if (lbl_804673F8[0x87D] == 0) {
@@ -175,7 +176,7 @@ static inline void wazaViewerPollCommand(const char* messages) {
     void* record;
     void* writeFile;
 
-    if (*(s32*)(lbl_804673F8 + 0x870) <= 0) {
+    if (((WazaViewerState*)lbl_804673F8)->field_870 <= 0) {
         path = (char*)(lbl_804673F8 + 0x670);
         sizeFile = GSdvdOpen(path);
         if (sizeFile == NULL) {
@@ -222,9 +223,9 @@ static inline void wazaViewerPollCommand(const char* messages) {
                 GSmemFree(block);
             }
         }
-        *(s32*)(lbl_804673F8 + 0x870) = 0x3C;
+        ((WazaViewerState*)lbl_804673F8)->field_870 = 0x3C;
     } else {
-        *(s32*)(lbl_804673F8 + 0x870) -= GSgetFrameStep();
+        ((WazaViewerState*)lbl_804673F8)->field_870 -= GSgetFrameStep();
     }
 }
 
@@ -250,7 +251,7 @@ void _wazaViewerInitialize(void) {
     if (result != 0) {
         GSmodelSetVisibility(result, 0);
     }
-    *(s32*)(lbl_804673F8 + 0x66C) = GSthreadCreate(0x14, 0x58, 0x2000, 1, 0, wazaViewerThread);
+    ((WazaViewerState*)lbl_804673F8)->field_66C = GSthreadCreate(0x14, 0x58, 0x2000, 1, 0, wazaViewerThread);
     value = GSgetVersionMinor();
     *(u32*)lbl_804673F8 = (u32)((u32)((2 - value) | (value - 2)) >> 31);
 }
@@ -273,15 +274,15 @@ void wazaViewerThread(void) {
 
     while (TRUE) {
         wazaSequenceSysUpdate();
-        switch (*(s32*)(lbl_804673F8 + 0x00)) {
+        switch (((WazaViewerState*)lbl_804673F8)->field_0) {
         case 1:
             fn_801D624C();
             break;
         case 0:
-            sequence = *(void**)(lbl_804673F8 + 0x61C + *(s32*)(lbl_804673F8 + 0x624) * 4);
+            sequence = *(void**)(lbl_804673F8 + 0x61C + ((WazaViewerState*)lbl_804673F8)->field_624 * 4);
             if (sequence != NULL) {
                 if ((u8)wazaSequenceSysIsPlayingWaza(sequence, 0, 0)) {
-                    *(s32*)(lbl_804673F8 + 0x870) = 0;
+                    ((WazaViewerState*)lbl_804673F8)->field_870 = 0;
                     break;
                 }
             }
@@ -414,37 +415,37 @@ void fn_801D58E4(void) {
         GSscene_SetCameraPositionVector(&position);
         GSscene_SetCameraViewVector(&view);
         GSscene_SetMode(2);
-        *(s32*)(lbl_804673F8 + 0x00) = 0;
+        ((WazaViewerState*)lbl_804673F8)->field_0 = 0;
     } else {
         GSscene_SetMode(7);
-        *(s32*)(lbl_804673F8 + 0x00) = 1;
+        ((WazaViewerState*)lbl_804673F8)->field_0 = 1;
     }
 
-    *(s32*)(lbl_804673F8 + 0x04) = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_4 = 0;
     memset(lbl_804673F8 + 0x08, 0, 4);
-    *(s32*)(lbl_804673F8 + 0x14) = 0;
-    *(s32*)(lbl_804673F8 + 0x18) = -1;
+    ((WazaViewerState*)lbl_804673F8)->field_14 = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_18 = -1;
     color[3] = 0;
     color[2] = 0;
     color[1] = 0;
     color[0] = 0;
-    *(void**)(lbl_804673F8 + 0x10) = GSfilterCreate(color);
-    *(s32*)(lbl_804673F8 + 0x65C) = 0;
-    *(s32*)(lbl_804673F8 + 0x664) = 0;
-    *(u16*)(lbl_804673F8 + 0x660) = 0;
-    *(u16*)(lbl_804673F8 + 0x668) = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_10 = GSfilterCreate(color);
+    ((WazaViewerState*)lbl_804673F8)->field_65C = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_664 = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_660 = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_668 = 0;
     memset(lbl_804673F8 + 0x61C, 0, 8);
-    *(s32*)(lbl_804673F8 + 0x624) = 0;
-    *(s32*)(lbl_804673F8 + 0x870) = 0;
-    *(s32*)(lbl_804673F8 + 0x0C) = 0;
-    *(s32*)(lbl_804673F8 + 0x880) = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_624 = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_870 = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_C = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_880 = 0;
     *(s32*)(lbl_804673F8 + 0x878) = 0;
-    *(s32*)(lbl_804673F8 + 0x874) = 1;
+    ((WazaViewerState*)lbl_804673F8)->field_874 = 1;
     lbl_804673F8[0x87D] = vtrIsActive();
     vtrActivate();
     battleGridInit();
     lbl_8047B3F8 = GSgappCreate(1, 0x7F, 0, fn_801D603C);
-    *(s32*)(lbl_804673F8 + 0x63C) = 0;
+    ((WazaViewerState*)lbl_804673F8)->field_63C = 0;
 }
 
 #endif
@@ -495,11 +496,11 @@ void wazaViewerLoadSequenceFiles(s32 slot) {
     if (modelBlock == 0) {
         return;
     }
-    *(u16*)(lbl_804673F8 + 0x660) = modelBlock;
+    ((WazaViewerState*)lbl_804673F8)->field_660 = modelBlock;
     buf = *(void**)(lbl_804673F8 + 0x65C) = GSmemLock(modelBlock);
     wazaViewerLoadFile((const char*)viewerData, (char*)(lbl_804673F8 + 0x1C), buf, modelSize, FALSE);
     sequenceLoad(effect, *(void**)(lbl_804673F8 + 0x65C));
-    *(s32*)(lbl_804673F8 + 0x04) = 1;
+    ((WazaViewerState*)lbl_804673F8)->field_4 = 1;
     wazaSequenceOwnerSetVisibility(effect, 1);
     rotation = *(WazaViewerVec*)(viewerData + 0x0C);
     position = *(WazaViewerVec*)(viewerData + 0x18);
@@ -510,13 +511,13 @@ void wazaViewerLoadSequenceFiles(s32 slot) {
     if (animSize != 0) {
         block = GSmemAlloc((animSize + 0x1F) & ~0x1F, 0x20);
         if (block != 0) {
-            *(u16*)(lbl_804673F8 + 0x668) = block;
+            ((WazaViewerState*)lbl_804673F8)->field_668 = block;
             /* RULE-EXCEPTION(user-approved): pointer carrier for the allocator result, chosen for register allocation - see docs/RULE_EXCEPTIONS.md */
             animBuf = GSmemLock(block);
             buf = *(void**)(lbl_804673F8 + 0x664) = animBuf;
             wazaViewerLoadFile((const char*)viewerData, (char*)(lbl_804673F8 + 0x41C), buf, animSize, FALSE);
             if ((u8)fn_801DDB4C(effect, *(void**)(lbl_804673F8 + 0x664))) {
-                *(s32*)(lbl_804673F8 + 0x04) = 2;
+                ((WazaViewerState*)lbl_804673F8)->field_4 = 2;
             } else {
                 wazaSequenceSysStopWaza(effect, 0, 0);
             }
@@ -554,7 +555,7 @@ void fn_801D5DA0(void) {
     u8 color[4];
 
     messages = (const char*)lbl_80279338;
-    sequence = *(void**)(lbl_804673F8 + 0x61C + *(s32*)(lbl_804673F8 + 0x624) * 4);
+    sequence = *(void**)(lbl_804673F8 + 0x61C + ((WazaViewerState*)lbl_804673F8)->field_624 * 4);
     if (sequence == NULL) {
         return;
     }
@@ -672,20 +673,20 @@ void fn_801D603C(void) {
     s32 arg2;
     u8 color[4];
 
-    switch (*(s32*)(lbl_804673F8 + 0x00)) {
+    switch (((WazaViewerState*)lbl_804673F8)->field_0) {
     case 1:
         models = (void**)(lbl_804673F8 + 0x61C);
-        sequence = models[*(s32*)(lbl_804673F8 + 0x624)];
+        sequence = models[((WazaViewerState*)lbl_804673F8)->field_624];
         color[3] = 0;
         color[2] = 0;
         color[1] = 0;
         color[0] = 0;
-        GSfilterSetColor(*(void**)(lbl_804673F8 + 0x10), color);
+        GSfilterSetColor(((WazaViewerState*)lbl_804673F8)->field_10, color);
         if (sequence != NULL) {
             if (((WazaViewerCtrl*)(lbl_804673F8 + 0x08))->advance) {
                 fn_801D7B94(sequence);
             }
-            *(s32*)(lbl_804673F8 + 0x14) = *(u16*)((u8*)sequence + 0x32);
+            ((WazaViewerState*)lbl_804673F8)->field_14 = *(u16*)((u8*)sequence + 0x32);
             if (!dbgMenuIsOpen() && !menuIsCheck(0x78)) {
                 fn_801D7464();
             }
@@ -694,7 +695,7 @@ void fn_801D603C(void) {
         state = vtrGetMode();
         arg2 = arg1 = 0;
         if (((WazaViewerCtrl*)(lbl_804673F8 + 0x08))->overlay) {
-            current = models[*(s32*)(lbl_804673F8 + 0x624)];
+            current = models[((WazaViewerState*)lbl_804673F8)->field_624];
             if (current != NULL) {
                 node = *(void**)((u8*)current + 0x68);
                 if (node != NULL) {
@@ -994,12 +995,12 @@ void wazaViewerUpdatePlayMode(void) {
 
     messages = (const char*)lbl_80279338;
     models = (void**)(lbl_804673F8 + 0x61C);
-    effect = models[*(s32*)(lbl_804673F8 + 0x624)];
+    effect = models[((WazaViewerState*)lbl_804673F8)->field_624];
     color[3] = 0;
     color[2] = 0;
     color[1] = 0;
     color[0] = 0;
-    GSfilterSetColor(*(void**)(lbl_804673F8 + 0x10), color);
+    GSfilterSetColor(((WazaViewerState*)lbl_804673F8)->field_10, color);
     if (effect != NULL) {
         if (((WazaViewerCtrl*)(lbl_804673F8 + 0x08))->advance) {
             fn_801D7B94(effect);
@@ -1013,7 +1014,7 @@ void wazaViewerUpdatePlayMode(void) {
             }
         }
         fn_801D6E58(effect);
-        *(s32*)(lbl_804673F8 + 0x14) = *(u16*)((u8*)effect + 0x32);
+        ((WazaViewerState*)lbl_804673F8)->field_14 = *(u16*)((u8*)effect + 0x32);
         if (!dbgMenuIsOpen() && !menuIsCheck(0x78)) {
             fn_801D7464();
         }
@@ -1022,7 +1023,7 @@ void wazaViewerUpdatePlayMode(void) {
     state = vtrGetMode();
     arg2 = arg1 = 0;
     if (((WazaViewerCtrl*)(lbl_804673F8 + 0x08))->overlay) {
-        current = models[*(s32*)(lbl_804673F8 + 0x624)];
+        current = models[((WazaViewerState*)lbl_804673F8)->field_624];
         if (current != NULL) {
             currentNode = *(void**)((u8*)current + 0x68);
             if (currentNode != NULL) {
@@ -1217,7 +1218,7 @@ void fn_801D7230(void) {
 
     messages = (const char*)lbl_80279338;
     line = 0;
-    flags = *(s32*)(lbl_804673F8 + 0x0C);
+    flags = (s32)((WazaViewerState*)lbl_804673F8)->field_C;
     if (flags != 0) {
         fn_800FE6A0(lbl_8047E2F0, lbl_8047E2F0);
         if (flags & 0x001) {
@@ -1277,7 +1278,7 @@ void fn_801D7230(void) {
  */
 extern u8 lbl_804673F8[];
 void wazaViewerSetErrorFlag(u32 bits) {
-    *(u32*)(lbl_804673F8 + 0x0C) |= bits;
+    ((WazaViewerState*)lbl_804673F8)->field_C |= bits;
 }
 
 #endif
@@ -1375,7 +1376,7 @@ void fn_801D7464(void) {
 
     motionA = 0;
     motionB = 0;
-    currentIdx = *(s32*)(lbl_804673F8 + 0x624);
+    currentIdx = ((WazaViewerState*)lbl_804673F8)->field_624;
     effect = ((WazaEffect**)(lbl_804673F8 + 0x61C))[currentIdx];
     if (effect == NULL) {
         return;
@@ -1488,7 +1489,7 @@ void fn_801D7464(void) {
             }
         }
 
-        if (*(s32*)(lbl_804673F8 + 0x4) == 1 && *(void**)((u8*)effect + 0x68) == NULL) {
+        if (((WazaViewerState*)lbl_804673F8)->field_4 == 1 && *(void**)((u8*)effect + 0x68) == NULL) {
             if ((fn_800F7BC4(1) & GSinputButtonsChanged(1) & 0x40) != 0) {
                 (*(u16*)((u8*)effect + 0x32))--;
             }
@@ -1502,14 +1503,14 @@ void fn_801D7464(void) {
 
         if (((WazaViewerCtrl*)(lbl_804673F8 + 0x08))->advance &&
             (fn_800F7BC4(1) & GSinputButtonsChanged(1) & 0x800) != 0) {
-            (*(s32*)(lbl_804673F8 + 0x18))++;
-            if (*(s32*)(lbl_804673F8 + 0x18) >= 0x10) {
-                *(s32*)(lbl_804673F8 + 0x18) = -1;
+            (((WazaViewerState*)lbl_804673F8)->field_18)++;
+            if (((WazaViewerState*)lbl_804673F8)->field_18 >= 0x10) {
+                ((WazaViewerState*)lbl_804673F8)->field_18 = -1;
             }
         }
 
         if ((fn_800F7BC4(1) & GSinputButtonsChanged(1) & 0x100) != 0 &&
-            *(s32*)(lbl_804673F8 + 0x4) == 1 && *(void**)((u8*)effect + 0x68) == NULL) {
+            ((WazaViewerState*)lbl_804673F8)->field_4 == 1 && *(void**)((u8*)effect + 0x68) == NULL) {
             wazaSequencePokemonMotionStart(effect, 0);
         }
     }
@@ -1520,7 +1521,7 @@ void fn_801D7464(void) {
         } else if ((u8)wazaSequenceSysIsPlayingWaza(effect, motionA, motionB) == 0) {
             wazaSequenceOwnerSetVisibility(effect, 1);
             wazaSequenceSysStartWaza(effect, motionA, motionB);
-            *(s32*)(lbl_804673F8 + 0x62C) = 1;
+            ((WazaViewerState*)lbl_804673F8)->field_62C = 1;
         }
     }
 }
@@ -1622,7 +1623,7 @@ void fn_801D7B94(void* effect) {
     gfxSetVtxDesc(lbl_80314638);
     gfxSetPrimitive(0);
 
-    if (*(s32*)(lbl_804673F8 + 0x18) < 0) {
+    if (((WazaViewerState*)lbl_804673F8)->field_18 < 0) {
         gfxBegin(0x10);
         for (i = 0; i < 0x10; i++) {
             part = GSmodelGetPart(
@@ -1632,7 +1633,7 @@ void fn_801D7B94(void* effect) {
                 GSpartFree(part);
             } else {
                 clear__5GSvecFv(&transform);
-                *(u32*)(lbl_804673F8 + 0x0C) |= 2;
+                ((WazaViewerState*)lbl_804673F8)->field_C |= 2;
             }
             gfxVtxPos(transform.x, transform.y, transform.z);
             gfxVtxColor4u8(0, 0xFF, 0, 0, 0xDC);
@@ -1641,13 +1642,13 @@ void fn_801D7B94(void* effect) {
     } else {
         gfxBegin(1);
         part = GSmodelGetPart(
-            model, entry->parts[*(s32*)(lbl_804673F8 + 0x18)]);
+            model, entry->parts[((WazaViewerState*)lbl_804673F8)->field_18]);
         if (part != NULL) {
             GSpartGetTransform(part, &transform, NULL, NULL);
             GSpartFree(part);
         } else {
             clear__5GSvecFv(&transform);
-            *(u32*)(lbl_804673F8 + 0x0C) |= 2;
+            ((WazaViewerState*)lbl_804673F8)->field_C |= 2;
         }
         gfxVtxPos(transform.x, transform.y, transform.z);
         gfxVtxColor4u8(0, 0xFF, 0, 0, 0xDC);
