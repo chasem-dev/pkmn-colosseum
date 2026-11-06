@@ -542,8 +542,8 @@ u32 _lightningRenderMain(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        count = *(u16*)(p + 0x8);
-        model = GSresGetResource(*(u16*)(p + 0xA), *(u16*)(p + 0xC));
+        count = ((LightningWork*)p)->boltCount;
+        model = GSresGetResource(((LightningWork*)p)->resGroup, ((LightningWork*)p)->resId);
         if (model == NULL) {
             return 0;
         }
@@ -565,20 +565,20 @@ u32 _lightningRenderMain(void* ptr) {
         GXSetLineWidth((s32)(*(f32*)&lbl_8047D150 * scale), 5);
         gfxSetFlags(1);
         gfxClearFlags(6);
-        gfxSetVtxDesc(*(void**)(p + 0x14));
+        gfxSetVtxDesc(((LightningWork*)p)->vtxDesc);
         fn_800E05C0(matrix, modelPos[0], modelPos[1], modelPos[2]);
         gfxPushMultMatrix(matrix);
-        fn_800E048C(matrix, *(f32*)(p + 0x28), *(f32*)(p + 0x2C), *(f32*)(p + 0x30));
+        fn_800E048C(matrix, ((LightningWork*)p)->scale[0], ((LightningWork*)p)->scale[1], ((LightningWork*)p)->scale[2]);
         gfxPushMultMatrix(matrix);
         gfxSetPrimitive(2);
 
-        entry = *(u8**)(p + 0x4);
+        entry = ((LightningWork*)p)->bolts;
         for (i = 0; i < count; i++, entry += 0x97C) {
-            if (*(u32*)(entry + 0x978) != 0) {
-                gfxBegin((u16)(*(u32*)(entry + 0x978) + 1));
-                gfxVtxPos(*(f32*)(entry + 0x960), *(f32*)(entry + 0x964), *(f32*)(entry + 0x968));
+            if (((LightningBolt*)entry)->segments != 0) {
+                gfxBegin((u16)(((LightningBolt*)entry)->segments + 1));
+                gfxVtxPos(((LightningBolt*)entry)->start[0], ((LightningBolt*)entry)->start[1], ((LightningBolt*)entry)->start[2]);
                 gfxVtxColor4u8(0, p[0x20], p[0x21], p[0x22], p[0x23]);
-                segments = *(u32*)(entry + 0x978);
+                segments = ((LightningBolt*)entry)->segments;
                 point = entry;
                 for (j = 0; j < segments; j++, point += 0x18) {
                     gfxVtxPos(*(f32*)(point + 0), *(f32*)(point + 4), *(f32*)(point + 8));
@@ -588,51 +588,51 @@ u32 _lightningRenderMain(void* ptr) {
             }
         }
 
-        if (*(void**)(p + 0x1C) != NULL) {
+        if (((LightningWork*)p)->glowTexture != NULL) {
             gfxSetZMode(1, 2, 1);
             gfxSetUpdates(1, 1, 0);
             gfxSetFlags(3);
             gfxClearFlags(4);
-            gfxSetVtxDesc(*(void**)(p + 0x18));
-            gfxLoadTexture(0, *(void**)(p + 0x1C));
+            gfxSetVtxDesc(((LightningWork*)p)->glowVtxDesc);
+            gfxLoadTexture(0, ((LightningWork*)p)->glowTexture);
             gfxSetPrimitive(6);
             gfxBegin((u16)(count << 3));
-            entry = *(u8**)(p + 4);
+            entry = ((LightningWork*)p)->bolts;
             grow = *(f32*)&lbl_8047D158;
             for (i = 0; i < count; i++, entry += 0x97C) {
-                width = *(f32*)(p + 0x6C) * fn_800E0BA0() + *(f32*)(p + 0x68);
-            gfxVtxPos(*(f32*)(entry + 0x960) - width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) - width);
+                width = ((LightningWork*)p)->glowRange * fn_800E0BA0() + ((LightningWork*)p)->glowBase;
+            gfxVtxPos(((LightningBolt*)entry)->start[0] - width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] - width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D154);
-            gfxVtxPos(*(f32*)(entry + 0x960) + width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) - width);
+            gfxVtxPos(((LightningBolt*)entry)->start[0] + width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] - width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x960) + width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) + width);
+            gfxVtxPos(((LightningBolt*)entry)->start[0] + width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] + width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x960) - width, *(f32*)(entry + 0x964),
-                        *(f32*)(entry + 0x968) + width);
+            gfxVtxPos(((LightningBolt*)entry)->start[0] - width, ((LightningBolt*)entry)->start[1],
+                        ((LightningBolt*)entry)->start[2] + width);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D154);
 
                 outer = width * grow;
-            gfxVtxPos(*(f32*)(entry + 0x96C) - outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) - outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] - outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] - outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D154);
-            gfxVtxPos(*(f32*)(entry + 0x96C) + outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) - outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] + outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] - outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D154, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x96C) + outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) + outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] + outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] + outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D158);
-            gfxVtxPos(*(f32*)(entry + 0x96C) - outer, *(f32*)(entry + 0x970),
-                        *(f32*)(entry + 0x974) + outer);
+            gfxVtxPos(((LightningBolt*)entry)->end[0] - outer, ((LightningBolt*)entry)->end[1],
+                        ((LightningBolt*)entry)->end[2] + outer);
             gfxVtxColor4u8(0, p[0x24], p[0x25], p[0x26], p[0x27]);
             gfxVtxTexCoord(0, *(f32*)&lbl_8047D158, *(f32*)&lbl_8047D154);
             }
@@ -671,8 +671,8 @@ u32 _lightningDestroy(void* ptr) {
     if (ptr) {
         GXDrawDone();
         GXInvalidateVtxCache();
-        if (*(void**)((u8*)ptr + 0x1c) != NULL) {
-            GStextureFree(*(void**)((u8*)ptr + 0x1c));
+        if (((LightningWork*)ptr)->glowTexture != NULL) {
+            GStextureFree(((LightningWork*)ptr)->glowTexture);
         }
         return 1;
     }
@@ -720,23 +720,23 @@ u32 lightningStartEffect(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        if (GSresGetResource(*(u16*)(p + 0xA), *(u16*)(p + 0xC)) == NULL) {
+        if (GSresGetResource(((LightningWork*)p)->resGroup, ((LightningWork*)p)->resId) == NULL) {
             GSlogWrite("lightningStartEffect: Could not start lightning effect - invalid model: group %d, model %d.\n",
-                       *(u16*)(p + 0xA), *(u16*)(p + 0xC));
+                       ((LightningWork*)p)->resGroup, ((LightningWork*)p)->resId);
             return 0;
         }
 
-        handle = _toolentryAlloc__FUl(*(u16*)(p + 0x8) * 0x97C);
+        handle = _toolentryAlloc__FUl(((LightningWork*)p)->boltCount * 0x97C);
         *(u16*)p = handle;
         if (handle == 0) {
             GSlogWrite("lightningStartEffect: Could not start lightning effect - not enough memory!\n");
             return 0;
         }
 
-        *(void**)(p + 4) = GSmemLock(handle);
-        memset(*(void**)(p + 4), 0, *(u16*)(p + 0x8) * 0x97C);
+        ((LightningWork*)p)->bolts = GSmemLock(handle);
+        memset(((LightningWork*)p)->bolts, 0, ((LightningWork*)p)->boltCount * 0x97C);
         _lightningGenerate(p, 1);
-        *(u16*)(p + 0x10) = 0;
+        ((LightningWork*)p)->frame = 0;
         return 1;
     }
 
@@ -762,12 +762,12 @@ u32 _lightningUpdate(void* ptr, u32 delta) {
         goto fail;
     }
     p = ptr;
-    limit = *(u16*)(p + 0x12);
-    if (limit != 0 && *(u16*)(p + 0x10) >= limit) {
+    limit = ((LightningWork*)p)->duration;
+    if (limit != 0 && ((LightningWork*)p)->frame >= limit) {
         goto fail;
     }
     _lightningGenerate(p, 0);
-    *(u16*)(p + 0x10) = *(u16*)(p + 0x10) + d;
+    ((LightningWork*)p)->frame = ((LightningWork*)p)->frame + d;
     return 1;
 fail:
     return 0;
@@ -806,24 +806,24 @@ void _lightningGenerate(void* ptr, u32 b) {
     f32 step[4];
 
     p = ptr;
-    entry = *(u8**)(p + 0x4);
-    count = *(u16*)(p + 0x8);
+    entry = ((LightningWork*)p)->bolts;
+    count = ((LightningWork*)p)->boltCount;
     for (i = 0; i < count; i++, entry += 0x97C) {
         if (b != 0) {
             f32 angle;
             f32 radius;
 
-            radius = *(f32*)(p + 0x58) * fn_800E0BA0() + *(f32*)(p + 0x54);
+            radius = ((LightningWork*)p)->radiusRange * fn_800E0BA0() + ((LightningWork*)p)->radiusBase;
             angle = 6.2831855f * GSrandf();
-            *(f32*)(entry + 0x960) = radius * (f32)cos(angle);
-            *(f32*)(entry + 0x964) = 0.0f;
-            *(f32*)(entry + 0x968) = radius * (f32)sin(angle);
+            ((LightningBolt*)entry)->start[0] = radius * (f32)cos(angle);
+            ((LightningBolt*)entry)->start[1] = 0.0f;
+            ((LightningBolt*)entry)->start[2] = radius * (f32)sin(angle);
         }
 
         GSvecNormalize(base, entry + 0x960);
         set__5GSvecFfff(direction, base[0], 1.0f, base[2]);
         GSvecNormalize(direction, direction);
-        *(u32*)(entry + 0x978) = 0;
+        ((LightningBolt*)entry)->segments = 0;
         current = entry;
         previous = entry + 0x960;
 
@@ -834,31 +834,31 @@ void _lightningGenerate(void* ptr, u32 b) {
             fn_800DFFCC(tangent, direction, tangent);
             GSvecNormalize(tangent, tangent);
 
-            fn_800E0718(step, tangent, *(f32*)(p + 0x4C) * fn_800E0BA0());
+            fn_800E0718(step, tangent, ((LightningWork*)p)->stepRange * fn_800E0BA0());
             GSvecTransformQuat(direction, step, direction);
-            GSmtxMakeYRotation(rotation, *(f32*)(p + 0x50) * fn_800E0BA0());
+            GSmtxMakeYRotation(rotation, ((LightningWork*)p)->turnRange * fn_800E0BA0());
             GSvecTransform(direction, rotation, direction);
 
             if (b != 0) {
                 GSvecCopy(current + 0xC, direction);
             } else {
                 vecScale(current + 0xC, current + 0xC,
-                            1.0f - *(f32*)(p + 0x64));
-                vecScale(direction, direction, *(f32*)(p + 0x64));
+                            1.0f - ((LightningWork*)p)->bend);
+                vecScale(direction, direction, ((LightningWork*)p)->bend);
                 GSvecAdd(current + 0xC, direction, current + 0xC);
                 GSvecNormalize(current + 0xC, current + 0xC);
             }
 
             vecScale(direction, current + 0xC,
-                        *(f32*)(p + 0x60) * fn_800E0BA0() + *(f32*)(p + 0x5C));
-            set__5GSvecFfff(noise, *(f32*)(p + 0x40) * fn_800E0BA0(),
-                            *(f32*)(p + 0x44) * fn_800E0BA0(),
-                            *(f32*)(p + 0x48) * fn_800E0BA0());
+                        ((LightningWork*)p)->lengthRange * fn_800E0BA0() + ((LightningWork*)p)->lengthBase);
+            set__5GSvecFfff(noise, ((LightningWork*)p)->noise[0] * fn_800E0BA0(),
+                            ((LightningWork*)p)->noise[1] * fn_800E0BA0(),
+                            ((LightningWork*)p)->noise[2] * fn_800E0BA0());
             GSvecAdd(noise, noise, p + 0x34);
             GSvecAdd(direction, direction, noise);
             GSvecAdd(current, previous, direction);
             GSvecCopy(direction, current + 0xC);
-            *(u32*)(entry + 0x978) += 1;
+            ((LightningBolt*)entry)->segments += 1;
 
             if (*(f32*)(current + 0x4) < 0.0f) {
                 GSvecCopy(entry + 0x96C, previous);
@@ -1907,12 +1907,12 @@ asm u32 fn_8013A49C(void* ptr) {
 u32 electronStartEffect(void* ptr) {
     void* res;
     if (ptr) {
-        res = GSresGetResource(*(u16*)((u8*)ptr + 0xc), *(u16*)((u8*)ptr + 0xe));
+        res = GSresGetResource(((ElectronWork*)ptr)->resGroup, ((ElectronWork*)ptr)->resId);
         if (res == NULL) {
-            GSlogWrite((const char*)lbl_80272D90, *(u16*)((u8*)ptr + 0xc), *(u16*)((u8*)ptr + 0xe));
+            GSlogWrite((const char*)lbl_80272D90, ((ElectronWork*)ptr)->resGroup, ((ElectronWork*)ptr)->resId);
             return 0;
         }
-        *(u16*)((u8*)ptr + 0x8) = 0;
+        ((ElectronWork*)ptr)->frame = 0;
         return 1;
     }
     GSlogWrite((const char*)lbl_80272DF4);
@@ -1995,8 +1995,8 @@ u32 _electronRender(void* ptr) {
     f32 cosPitchB3;
 
     if (ptr != NULL) {
-    chance = *(f32*)(p + 0x20);
-    resource = GSresGetResource(*(u16*)(p + 0xC), *(u16*)(p + 0xE));
+    chance = ((ElectronWork*)p)->chance;
+    resource = GSresGetResource(((ElectronWork*)p)->resGroup, ((ElectronWork*)p)->resId);
     if (resource == NULL) {
         return 0;
     }
@@ -2012,7 +2012,7 @@ u32 _electronRender(void* ptr) {
     gfxSetUpdates(1, 1, 0);
     gfxSetZMode(1, 1, 1);
     gfxSetCullMode(0);
-    scale = (64.0f * *(f32*)(p + 0x10)) /
+    scale = (64.0f * ((ElectronWork*)p)->scale) /
             (distance * perspective);
     if (scale > 1.0f) {
         scale = 1.0f;
@@ -2020,7 +2020,7 @@ u32 _electronRender(void* ptr) {
     GXSetLineWidth((s32)(255.0f * scale), 5);
     gfxSetFlags(1);
     gfxClearFlags(6);
-    gfxSetVtxDesc(*(void**)(p + 4));
+    gfxSetVtxDesc(((ElectronWork*)p)->vtxDesc);
     gfxSetPrimitive(2);
 
     for (firstIndex = 1; firstIndex < count; firstIndex++) {
@@ -2073,9 +2073,9 @@ u32 _electronRender(void* ptr) {
                             }
                             GSvecAdd(ctrl[3], secondPos, offset);
 
-                            segments = *(f32*)(p + 0x10) *
-                                       (*(f32*)(p + 0x1C) * fn_800E0BA0() +
-                                        *(f32*)(p + 0x18));
+                            segments = ((ElectronWork*)p)->scale *
+                                       (((ElectronWork*)p)->segmentRange * fn_800E0BA0() +
+                                        ((ElectronWork*)p)->segmentBase);
                             step = 1.0f / (f32)segments;
                             gfxBegin((u16)(segments + 1));
                             gfxVtxPos(ctrl[0][0], ctrl[0][1], ctrl[0][2]);
@@ -2087,7 +2087,7 @@ u32 _electronRender(void* ptr) {
                                     yawB3 = 6.2831855f * GSrandf();
                                     pitchB3 = 3.1415927f * GSrandf();
                                     sinPitchB3 = sin(pitchB3);
-                                    lengthB3 = *(f32*)(p + 0x14) * *(f32*)(p + 0x10) *
+                                    lengthB3 = ((ElectronWork*)p)->field_14 * ((ElectronWork*)p)->scale *
                                              fn_800E0BA0();
                                     sinYawB3 = sin(yawB3);
                                     cosPitchB3 = cos(pitchB3);
@@ -2130,10 +2130,10 @@ u32 _electronUpdate(void* ptr, u16 delta) {
     u16 cur;
     u16 max;
     if (ptr) {
-        cur = *(u16*)((u8*)ptr + 0x8);
-        max = *(u16*)((u8*)ptr + 0xa);
+        cur = ((ElectronWork*)ptr)->frame;
+        max = ((ElectronWork*)ptr)->duration;
         if (cur < max) {
-            *(u16*)((u8*)ptr + 0x8) = cur + delta;
+            ((ElectronWork*)ptr)->frame = cur + delta;
             return 1;
         }
     }
@@ -4626,10 +4626,10 @@ u32 _auraDestroy(void* arg) {
     void* ptr;
     if (arg != 0) {
         ptr = arg;
-        if (*(void**)((u8*)ptr + 4) != 0) {
+        if (((AuraWork*)ptr)->texture != 0) {
             GXDrawDone();
             GXInvalidateVtxCache();
-            GStextureFree(*(void**)((u8*)ptr + 4));
+            GStextureFree(((AuraWork*)ptr)->texture);
         }
         memset(ptr, 0, 0x34);
     }
@@ -4676,10 +4676,10 @@ asm u32 auraEffectStart(void* ptr) {
 #else
 u32 auraEffectStart(void* ptr) {
     if (ptr == NULL) { goto log; }
-    *(u16*)((u8*)ptr + 0x30) = 0;
+    ((AuraWork*)ptr)->frame = 0;
     if (*(void**)ptr == NULL) { goto log; }
-    if (*(u8*)((u8*)ptr + 0x18) == 0) { goto log; }
-    if (*(void**)((u8*)ptr + 0x4) == NULL) { goto log; }
+    if (((AuraWork*)ptr)->enabled == 0) { goto log; }
+    if (((AuraWork*)ptr)->texture == NULL) { goto log; }
     return 1;
 log:
     GSlogWrite((const char*)lbl_80272FA0);
@@ -4696,7 +4696,7 @@ u32 _auraRender(u8* ptr)
     void* model;
 
     if (ptr != NULL) {
-        model = *(void**)(ptr + 4);
+        model = ((AuraWork*)ptr)->texture;
         if (model == NULL) {
             return 0;
         }
@@ -4775,38 +4775,38 @@ u32 _auraUpdate(void* ptr, u32 delta) {
     if (ptr != NULL) {
         p = ptr;
         flags = p[0x19];
-        period = 60.0f / *(f32*)(p + 0x24);
-        base = *(f32*)(p + 0x1C);
-        range = *(f32*)(p + 0x20);
+        period = 60.0f / ((AuraWork*)p)->rate;
+        base = ((AuraWork*)p)->base;
+        range = ((AuraWork*)p)->range;
 
         if (flags & 1) {
-            *(f32*)(p + 0x2C) = lbl_8047D2A8;
+            ((AuraWork*)p)->wave = lbl_8047D2A8;
             /* RULE-EXCEPTION(user-approved): phase reused as the 1 + base
                temporary for retail's operand order — see
                docs/RULE_EXCEPTIONS.md */
             phase = lbl_8047D2A8 + base;
-            *(f32*)(p + 0x28) = phase + range;
+            ((AuraWork*)p)->alpha = phase + range;
         } else {
             if (flags & 2) {
-                frame = *(u16*)(p + 0x30);
+                frame = ((AuraWork*)p)->frame;
                 phase = fmod(frame, 2.0f * period);
                 phase = fmod(3.1415927f * phase / period, 3.1415927410125732);
             } else {
-                frame = *(u16*)(p + 0x30);
+                frame = ((AuraWork*)p)->frame;
                 phase = fmod(frame, period);
                 phase = 6.2831855f * phase / period;
             }
             wave = cos(phase);
             if (flags & 8) {
-                *(f32*)(p + 0x2C) = lbl_8047D2A8;
+                ((AuraWork*)p)->wave = lbl_8047D2A8;
             } else {
-                *(f32*)(p + 0x2C) = 0.5f * (lbl_8047D2A8 + wave);
+                ((AuraWork*)p)->wave = 0.5f * (lbl_8047D2A8 + wave);
             }
-            *(f32*)(p + 0x28) = lbl_8047D2A8 + (base - range * wave);
+            ((AuraWork*)p)->alpha = lbl_8047D2A8 + (base - range * wave);
         }
 
-        *(u16*)(p + 0x30) += delta;
-        return *(u16*)(p + 0x32) == -1 || *(u16*)(p + 0x30) < *(u16*)(p + 0x32);
+        ((AuraWork*)p)->frame += delta;
+        return ((AuraWork*)p)->duration == -1 || ((AuraWork*)p)->frame < ((AuraWork*)p)->duration;
     }
     return 0;
 }
@@ -4911,7 +4911,7 @@ void _auraDrawModel(void* ptr) {
     s32 count;
 
     p = ptr;
-    texture = *(void**)(p + 4);
+    texture = ((AuraWork*)p)->texture;
     model = *(void**)p;
     count = p[0x18];
     if (texture == NULL || model == NULL) {
@@ -4954,7 +4954,7 @@ void _auraDrawModel(void* ptr) {
     _cameraLoadCameraMatrix__FP9_GScamera12GSgfxLayerID();
     GSgfxRenderLayer(texture, 0);
 
-    alpha = *(f32*)(p + 0x28);
+    alpha = ((AuraWork*)p)->alpha;
     layerAlphaStep = lbl_8047D2A8 / (f32)count;
     alphaStep = (alpha - lbl_8047D2A8) / (f32)count;
     layerAlpha = lbl_8047D2A8 - (f32)count * layerAlphaStep;
@@ -5508,11 +5508,11 @@ asm void fn_8013FC58(void) {
 u32 _billboardDestroy(void* ptr) {
     if (ptr) {
         if (*(u32*)((u8*)ptr + 0x10) != 0) {
-            fn_800F9210(*(u32*)ptr, *(u32*)((u8*)ptr + 0x8));
-            fn_800F9210(*(u32*)ptr, *(u32*)((u8*)ptr + 0x4));
+            fn_800F9210(*(u32*)ptr, ((BillboardWork*)ptr)->modelRes);
+            fn_800F9210(*(u32*)ptr, ((BillboardWork*)ptr)->res04);
         }
         if (*(u32*)((u8*)ptr + 0x14) != 0) {
-            fn_800F9210(*(u32*)ptr, *(u32*)((u8*)ptr + 0xc));
+            fn_800F9210(*(u32*)ptr, ((BillboardWork*)ptr)->particleRes);
         }
     }
     return 1;
@@ -5527,20 +5527,20 @@ asm void fn_8013FCC4(void) {
 u32 _billboardInit(void* ptr) {
     void* res;
     if (ptr) {
-        if (*(u32*)((u8*)ptr + 0x4) != 0 && *(u32*)((u8*)ptr + 0x8) != 0) {
-            *(void**)((u8*)ptr + 0x10) = GSresGetResource(*(u32*)ptr, *(u32*)((u8*)ptr + 0x8));
+        if (((BillboardWork*)ptr)->res04 != 0 && ((BillboardWork*)ptr)->modelRes != 0) {
+            ((BillboardWork*)ptr)->model = GSresGetResource(*(u32*)ptr, ((BillboardWork*)ptr)->modelRes);
         } else {
-            *(void**)((u8*)ptr + 0x10) = NULL;
+            ((BillboardWork*)ptr)->model = NULL;
         }
-        if (*(u32*)((u8*)ptr + 0xc) != 0) {
-            res = GSresGetResource(*(u32*)ptr, *(u32*)((u8*)ptr + 0xc));
+        if (((BillboardWork*)ptr)->particleRes != 0) {
+            res = GSresGetResource(*(u32*)ptr, ((BillboardWork*)ptr)->particleRes);
             if (res != NULL) {
-                *(void**)((u8*)ptr + 0x14) = gsParticleBankLoad(res);
+                ((BillboardWork*)ptr)->particleBank = gsParticleBankLoad(res);
             } else {
-                *(void**)((u8*)ptr + 0x14) = NULL;
+                ((BillboardWork*)ptr)->particleBank = NULL;
             }
         } else {
-            *(void**)((u8*)ptr + 0x14) = NULL;
+            ((BillboardWork*)ptr)->particleBank = NULL;
         }
         return 1;
     }
@@ -5557,14 +5557,14 @@ asm u32 fn_8013FD68(void* ptr) {
 u32 _billboardStop(void* ptr) {
     void* inner;
     if (ptr) {
-        inner = *(void**)((u8*)ptr + 0x14);
+        inner = ((BillboardWork*)ptr)->particleBank;
         if (inner) {
             gsParticleKill(inner, 0);
         }
-        if (*(void**)((u8*)ptr + 0x10)) {
-            GSmodelStopAnimation(*(void**)((u8*)ptr + 0x10));
-            GSmodelStopTexAnimation(*(void**)((u8*)ptr + 0x10));
-            GSmodelSetVisibility(*(void**)((u8*)ptr + 0x10), 0);
+        if (((BillboardWork*)ptr)->model) {
+            GSmodelStopAnimation(((BillboardWork*)ptr)->model);
+            GSmodelStopTexAnimation(((BillboardWork*)ptr)->model);
+            GSmodelSetVisibility(((BillboardWork*)ptr)->model, 0);
         }
     }
     return 1;
@@ -5591,28 +5591,28 @@ u16 billboardEffectStart(void* ptr) {
         goto report_null;
     }
 
-    model = *(void**)((u8*)ptr + 0x10);
-    if (model == NULL && *(void**)((u8*)ptr + 0x14) == NULL) {
+    model = ((BillboardWork*)ptr)->model;
+    if (model == NULL && ((BillboardWork*)ptr)->particleBank == NULL) {
         return 0;
     }
 
-    if (*(void**)((u8*)ptr + 0x14) != NULL) {
-        *(void**)((u8*)ptr + 0x20) = gsParticleCreate(*(void**)((u8*)ptr + 0x14), *(u16*)((u8*)ptr + 0x1e), 1);
+    if (((BillboardWork*)ptr)->particleBank != NULL) {
+        ((BillboardWork*)ptr)->particle = gsParticleCreate(((BillboardWork*)ptr)->particleBank, ((BillboardWork*)ptr)->particleArg, 1);
     }
 
     if (model != NULL) {
         GSmodelSetVisibility(model, 1);
         fn_800E3CC8(model, 1);
         if (GSmodelCanAnimate(model)) {
-            GSmodelSetAnimIndex(model, *(u16*)((u8*)ptr + 0x1c));
-            GSmodelSetAnimType(model, *(u32*)((u8*)ptr + 0x18));
+            GSmodelSetAnimIndex(model, ((BillboardWork*)ptr)->animIndex);
+            GSmodelSetAnimType(model, ((BillboardWork*)ptr)->animType);
             GSmodelSetAnimRate(model, *(f32*)&lbl_8047D328);
             GSmodelSetAnimFrame(model, *(f32*)&lbl_8047D32C);
             GSmodelStartAnimation(model);
         }
         if (GSmodelCanTexAnimate(model)) {
-            GSmodelSetTexAnimIndex(model, *(u16*)((u8*)ptr + 0x1c));
-            GSmodelSetTexAnimType(model, *(u32*)((u8*)ptr + 0x18));
+            GSmodelSetTexAnimIndex(model, ((BillboardWork*)ptr)->animIndex);
+            GSmodelSetTexAnimType(model, ((BillboardWork*)ptr)->animType);
             GSmodelSetTexAnimRate(model, *(f32*)&lbl_8047D328);
             GSmodelSetTexAnimFrame(model, *(f32*)&lbl_8047D32C);
             GSmodelStartTexAnimation(model);
@@ -5669,7 +5669,7 @@ u32 _billboardUpdate(void* ptr) {
 
     if (ptr != NULL) {
         p = ptr;
-        model = *(void**)(p + 0x10);
+        model = ((BillboardWork*)p)->model;
         camera = cameraGetActive();
         position = *(BillboardVec*)lbl_80273060;
         billboardScale = *(BillboardVec*)lbl_8027306C;
@@ -5691,13 +5691,13 @@ u32 _billboardUpdate(void* ptr) {
             GSvecAdd(&position, &position, up);
         }
 
-        if (*(void**)(p + 0x20) != NULL &&
-            fn_80118DA8(*(void**)(p + 0x20)) != 0) {
-            gsParticleSetVecB(*(void**)(p + 0x20), &position);
+        if (((BillboardWork*)p)->particle != NULL &&
+            fn_80118DA8(((BillboardWork*)p)->particle) != 0) {
+            gsParticleSetVecB(((BillboardWork*)p)->particle, &position);
             updated = 1;
         }
 
-        if (*(void**)(p + 0x10) != NULL &&
+        if (((BillboardWork*)p)->model != NULL &&
             ((GSmodelCanAnimate(model) && !GSmodelHasAnimationEnded(model)) ||
              (GSmodelCanTexAnimate(model) && !GSmodelHasTexAnimationEnded(model)))) {
             material = GSmodelGetBound(model);
