@@ -12,6 +12,7 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/records/lbl_804001F0.h"
 #include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 #include "dolphin/gx/GX.h"
@@ -547,8 +548,8 @@ void GSgfxDrawScene(u32 flags, u8 setupCamera, u8 resetQueue) {
     state = (u8*)lbl_8047AA80;
 
     cursor = *(u32*)(state + 0x494) - *(u32*)(state + 0x490);
-    if (cursor > *(u32*)(lbl_804001F0 + 0x28)) {
-        *(u32*)(lbl_804001F0 + 0x28) = cursor;
+    if (cursor > ((Work804001F0*)lbl_804001F0)->field_28) {
+        ((Work804001F0*)lbl_804001F0)->field_28 = cursor;
     }
 
     oldMode = *(u32*)(state + 0x00);

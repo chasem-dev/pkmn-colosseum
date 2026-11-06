@@ -8,6 +8,7 @@
  * schedules the final call's argument setup as retail does; extern
  * variable loads cannot be moved across the stack store. Links as Matching.
  */
+#include "game/records/lbl_804001F0.h"
 #include "dolphin/types.h"
 
 extern u32 lbl_8047AA80; /* GSgfx state pointer */
@@ -75,5 +76,5 @@ void gfxLoadTexture(s32 slot, void* model) {
         GXLoadTlut(obj + 0x74, ((u32*)lbl_80314510)[slot]);
     }
     GXLoadTexObj(obj + 0x54, ((u32*)lbl_803144F0)[slot]);
-    *(u32*)(lbl_804001F0 + 0x24) += 1;
+    ((Work804001F0*)lbl_804001F0)->field_24 += 1;
 }

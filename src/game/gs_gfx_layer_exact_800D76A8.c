@@ -1,4 +1,5 @@
 /* GSgfx: draw a vertex list with its vertex format, 0x800D76A8 - 0x800D7820. */
+#include "game/records/lbl_804001F0.h"
 #include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
 

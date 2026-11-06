@@ -12,6 +12,7 @@
  * same situation as gs_gfx.c) was stripped during the split.
  */
 
+#include "game/records/lbl_804001F0.h"
 #include "game/records/lbl_80314610.h"
 #include "game/gs_gfx_state.h"
 #include "dolphin/types.h"
@@ -1109,7 +1110,7 @@ void gfxLoadVtxDesc(u32 obj) {
         }
     }
 
-    *(u32*)(lbl_804001F0 + 0x14) += 1;
+    ((Work804001F0*)lbl_804001F0)->field_14 += 1;
 }
 #endif
 
@@ -1544,7 +1545,7 @@ void gfxLoadTexture(s32 slot, void* model) {
         GXLoadTlut(obj + 0x74, ((u32*)lbl_80314510)[slot]);
     }
     GXLoadTexObj(obj + 0x54, ((u32*)lbl_803144F0)[slot]);
-    *(u32*)(lbl_804001F0 + 0x24) += 1;
+    ((Work804001F0*)lbl_804001F0)->field_24 += 1;
 }
 #endif
 #endif
