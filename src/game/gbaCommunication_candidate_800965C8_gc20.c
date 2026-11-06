@@ -24,6 +24,7 @@
  * RULE-EXCEPTION(user-approved): per-unit compiler flag and reused locals -
  * see docs/RULE_EXCEPTIONS.md.
  */
+#include "game/records/lbl_803FB380.h"
 #include "dolphin/types.h"
 
 extern u8 lbl_803FB338[];
@@ -235,7 +236,7 @@ void fn_800965C8(void* window, u8* sprite) {
             }
             break;
         case 5:
-            if (*(s32*)(lbl_803FB380 + 0x1C) > 0) {
+            if (((Work803FB380*)lbl_803FB380)->field_1C > 0) {
                 disp = 1;
             }
             break;
@@ -255,7 +256,7 @@ void fn_800965C8(void* window, u8* sprite) {
             msg = 0x2BCF;
             break;
         case 5:
-            if (*(s32*)(lbl_803FB380 + 0x1C) > 0) {
+            if (((Work803FB380*)lbl_803FB380)->field_1C > 0) {
                 msg = 0x2BD2;
             }
             break;

@@ -10,6 +10,7 @@
  * candidate carve; the bodies are gbaCommunication.c's, keep them in step.
  */
 #define GBA_COMMUNICATION_DECLS_ONLY
+#include "game/records/lbl_803FB380.h"
 #include "src/game/gbaCommunication.c"
 
 extern u32 pokemonGetStatus(u8* obj, u32 id, u32 selector, u32 d);
@@ -104,8 +105,8 @@ s32 fn_800973EC(u8* menu)
         *(s8*)(menu + 0x97) = -1;
         lbl_803FB380[1] = 0;
         lbl_803FB380[2] = menu[0x95];
-        *(s8*)(lbl_803FB380 + 3) = -1;
-        *(s8*)(lbl_803FB380 + 0x1A) = -1;
+        ((Work803FB380*)lbl_803FB380)->field_3 = -1;
+        ((Work803FB380*)lbl_803FB380)->field_1A = -1;
         if (lbl_803FB380[0] & 4) {
             menu[0x95] = 0;
             lbl_803FB380[1] = 1;
@@ -241,13 +242,13 @@ u32 menuPokemonStatusOpen(u8 flags, u32 arg1, s32 pokemon, u16 arg3, u32 arg4, u
 
 /* 0x800979EC | size: 0x4C */
 void menuPokemonStatus(void) {
-    *(u32*)(lbl_803FB380 + 4) = menuPokemonStatusOpen(
+    ((Work803FB380*)lbl_803FB380)->field_4 = menuPokemonStatusOpen(
         lbl_803FB380[0],
-        *(u32*)(lbl_803FB380 + 8),
-        *(u32*)(lbl_803FB380 + 0xC),
-        *(u16*)(lbl_803FB380 + 0x18),
-        *(u32*)(lbl_803FB380 + 0x10),
-        *(u32*)(lbl_803FB380 + 0x14));
+        ((Work803FB380*)lbl_803FB380)->field_8,
+        ((Work803FB380*)lbl_803FB380)->field_C,
+        ((Work803FB380*)lbl_803FB380)->field_18,
+        ((Work803FB380*)lbl_803FB380)->field_10,
+        ((Work803FB380*)lbl_803FB380)->field_14);
 }
 
 /* 0x80097A38 | size: 0xCC */
@@ -258,19 +259,19 @@ s32 menuPokemonStatusOpenWazaForget(u32 arg0, u16 arg1) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x59;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = arg1;
-    *(u32*)(lbl_803FB380 + 0x10) = 0;
-    *(u32*)(lbl_803FB380 + 0x14) = 0;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x59;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_10 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_14 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
     std098_mapWarpToMenuRoom(0x39d);
     if (lbl_803FB380[0] & 8) {
         floorSetFadeScript(0, 0);
     }
     _threadSwitch();
-    return *(s32*)(lbl_803FB380 + 0x4);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097B04 | size: 0xB8 */
@@ -281,16 +282,16 @@ s32 fn_80097B04(u32 arg0, u16 arg1) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x58;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = arg1;
-    *(u32*)(lbl_803FB380 + 0x10) = 0;
-    *(u32*)(lbl_803FB380 + 0x14) = 0;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                arg1, *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x58;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_10 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_14 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                arg1, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097BBC | size: 0x114 */
@@ -319,19 +320,19 @@ s32 fn_80097BBC(u8 chan) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x11;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = (u32)entity;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = 0;
-    *(u32*)(lbl_803FB380 + 0x14) = 0;
-    *(u32*)(lbl_803FB380 + 0x4) = -1;
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x11;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = (u32)entity;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_14 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
     std098_mapWarpToMenuRoom(0x39d);
     if (lbl_803FB380[0] & 8) {
         floorSetFadeScript(0, 0);
     }
     _threadSwitch();
-    return *(s32*)(lbl_803FB380 + 0x4);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097CD0 | size: 0xC4 */
@@ -342,16 +343,16 @@ s32 fn_80097CD0(u32 arg0, u32 arg1, u32 arg2) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0xc;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg1;
-    *(u32*)(lbl_803FB380 + 0x14) = arg2;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0xc;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097D94 | size: 0xC4 */
@@ -362,16 +363,16 @@ s32 fn_80097D94(u32 arg0, u32 arg1, u32 arg2) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0xe;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg1;
-    *(u32*)(lbl_803FB380 + 0x14) = arg2;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0xe;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097E58 | size: 0xB0 */
@@ -382,16 +383,16 @@ s32 fn_80097E58(u32 arg0, u32 arg1, u32 arg2, u32 arg3) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0xac;
-    *(u32*)(lbl_803FB380 + 0x8) = arg0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg1;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg2;
-    *(u32*)(lbl_803FB380 + 0x14) = arg3;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0xac;
+    ((Work803FB380*)lbl_803FB380)->field_8 = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg3;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097F08 | size: 0xC4 */
@@ -402,16 +403,16 @@ s32 fn_80097F08(u32 arg0, u32 arg1, u32 arg2) {
         _threadSwitch();
     }
     memset(lbl_803FB380, 0, 0x44);
-    *(u8*)(lbl_803FB380 + 0x0) = 0x8e;
-    *(u32*)(lbl_803FB380 + 0x8) = 0;
-    *(u32*)(lbl_803FB380 + 0xC) = arg0;
-    *(u16*)(lbl_803FB380 + 0x18) = 0;
-    *(u32*)(lbl_803FB380 + 0x10) = arg1;
-    *(u32*)(lbl_803FB380 + 0x14) = arg2;
-    *(s32*)(lbl_803FB380 + 0x4) = -1;
-    menuPokemonStatusOpen(lbl_803FB380[0], *(u32*)(lbl_803FB380 + 0x8), *(u32*)(lbl_803FB380 + 0xC),
-                *(u16*)(lbl_803FB380 + 0x18), *(u32*)(lbl_803FB380 + 0x10), *(u32*)(lbl_803FB380 + 0x14));
-    return *(s32*)(lbl_803FB380 + 0x4);
+    ((Work803FB380*)lbl_803FB380)->field_0 = 0x8e;
+    ((Work803FB380*)lbl_803FB380)->field_8 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_C = arg0;
+    ((Work803FB380*)lbl_803FB380)->field_18 = 0;
+    ((Work803FB380*)lbl_803FB380)->field_10 = arg1;
+    ((Work803FB380*)lbl_803FB380)->field_14 = arg2;
+    ((Work803FB380*)lbl_803FB380)->field_4 = -1;
+    menuPokemonStatusOpen(lbl_803FB380[0], ((Work803FB380*)lbl_803FB380)->field_8, ((Work803FB380*)lbl_803FB380)->field_C,
+                ((Work803FB380*)lbl_803FB380)->field_18, ((Work803FB380*)lbl_803FB380)->field_10, ((Work803FB380*)lbl_803FB380)->field_14);
+    return ((Work803FB380*)lbl_803FB380)->field_4;
 }
 
 /* 0x80097FCC | size: 0x4 */
