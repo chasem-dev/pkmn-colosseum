@@ -139,6 +139,7 @@
 
 #include "dolphin/types.h"
 #include "game/effect/gs_effect.h"
+#include "game/effect/effect_work.h"
 
 /* ===== GS model / material / texture / vector helpers (their definitions' signatures) ===== */
 struct GSmodel;
@@ -2168,9 +2169,9 @@ asm u32 fn_8013AB34(void* ptr) {
 u32 filterIsHolding(void* ptr) {
     void* inner;
     u32 val;
-    inner = *(void**)((u8*)ptr + 0x54);
+    inner = ((FilterWork*)ptr)->current;
     if (inner) {
-        val = *(u32*)((u8*)inner + 0x8);
+        val = ((FilterKey*)inner)->frames;
         if (val == 0xFFFFFFFF) {
             return 1;
         }
@@ -2201,7 +2202,7 @@ u32 filterAddKey(void* ptr, u8* src, u8* dst, u32 alpha) {
     handle = _toolentryAlloc__FUl(0x14);
     if (handle != 0) {
         node = GSmemLock(handle);
-        *(u16*)(node + 0xC) = handle;
+        ((FilterKey*)node)->handle = handle;
         if (alpha == 0xFFFFFFFF) {
             start = src[0];
             end = dst[0];
@@ -2229,17 +2230,17 @@ u32 filterAddKey(void* ptr, u8* src, u8* dst, u32 alpha) {
             node[6] = dst[2];
             node[7] = dst[3];
         }
-        *(u32*)(node + 0x8) = alpha;
-        tail = *(u8**)(p + 0x50);
+        ((FilterKey*)node)->frames = alpha;
+        tail = ((FilterWork*)p)->keys;
         if (tail != NULL) {
-            while (*(void**)(tail + 0x10) != NULL) {
-                tail = *(u8**)(tail + 0x10);
+            while (((FilterKey*)tail)->next != NULL) {
+                tail = ((FilterKey*)tail)->next;
             }
-            *(void**)(tail + 0x10) = node;
+            ((FilterKey*)tail)->next = node;
         } else {
-            *(void**)(p + 0x50) = node;
+            ((FilterWork*)p)->keys = node;
         }
-        *(void**)(node + 0x10) = NULL;
+        ((FilterKey*)node)->next = NULL;
     }
     return 0;
 }
@@ -2256,10 +2257,10 @@ asm u32 fn_8013AD68(void* ptr) {
 u32 _filterNextKey(void* ptr) {
     void* ptr2;
     if (ptr) {
-        ptr2 = *(void**)((u8*)ptr + 0x54);
+        ptr2 = ((FilterWork*)ptr)->current;
         if (ptr2) {
-            *(void**)((u8*)ptr + 0x54) = *(void**)((u8*)ptr2 + 0x10);
-            *(u32*)((u8*)ptr + 0x58) = 0;
+            ((FilterWork*)ptr)->current = ((FilterKey*)ptr2)->next;
+            ((FilterWork*)ptr)->elapsed = 0;
             return 1;
         }
     }
@@ -2289,21 +2290,21 @@ u32 _filterUpdate(void* ptr, u32 delta) {
     }
 
     p = ptr;
-    node = *(u8**)(p + 0x54);
+    node = ((FilterWork*)p)->current;
     if (node == NULL) {
         goto done;
     }
 
-    if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-        *(u32*)(p + 0x58) = 0;
+    if (((FilterKey*)node)->frames == 0xFFFFFFFF) {
+        ((FilterWork*)p)->elapsed = 0;
     }
-    while (*(u32*)(p + 0x58) >= *(u32*)(node + 0x8)) {
-        *(u32*)(p + 0x58) -= *(u32*)(node + 0x8);
+    while (((FilterWork*)p)->elapsed >= ((FilterKey*)node)->frames) {
+        ((FilterWork*)p)->elapsed -= ((FilterKey*)node)->frames;
         previous = node;
-        node = *(u8**)(node + 0x10);
-        *(void**)(p + 0x54) = node;
+        node = ((FilterKey*)node)->next;
+        ((FilterWork*)p)->current = node;
         if (node == NULL) {
-            if (*(u8*)(p + 0x4C) != 0) {
+            if (((FilterWork*)p)->perMaterial != 0) {
                 _filterApplyColor(p, previous + 4);
             } else {
                 filter = *(void**)p;
@@ -2313,13 +2314,13 @@ u32 _filterUpdate(void* ptr, u32 delta) {
             }
             return 0;
         }
-        if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-            *(u32*)(p + 0x58) = 0;
+        if (((FilterKey*)node)->frames == 0xFFFFFFFF) {
+            ((FilterWork*)p)->elapsed = 0;
             break;
         }
     }
 
-    ratio = (f32)*(u32*)(p + 0x58) / (f32)*(u32*)(node + 0x8);
+    ratio = (f32)((FilterWork*)p)->elapsed / (f32)((FilterKey*)node)->frames;
     if (ratio < 0.0f) {
         ratio = 0.0f;
     }
@@ -2340,7 +2341,7 @@ u32 _filterUpdate(void* ptr, u32 delta) {
     end = node[7];
     color[3] = start + ratio * (end - start);
 
-    if (*(u8*)(p + 0x4C) != 0) {
+    if (((FilterWork*)p)->perMaterial != 0) {
         _filterApplyColor(p, color);
     } else {
         filter = *(void**)p;
@@ -2350,7 +2351,7 @@ u32 _filterUpdate(void* ptr, u32 delta) {
             return 0;
         }
     }
-    *(u32*)(p + 0x58) += delta;
+    ((FilterWork*)p)->elapsed += delta;
     return 1;
 
 done:
@@ -2370,10 +2371,10 @@ u32 _filterDestroy(void* ptr) {
     u32 val;
     u32 ret;
     if (ptr) {
-        ptr = *(void**)((u8*)ptr + 0x50);
+        ptr = ((FilterWork*)ptr)->keys;
         while (ptr != NULL) {
-            val = *(u16*)((u8*)ptr + 0xc);
-            next = *(void**)((u8*)ptr + 0x10);
+            val = ((FilterKey*)ptr)->handle;
+            next = ((FilterKey*)ptr)->next;
             fn_800E24B0(val);
             GSmemFree(val);
             ptr = next;
@@ -2403,11 +2404,11 @@ u32 _filterStop(void* ptr) {
         goto fail;
     }
 
-    if (*(u8*)((u8*)ptr + 0x4c) != 0) {
+    if (((FilterWork*)ptr)->perMaterial != 0) {
         p = (u8*)ptr + 4;
-        count = *(u32*)((u8*)ptr + 0x48) & 0xffff;
-        flag1 = *(u8*)((u8*)ptr + 0x4e);
-        flag2 = *(u8*)((u8*)ptr + 0x4f);
+        count = ((FilterWork*)ptr)->materialCount & 0xffff;
+        flag1 = ((FilterWork*)ptr)->resetPE;
+        flag2 = ((FilterWork*)ptr)->keepModulation;
         GXDrawDone();
         GXInvalidateVtxCache();
         for (i = 0; i < count; i++, p += 4) {
@@ -2454,23 +2455,23 @@ u16 filterStart(void* arg) {
         goto report_null;
     }
 
-    arg = *(void**)((u8*)ptr + 0x50);
+    arg = ((FilterWork*)ptr)->keys;
     if (arg == NULL) {
         return 0;
     }
 
-    if (*(u8*)((u8*)ptr + 0x4c) != 0) {
+    if (((FilterWork*)ptr)->perMaterial != 0) {
         p = (u8*)ptr + 4;
-        count = *(u32*)((u8*)ptr + 0x48) & 0xffff;
-        flag1 = *(u8*)((u8*)ptr + 0x4e);
-        flag2 = *(u8*)((u8*)ptr + 0x4f);
+        count = ((FilterWork*)ptr)->materialCount & 0xffff;
+        flag1 = ((FilterWork*)ptr)->resetPE;
+        flag2 = ((FilterWork*)ptr)->keepModulation;
         for (i = 0; i < count; i++, p += 4) {
             if (*(void**)p != NULL) {
                 if (flag1 != 0) {
                     GSmodelSetPEdescr(*(void**)p, lbl_80363CA8);
                 }
                 if (flag2 == 0) {
-                    GSmodelEnableModulation(*(void**)p, *(void**)((u8*)ptr + 0x50));
+                    GSmodelEnableModulation(*(void**)p, ((FilterWork*)ptr)->keys);
                 }
             }
         }
@@ -2482,8 +2483,8 @@ u16 filterStart(void* arg) {
         }
     }
 
-    *(void**)((u8*)ptr + 0x54) = *(void**)((u8*)ptr + 0x50);
-    *(u32*)((u8*)ptr + 0x58) = 0;
+    ((FilterWork*)ptr)->current = ((FilterWork*)ptr)->keys;
+    ((FilterWork*)ptr)->elapsed = 0;
     return 1;
 
 report_null:
@@ -2531,9 +2532,9 @@ void _filterApplyColor(void* ptr, u8* color) {
     u8 adjusted[4];
 
     p = ptr;
-    count = (u16)*(u32*)(p + 0x48);
+    count = (u16)((FilterWork*)p)->materialCount;
     textures = (void**)(p + 0x4);
-    useBaseColor = *(u8*)(p + 0x4F);
+    useBaseColor = ((FilterWork*)p)->keepModulation;
     if (useBaseColor != 0) {
         baseColor = p + 0x44;
     }
@@ -3961,20 +3962,20 @@ u32 envMapAddKey(void* ptr, u32 val, f32 f1, f32 f2) {
     handle = _toolentryAlloc__FUl(0x14);
     if (handle) {
         node = GSmemLock(handle);
-        *(u16*)((u8*)node + 0xc) = handle;
-        *(f32*)((u8*)node + 0x0) = f1;
-        *(f32*)((u8*)node + 0x4) = f2;
-        *(u32*)((u8*)node + 0x8) = val;
-        cur = *(void**)((u8*)ptr + 0xc);
+        ((EffectValueKey*)node)->handle = handle;
+        ((EffectValueKey*)node)->start = f1;
+        ((EffectValueKey*)node)->end = f2;
+        ((EffectValueKey*)node)->frames = val;
+        cur = ((EnvMapWork*)ptr)->keys;
         if (cur != NULL) {
-            while (*(void**)((u8*)cur + 0x10) != NULL) {
-                cur = *(void**)((u8*)cur + 0x10);
+            while (((EffectValueKey*)cur)->next != NULL) {
+                cur = ((EffectValueKey*)cur)->next;
             }
-            *(void**)((u8*)cur + 0x10) = node;
+            ((EffectValueKey*)cur)->next = node;
         } else {
-            *(void**)((u8*)ptr + 0xc) = node;
+            ((EnvMapWork*)ptr)->keys = node;
         }
-        *(void**)((u8*)node + 0x10) = NULL;
+        ((EffectValueKey*)node)->next = NULL;
     }
     return 0;
 }
@@ -4012,7 +4013,7 @@ u32 _envMapDestroy(void* ptr) {
     u32 val;
     u32 ret;
     if (ptr) {
-        next = *(void**)((u8*)ptr + 0xc);
+        next = ((EnvMapWork*)ptr)->keys;
         if (lbl_8047AEE0 != 0) {
             lbl_8047AEE4 -= 1;
             if (lbl_8047AEE4 == 0) {
@@ -4022,8 +4023,8 @@ u32 _envMapDestroy(void* ptr) {
             }
         }
         while (next != NULL) {
-            val = *(u16*)((u8*)next + 0xc);
-            next = *(void**)((u8*)next + 0x10);
+            val = ((EffectValueKey*)next)->handle;
+            next = ((EffectValueKey*)next)->next;
             fn_800E24B0(val);
             GSmemFree(val);
         }
@@ -4069,7 +4070,7 @@ u32 envMapEffectInit(void* ptr) {
             lbl_8047AEE0 = (u32)GStextureCreate(*(u16*)(lbl_80466BC0 + 4), *(u16*)(lbl_80466BC0 + 6), 0x44, 0, 0);
             if (lbl_8047AEE0 == 0) {
                 if (ptr) {
-                    ptr = *(void**)((u8*)ptr + 0xc);
+                    ptr = ((EnvMapWork*)ptr)->keys;
                     if (lbl_8047AEE0 != 0) {
                         lbl_8047AEE4 -= 1;
                         if (lbl_8047AEE4 == 0) {
@@ -4079,8 +4080,8 @@ u32 envMapEffectInit(void* ptr) {
                         }
                     }
                     while (ptr != NULL) {
-                        val = *(u16*)((u8*)ptr + 0xc);
-                        ptr = *(void**)((u8*)ptr + 0x10);
+                        val = ((EffectValueKey*)ptr)->handle;
+                        ptr = ((EffectValueKey*)ptr)->next;
                         fn_800E24B0(val);
                         GSmemFree(val);
                     }
@@ -4105,13 +4106,13 @@ asm u32 envMapEffectStart(void* ptr) {
 u32 envMapEffectStart(void* ptr) {
     void* inner;
     if (ptr) {
-        *(void**)((u8*)ptr + 0x10) = *(void**)((u8*)ptr + 0xc);
-        *(u32*)((u8*)ptr + 0x14) = 0;
+        ((EnvMapWork*)ptr)->current = ((EnvMapWork*)ptr)->keys;
+        ((EnvMapWork*)ptr)->elapsed = 0;
         inner = *(void**)ptr;
         if (inner == NULL) { goto log; }
         if (lbl_8047AEE0 == 0) { goto log; }
-        GSmodelEnableEnvMap(inner, *(void**)((u8*)ptr + 0x4), *(void**)((u8*)ptr + 0x8),
-                    (void*)lbl_8047AEE0, *(f32*)*(void**)((u8*)ptr + 0x10));
+        GSmodelEnableEnvMap(inner, ((EnvMapWork*)ptr)->texture, ((EnvMapWork*)ptr)->matrix,
+                    (void*)lbl_8047AEE0, *(f32*)((EnvMapWork*)ptr)->current);
         return 1;
     }
 log:
@@ -4144,27 +4145,27 @@ u32 _envMapUpdate(void* ptr, u32 delta) {
 
     if (ptr != NULL) {
         p = ptr;
-        node = *(u8**)(p + 0x10);
+        node = ((EnvMapWork*)p)->current;
         if (node != NULL) {
-            if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-                *(u32*)(p + 0x14) = 0;
+            if (((EffectValueKey*)node)->frames == 0xFFFFFFFF) {
+                ((EnvMapWork*)p)->elapsed = 0;
             }
-            while (*(u32*)(p + 0x14) >= *(u32*)(node + 0x8)) {
-                *(u32*)(p + 0x14) -= *(u32*)(node + 0x8);
-                node = *(u8**)(node + 0x10);
-                *(void**)(p + 0x10) = node;
+            while (((EnvMapWork*)p)->elapsed >= ((EffectValueKey*)node)->frames) {
+                ((EnvMapWork*)p)->elapsed -= ((EffectValueKey*)node)->frames;
+                node = ((EffectValueKey*)node)->next;
+                ((EnvMapWork*)p)->current = node;
                 if (node == NULL) {
                     return 0;
                 }
-                if (*(u32*)(node + 0x8) == 0xFFFFFFFF) {
-                    *(u32*)(p + 0x14) = 0;
+                if (((EffectValueKey*)node)->frames == 0xFFFFFFFF) {
+                    ((EnvMapWork*)p)->elapsed = 0;
                     break;
                 }
             }
 
             blend = *(f32*)node +
-                    ((f32)*(u32*)(p + 0x14) / (f32)*(u32*)(node + 0x8)) *
-                        (*(f32*)(node + 0x4) - *(f32*)node);
+                    ((f32)((EnvMapWork*)p)->elapsed / (f32)((EffectValueKey*)node)->frames) *
+                        (((EffectValueKey*)node)->end - *(f32*)node);
             model = *(void**)p;
             if (lbl_8047AEE0 != 0 && model != NULL) {
                 modelCount = fn_800E3B3C();
@@ -4186,12 +4187,12 @@ u32 _envMapUpdate(void* ptr, u32 delta) {
             }
 
             if (!GSmodelIsEnvMapEnabled(*(void**)p)) {
-                GSmodelEnableEnvMap(*(void**)p, *(void**)(p + 0x4), *(void**)(p + 0x8),
+                GSmodelEnableEnvMap(*(void**)p, ((EnvMapWork*)p)->texture, ((EnvMapWork*)p)->matrix,
                                     (void*)lbl_8047AEE0, blend);
             } else {
                 GSmodelSetEnvMapBlendValue(*(void**)p, blend);
             }
-            *(u32*)(p + 0x14) += delta;
+            ((EnvMapWork*)p)->elapsed += delta;
             return 1;
         }
     }
@@ -4214,20 +4215,20 @@ u32 blurAddKey(void* ptr, u32 val, f32 f1, f32 f2) {
     handle = _toolentryAlloc__FUl(0x14);
     if (handle) {
         node = GSmemLock(handle);
-        *(u16*)((u8*)node + 0xc) = handle;
-        *(f32*)((u8*)node + 0x0) = f1;
-        *(f32*)((u8*)node + 0x4) = f2;
-        *(u32*)((u8*)node + 0x8) = val;
-        cur = *(void**)((u8*)ptr + 0x14);
+        ((EffectValueKey*)node)->handle = handle;
+        ((EffectValueKey*)node)->start = f1;
+        ((EffectValueKey*)node)->end = f2;
+        ((EffectValueKey*)node)->frames = val;
+        cur = ((BlurWork*)ptr)->keys;
         if (cur != NULL) {
-            while (*(void**)((u8*)cur + 0x10) != NULL) {
-                cur = *(void**)((u8*)cur + 0x10);
+            while (((EffectValueKey*)cur)->next != NULL) {
+                cur = ((EffectValueKey*)cur)->next;
             }
-            *(void**)((u8*)cur + 0x10) = node;
+            ((EffectValueKey*)cur)->next = node;
         } else {
-            *(void**)((u8*)ptr + 0x14) = node;
+            ((BlurWork*)ptr)->keys = node;
         }
-        *(void**)((u8*)node + 0x10) = NULL;
+        ((EffectValueKey*)node)->next = NULL;
     }
     return 0;
 }
@@ -4262,15 +4263,15 @@ u32 _blurDestroy(void* ptr) {
     void* node;
     u16 val;
     if (ptr) {
-        node = *(void**)((u8*)ptr + 0x14);
-        if (*(void**)((u8*)ptr + 0xc) != NULL) {
+        node = ((BlurWork*)ptr)->keys;
+        if (((BlurWork*)ptr)->texture != NULL) {
             GXDrawDone();
             GXInvalidateVtxCache();
-            GStextureFree(*(void**)((u8*)ptr + 0xc));
+            GStextureFree(((BlurWork*)ptr)->texture);
         }
         while (node) {
-            val = *(u16*)((u8*)node + 0xc);
-            node = *(void**)((u8*)node + 0x10);
+            val = ((EffectValueKey*)node)->handle;
+            node = ((EffectValueKey*)node)->next;
             fn_800E24B0(val);
             GSmemFree(val);
         }
@@ -4285,9 +4286,9 @@ asm u32 fn_8013DD10(void* ptr) {
 #else
 u32 _blurInit(void* ptr) {
     if (ptr) {
-        if (*(s32*)((u8*)ptr + 0x10) != 0) {
-            *(void**)((u8*)ptr + 0xc) = GStextureCreate(0, 0, 0x44, 0, 0);
-            if (*(void**)((u8*)ptr + 0xc) == NULL) {
+        if (((BlurWork*)ptr)->capture != 0) {
+            ((BlurWork*)ptr)->texture = GStextureCreate(0, 0, 0x44, 0, 0);
+            if (((BlurWork*)ptr)->texture == NULL) {
                 return 0;
             }
         }
@@ -4305,8 +4306,8 @@ asm u32 fn_8013DD7C(void* ptr) {
 u32 _blurStop(void* ptr) {
     void* inner;
     if (ptr) {
-        if (*(s32*)((u8*)ptr + 0x10) != 0) {
-            GSgfxEndBackFBCapture(*(void**)((u8*)ptr + 0xc));
+        if (((BlurWork*)ptr)->capture != 0) {
+            GSgfxEndBackFBCapture(((BlurWork*)ptr)->texture);
         } else {
             inner = *(void**)ptr;
             if (inner) {
@@ -4328,15 +4329,15 @@ asm u16 blurEffectStart(void) {
 u32 blurEffectStart(void* ptr) {
     if (ptr) {
         *(u32*)((u8*)ptr + 0x18) = *(u32*)((u8*)ptr + 0x14);
-        *(u32*)((u8*)ptr + 0x1c) = 0;
-        if (*(s32*)((u8*)ptr + 0x10) != 0) {
-            if (*(void**)((u8*)ptr + 0xc) != NULL) {
-                GSgfxBeginBackFBCapture(*(void**)((u8*)ptr + 0xc), (void*)_blurDrawCapture, ptr);
+        ((BlurWork*)ptr)->elapsed = 0;
+        if (((BlurWork*)ptr)->capture != 0) {
+            if (((BlurWork*)ptr)->texture != NULL) {
+                GSgfxBeginBackFBCapture(((BlurWork*)ptr)->texture, (void*)_blurDrawCapture, ptr);
                 return 1;
             }
         } else {
             if (*(void**)ptr != NULL) {
-                *(void**)((u8*)ptr + 0x4) = GSmodelBlurCreateWork(*(void**)ptr, (u8*)ptr + 0x8);
+                ((BlurWork*)ptr)->materials = GSmodelBlurCreateWork(*(void**)ptr, (u8*)ptr + 0x8);
                 return 1;
             }
         }
@@ -4397,18 +4398,18 @@ u32 _blurRender(void* ptr) {
 
     if (ptr != NULL) {
         model = *(void**)p;
-        timing = *(u8**)(p + 0x18);
-        materialCount = *(s32*)(p + 8);
-        if (*(s32*)(p + 0x10) != 0 || model == NULL) {
+        timing = ((BlurWork*)p)->current;
+        materialCount = ((BlurWork*)p)->materialCount;
+        if (((BlurWork*)p)->capture != 0 || model == NULL) {
             return 1;
         }
         if (GSmodelIsAnimating(model) == 0) {
             return 1;
         }
 
-        frame = *(u32*)(p + 0x1C);
-        blend = (f32)frame / (f32)*(u32*)(timing + 8);
-        blend = blend * (*(f32*)(timing + 4) - *(f32*)timing) + *(f32*)timing;
+        frame = ((BlurWork*)p)->elapsed;
+        blend = (f32)frame / (f32)((EffectValueKey*)timing)->frames;
+        blend = blend * (((EffectValueKey*)timing)->end - *(f32*)timing) + *(f32*)timing;
         switch (fn_800D3068()) {
         case 1:
             copies = 60.0f * blend + 0.5f;
@@ -4463,7 +4464,7 @@ u32 _blurRender(void* ptr) {
             fn_800EC134(model);
             startFrame += animRate;
             alpha = 0.5f * (alpha * alpha);
-            materials = *(void***)(p + 4);
+            materials = ((BlurWork*)p)->materials;
             for (i = 0; i < materialCount; i++, materials++) {
                 if (*materials != NULL) {
                     GSmaterialSetAlpha(*materials, alpha);
@@ -4472,7 +4473,7 @@ u32 _blurRender(void* ptr) {
             GSmodelDrawModel(model, 0x3010);
         }
 
-        materials = *(void***)(p + 4);
+        materials = ((BlurWork*)p)->materials;
         for (i = 0; i < materialCount; i++, materials++) {
             if (*materials != NULL) {
                 GSmaterialResetAlpha(*materials);
@@ -4574,19 +4575,19 @@ u32 _blurUpdate(void* ptr, u32 delta) {
     if (ptr == NULL) {
         goto ret0;
     }
-    node = *(void**)((u8*)ptr + 0x18);
+    node = ((BlurWork*)ptr)->current;
     if (node == NULL) {
         goto ret0;
     }
-    while (*(u32*)((u8*)ptr + 0x1c) >= *(u32*)((u8*)node + 0x8)) {
-        *(u32*)((u8*)ptr + 0x1c) -= *(u32*)((u8*)node + 0x8);
-        node = *(void**)((u8*)node + 0x10);
-        *(void**)((u8*)ptr + 0x18) = node;
+    while (((BlurWork*)ptr)->elapsed >= ((EffectValueKey*)node)->frames) {
+        ((BlurWork*)ptr)->elapsed -= ((EffectValueKey*)node)->frames;
+        node = ((EffectValueKey*)node)->next;
+        ((BlurWork*)ptr)->current = node;
         if (node == NULL) {
             return 0;
         }
     }
-    *(u32*)((u8*)ptr + 0x1c) += delta;
+    ((BlurWork*)ptr)->elapsed += delta;
     return 1;
 ret0:
     return 0;
